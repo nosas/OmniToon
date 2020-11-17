@@ -3,6 +3,7 @@ from Cog import Cog
 from Gag import Gag
 
 
+
 class Toon(Entity):
     def __init__(self, name, health):
         """
@@ -18,4 +19,3 @@ class Toon(Entity):
     def do_attack(self, target: Cog, gag: Gag) -> None:
         # TODO : Return 1 if hit, 0 if miss?
         super().do_attack(target=target, amount=gag.damage)
-
