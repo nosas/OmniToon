@@ -116,7 +116,7 @@ def pick_cog_attack(attacks, suitLevel):
         index = index + 1
 
     # configAttackName = config.GetString('attack-type', 'random')
-    configAttackName = 'random'
+    configAttackName = 'random'  # ! What is this? Where is that config?
     if configAttackName == 'random':
         return attackNum
     elif configAttackName == 'sequence':
