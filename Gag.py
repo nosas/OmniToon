@@ -13,64 +13,6 @@ BattleGlobalAvPropStrings = (
  ('Flower Pot', 'Sandbag', 'Anvil', 'Big Weight', 'Safe', 'Grand Piano', 'Toontanic')
  )
 
-# CARRY_LIMITS = (
-#   ( # Toon-Up
-#     (10, 0, 0, 0, 0, 0, 0),
-#     (10, 5, 0, 0, 0, 0, 0),
-#     (15, 10, 5, 0, 0, 0, 0),
-#     (20, 15, 10, 5, 0, 0, 0),
-#     (25, 20, 15, 10, 3, 0, 0),
-#     (30, 25, 20, 15, 7, 3, 0),
-#     (30, 25, 20, 15, 7, 3, 1)),
-#   ( # Trap
-#     (5, 0, 0, 0, 0, 0, 0),
-#     (7, 3, 0, 0, 0, 0, 0),
-#     (10, 7, 3, 0, 0, 0, 0),
-#     (15, 10, 7, 3, 0, 0, 0),
-#     (15, 15, 10, 5, 3, 0, 0),
-#     (20, 15, 15, 10, 5, 2, 0),
-#     (20, 15, 15, 10, 5, 2, 1)),
-#   ( # Lure
-#     (10, 0, 0, 0, 0, 0, 0),
-#     (10, 5, 0, 0, 0, 0, 0),
-#     (15, 10, 5, 0, 0, 0, 0),
-#     (20, 15, 10, 5, 0, 0, 0),
-#     (25, 20, 15, 10, 3, 0, 0),
-#     (30, 25, 20, 15, 7, 3, 0),
-#     (30, 25, 20, 15, 7, 3, 1)),
-#   ( # Sound
-#     (10, 0, 0, 0, 0, 0, 0),
-#     (10, 5, 0, 0, 0, 0, 0),
-#     (15, 10, 5, 0, 0, 0, 0),
-#     (20, 15, 10, 5, 0, 0, 0),
-#     (25, 20, 15, 10, 3, 0, 0),
-#     (30, 25, 20, 15, 7, 3, 0),
-#     (30, 25, 20, 15, 7, 3, 1)),
-#   ( # Throw
-#     (10, 0, 0, 0, 0, 0, 0),
-#     (10, 5, 0, 0, 0, 0, 0),
-#     (15, 10, 5, 0, 0, 0, 0),
-#     (20, 15, 10, 5, 0, 0, 0),
-#     (25, 20, 15, 10, 3, 0, 0),
-#     (30, 25, 20, 15, 7, 3, 0),
-#     (30, 25, 20, 15, 7, 3, 1)),
-#   ( # Squirt
-#     (10, 0, 0, 0, 0, 0, 0),
-#     (10, 5, 0, 0, 0, 0, 0),
-#     (15, 10, 5, 0, 0, 0, 0),
-#     (20, 15, 10, 5, 0, 0, 0),
-#     (25, 20, 15, 10, 3, 0, 0),
-#     (30, 25, 20, 15, 7, 3, 0),
-#     (30, 25, 20, 15, 7, 3, 1)),
-#   ( # Drop
-#     (10, 0, 0, 0, 0, 0, 0),
-#     (10, 5, 0, 0, 0, 0, 0),
-#     (15, 10, 5, 0, 0, 0, 0),
-#     (20, 15, 10, 5, 0, 0, 0),
-#     (25, 20, 15, 10, 3, 0, 0),
-#     (30, 25, 20, 15, 7, 3, 0),
-#     (30, 25, 20, 15, 7, 3, 1))
-# )
 """  # noqa
 
 
@@ -93,7 +35,6 @@ class Gag(GagType):
         :param int capacity_current: Current number of gags available
         :param int xp_needed: XP needed to advance to use this gag
         :param int xp_provided: XP provided after attacking with this gag
-        :param int base_damage: Base damage dealt by gag
         :param int min_cog_level: Minimum cog level required to receive XP
         """
         super().__init__(gtype=gtype)
@@ -103,5 +44,3 @@ class Gag(GagType):
         self.capacity_current = capacity_current
         # Maximum number of carryable gags of this level
         self.capacity_maximum = 5 + (5*(highest_level-level))
-        self.min_damage = min_damage
-        self.max_damage = max_damage

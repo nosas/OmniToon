@@ -1,3 +1,4 @@
+# %%
 class Entity:
     def __init__(self, name, hp):
         self.name = name
@@ -15,4 +16,6 @@ class Entity:
         return self.name
 
     def is_dead(self):
-        return self.hp > 0
+        return self.hp <= 0
+
+# %%

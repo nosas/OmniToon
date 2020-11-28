@@ -1,3 +1,4 @@
+# %%
 # Originals:
 # * https://github.com/forest2001/Toontown-Rewritten/blob/master/toontown/toonbase/TTLocalizerEnglish.py  # noqa
 # * https://github.com/forest2001/Toontown-Rewritten/blob/master/toontown/toonbase/ToontownBattleGlobals.py  # noqa
@@ -41,14 +42,14 @@ ATK_TGT_UNKNOWN = 1
 ATK_TGT_SINGLE = 2
 ATK_TGT_GROUP = 3
 COG_ATTACKS = {
-    'ClipOnTie': ('throw-paper', ATK_TGT_SINGLE),
     'PoundKey': ('phone', ATK_TGT_SINGLE),
-    'Shred': ('shredder', ATK_TGT_SINGLE)
+    'Shred': ('shredder', ATK_TGT_SINGLE),
+    'ClipOnTie': ('throw-paper', ATK_TGT_SINGLE)
 }
 # Cog attack indexes
-CLIPON_TIE = COG_ATTACKS.keys().index('ClipOnTie')
-POUND_KEY = COG_ATTACKS.keys().index('PoundKey')
-SHRED = COG_ATTACKS.keys().index('Shred')
+CLIPON_TIE = list(COG_ATTACKS.keys()).index('ClipOnTie')
+POUND_KEY = list(COG_ATTACKS.keys()).index('PoundKey')
+SHRED = list(COG_ATTACKS.keys()).index('Shred')
 
 
 def pickFromFreqList(freqList):
@@ -135,20 +136,22 @@ def pick_cog_attack(attacks, suitLevel):
     return
 
 
-def getSuitAttack(suitName, suitLevel, attackNum=-1):
+def get_cog_attack(suitName, suitLevel, attackNum=-1):
     attackChoices = COG_ATTRIBUTES[suitName]['attacks']
     if attackNum == -1:
-        # notify.debug('getSuitAttack: picking attacking for %s' % suitName)
+        # notify.debug('get_cog_attack: picking attacking for %s' % suitName)
         attackNum = pick_cog_attack(attackChoices, suitLevel)
     attack = attackChoices[attackNum]
     adict = {}
     adict['suitName'] = suitName
     name = attack[0]
     adict['name'] = name
-    adict['id'] = COG_ATTACKS.keys().index(name)
+    adict['id'] = list(COG_ATTACKS.keys()).index(name)
     adict['animName'] = COG_ATTACKS[name][0]
     adict['hp'] = attack[1][suitLevel]
     adict['acc'] = attack[2][suitLevel]
     adict['freq'] = attack[3][suitLevel]
     adict['group'] = COG_ATTACKS[name][1]
     return adict
+
+# %%

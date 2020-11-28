@@ -14,6 +14,8 @@ DROP_TRACK = 6
 REG_MAX_SKILL = 10000  # Max gag EXP
 UBER_SKILL = 500       # EXP required to unlock final gag
 MAX_SKILL = UBER_SKILL + REG_MAX_SKILL
+GAG_TRACK_LABELS = ["Toon-Up", "Trap", "Lure", "Sound",
+                    "Throw", "Squirt", "Drop"]
 
 # Experience points needed to unlock the gag at the indexed position
 LEVELS = [[0, 20, 200, 800, 2000, 6000, 10000],    # Toon-Up
@@ -131,8 +133,7 @@ def get_gag_damage(gag_track, gag_level, exp):
     """Return Gag damage based on Gag level and exp
 
     Args:
-        gag_track f the Gag track
-(int): Index of Gag track
+        gag_track (int): Index of Gag track
         gag_level (int): Level of the Gag track
         exp (int): Current EXP o
     Returns:
@@ -195,11 +196,10 @@ carry_limits = get_gag_carry_limits(gag_track=gag_track, gag_level=gag_level)
 print(carry_limits)
 
 # %% Print carry limits, damage, and EXP of Astro's backpack
-gag_labels = ["Toon-Up", "Trap", "Lure", "Sound", "Throw", "Squirt", "Drop"]
 astro_levels = [5, 0, 6, 5, 5, 5, 2]
 astro_exp = [7421, 0, 10101, 9443, 8690, 6862, 191]
 
-for gag_track_index, label in enumerate(gag_labels):
+for gag_track_index, label in enumerate(GAG_TRACK_LABELS):
     gag_track = gag_track_index
     gag_level = astro_levels[gag_track_index]
 
@@ -233,4 +233,3 @@ for gag_track_index, label in enumerate(gag_labels):
             gag_track=gag_track_index, gag_level=gag_index, exp=exp
         )
         print(f"        DMG: {damage}, LIM: {gag_limit}")
-
