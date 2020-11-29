@@ -1,6 +1,6 @@
 # %%
-from Entity import Entity
-from CogGlobals import (
+from ttr_ai.Entity import Entity
+from ttr_ai.CogGlobals import (
     COG_ATTRIBUTES, get_cog_vitals, pick_cog_attack, get_cog_attack,
     CLIPON_TIE, POUND_KEY, SHRED
 )

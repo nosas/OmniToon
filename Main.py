@@ -1,11 +1,11 @@
 # %%
-from Toon import Toon
-from Cog import Cog
-from GagGlobals import (
+from ttr_ai.Toon import Toon
+from ttr_ai.Cog import Cog
+from ttr_ai.GagGlobals import (
     HEAL_TRACK, TRAP_TRACK, LURE_TRACK, SOUND_TRACK, THROW_TRACK, SQUIRT_TRACK,
     DROP_TRACK, get_gag_damage
 )
-from CogGlobals import (
+from ttr_ai.CogGlobals import (
     COG_ATTRIBUTES, get_cog_vitals, pick_cog_attack, get_cog_attack
 )
 

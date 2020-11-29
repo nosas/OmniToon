@@ -129,7 +129,15 @@ GAG_CARRY_LIMITS = (((10, 0, 0, 0, 0, 0, 0),      # Toon-up
                      (30, 25, 20, 15, 7, 3, 1)))
 
 
-def get_gag_damage(gag_track, gag_level, exp):
+def count_all_gags(gags: list) -> int:
+    count = 0
+    for gag_track in gags:
+        count += sum(gag_track)
+
+    return count
+
+
+def get_gag_damage(gag_track: int, gag_level: int, exp: int):
     """Return Gag damage based on Gag level and exp
 
     Args:

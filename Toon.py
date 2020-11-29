@@ -1,11 +1,13 @@
 # %% Import functions and classes
-from Entity import Entity
-from Cog import Cog
-from Gag import Gag
-from GagGlobals import (
-    LEVELS, get_gag_carry_limits, get_gag_damage
+from ttr_ai.Entity import Entity
+from ttr_ai.Cog import Cog
+from ttr_ai.Gag import Gag
+from ttr_ai.GagGlobals import (
+    LEVELS, GAG_TRACK_LABELS,
+    count_all_gags, get_gag_carry_limits, get_gag_damage
 )
 
+DEFAULT_HP = 15
 DEFAULT_LEVELS = [0, 0, 0, 0, 1, 1, 0]
 # DEFAULT_EXPS = [0, 0, 0, 0, 10, 10, 0]
 # Populate DEFAULT_EXP from Gag track levels in DEFAULT_LEVELS
@@ -24,8 +26,9 @@ DEFAULT_GAG_LIMIT = 20
 # ? AssertionErrors when? During initialization of attributes or separate func?
 # ? Should I use @property decorators again?
 class Toon(Entity):
-    def __init__(self, name, health, gags=DEFAULT_GAGS, gag_exps=DEFAULT_EXPS,
-                 gag_levels=DEFAULT_LEVELS, gag_limit=DEFAULT_GAG_LIMIT):
+    def __init__(self, name, health=DEFAULT_HP, gags=DEFAULT_GAGS,
+                 gag_exps=DEFAULT_EXPS, gag_levels=DEFAULT_LEVELS,
+                 gag_limit=DEFAULT_GAG_LIMIT):
         """Toon object class
 
         Args:
@@ -44,18 +47,28 @@ class Toon(Entity):
 
         # Verify total Gag count in `gags` doesn't exceed `gag_limit`
         # ! Raises AssertionError if Gag count exceeds `gag_limit`
-        if self.count_all_gags(gags) <= gag_limit:
-            self.gags = gags
+        self.gags = gags
+        if self.__count_all_gags() > gag_limit:
+            self.gags = DEFAULT_GAGS
 
         self.gag_levels = gag_levels
         self.gag_exps = gag_exps
 
-        # ? Possible States: Dead (0), Battle (1), Heal (2)
-        # self.state = None
+    def __count_all_gags(self):
+        count = count_all_gags(gags=self.gags)
+
+        assert count <= self.gag_limit, (
+            f"Gag quantity ({count}) exceeds Toon's ({self.name}) gag limit "
+            f"({gag_limit})."
+            )
+        return count
+
+    def count_gag(self, gag_track: int, gag: int) -> int:
+        return self.gags[gag_track][gag]
 
     def do_attack(self, target: Cog, gag: Gag) -> None:
-        # TODO : Return 1 if hit, 0 if miss?
-
+        # TODO : Return 1 if hit, 0 if miss? Must be done in Entity class
+        # Need to calculate Attack accuracy, wrong to assume attacks always hit
         super().do_attack(target=target, amount=gag.damage)
 
     def has_gag(self, gag_track: int, gag: int) -> bool:
@@ -66,23 +79,7 @@ class Toon(Entity):
         # Return True if the 2-D list is NOT empty, aka Toon has Gags
         # return self.gags != [[0]*7]*7
         # ! Raises AssertionError if Gag count exceeds `gag_limit`
-        return self.count_all_gags(gags=self.gags) != 0
-
-    # ? Do we want `count_all_gags` in Toon class method or GagGlobals.py func?
-    def count_all_gags(self, gags: list = DEFAULT_GAGS) -> int:
-        count = 0
-        for gag_track in gags:
-            for gag_quantity in gag_track:
-                count += gag_quantity
-
-        assert count <= gag_limit, (
-            f"Gag quantity ({count}) exceeds Toon's ({self.name}) gag limit "
-            f"({gag_limit})."
-            )
-        return count
-
-    def count_gag(self, gag_track: int, gag: int) -> int:
-        return self.gags[gag_track][gag]
+        return self.__count_all_gags() != 0
 
 
 name = "Astro"
@@ -101,7 +98,7 @@ my_toon = Toon(name=name, health=health, gags=gags, gag_limit=gag_limit,
                gag_levels=levels, gag_exps=exps)
 
 
-num_all_gags = my_toon.count_all_gags(my_toon.gags)
+num_all_gags = count_all_gags(my_toon.gags)
 print(f"Toon {name} has Gags? {my_toon.has_gags()} {num_all_gags}")
 
 has_gag = my_toon.has_gag(gag_track=0, gag=0)
