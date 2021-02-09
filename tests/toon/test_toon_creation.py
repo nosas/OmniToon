@@ -1,11 +1,10 @@
 import pytest
-from ttr_ai.Toon import (
+from ...Toon import (
     Toon, DEFAULT_HP, DEFAULT_LEVELS, DEFAULT_EXPS, DEFAULT_GAGS,
     DEFAULT_GAG_LIMIT
 )
-from ttr_ai.GagGlobals import (
-    GAG_TRACK_LABELS,
-    count_all_gags
+from ...GagGlobals import (
+    GAG_TRACK_LABELS, count_all_gags
 )
 
 
@@ -33,7 +32,6 @@ def toon_astro():
 @pytest.fixture
 def toon_default():
     return Toon(name="Mickey Mouse")
-
 
 
 class TestDefault:

@@ -1,11 +1,12 @@
 # %%
-from ttr_ai.Toon import Toon
-from ttr_ai.Cog import Cog
-from ttr_ai.GagGlobals import (
+# Python Imports how-to : https://stackoverflow.com/questions/14132789/relative-imports-for-the-billionth-time  # noqa
+from .Toon import Toon
+from .Cog import Cog
+from .GagGlobals import (
     HEAL_TRACK, TRAP_TRACK, LURE_TRACK, SOUND_TRACK, THROW_TRACK, SQUIRT_TRACK,
     DROP_TRACK, get_gag_damage
 )
-from ttr_ai.CogGlobals import (
+from .CogGlobals import (
     COG_ATTRIBUTES, get_cog_vitals, pick_cog_attack, get_cog_attack
 )
 

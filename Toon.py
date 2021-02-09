@@ -1,10 +1,9 @@
 # %% Import functions and classes
-from ttr_ai.Entity import Entity
-from ttr_ai.Cog import Cog
-from ttr_ai.Gag import Gag
-from ttr_ai.GagGlobals import (
-    LEVELS, GAG_TRACK_LABELS,
-    count_all_gags, get_gag_carry_limits, get_gag_damage
+from .Entity import Entity
+from .Cog import Cog
+from .Gag import Gag
+from .GagGlobals import (
+    LEVELS, count_all_gags
 )
 
 DEFAULT_HP = 15

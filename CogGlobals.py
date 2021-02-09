@@ -2,11 +2,13 @@
 # Originals:
 # * https://github.com/forest2001/Toontown-Rewritten/blob/master/toontown/toonbase/TTLocalizerEnglish.py  # noqa
 # * https://github.com/forest2001/Toontown-Rewritten/blob/master/toontown/toonbase/ToontownBattleGlobals.py  # noqa
+# * https://github.com/forest2001/Toontown-Rewritten/blob/master/toontown/battle/SuitBattleGlobals.py  # noqa
 # TODO: Create docstrings for all functions
 
 from random import randint
 
 debugAttackSequence = {}
+COG_HP = (6, 12, 20, 30, 42, 56, 72, 90, 110, 132, 156, 200)
 COG_ATTRIBUTES = {
     'f': {
         'name': 'Flunky',
@@ -15,8 +17,8 @@ COG_ATTRIBUTES = {
         # 'name': TTLocalizer.SuitFlunky
         # 'singularname': TTLocalizer.SuitFlunkyS,
         # 'pluralname': TTLocalizer.SuitFlunkyP,
-        'level': 0,
-        'hp': (6, 12, 20, 30, 42),
+        'level': 0,  # minimum Cog level
+        'hp': COG_HP[0:5],  # Cog levels range from 'level' to 'level'+5
         'def': (2, 5, 10, 12, 15),
         'freq': (50, 30, 10, 5, 5),
         'acc': (35, 40, 45, 50, 55),
@@ -67,19 +69,19 @@ def pickFromFreqList(freqList):
     return level
 
 
-def getActualFromRelativeLevel(name, relLevel):
-    data = COG_ATTRIBUTES[name]
-    actualLevel = data['level'] + relLevel
+def getActualFromRelativeLevel(cog_key, relative_level):
+    data = COG_ATTRIBUTES[cog_key]
+    actualLevel = data['level'] + relative_level + 1
     return actualLevel
 
 
-def get_cog_vitals(name, level=-1):
-    data = COG_ATTRIBUTES[name]
+def get_cog_vitals(cog_key, level=-1):
+    data = COG_ATTRIBUTES[cog_key]
     if level == -1:
         level = pickFromFreqList(data['freq'])
     dict = {}
-    dict['level'] = getActualFromRelativeLevel(name, level)
-    if dict['level'] == 11:
+    dict['level'] = getActualFromRelativeLevel(cog_key, level)
+    if dict['level'] == 11:  # ? why??
         level = 0
     dict['hp'] = data['hp'][level]
     dict['def'] = data['def'][level]
@@ -100,57 +102,80 @@ def get_cog_vitals(name, level=-1):
     return dict
 
 
-def pick_cog_attack(attacks, suitLevel):
-    attackNum = None
+def pick_cog_attack(attacks, cog_level):
+    attack_num = None
     randNum = randint(0, 99)
     count = 0
     index = 0
     total = 0
     for c in attacks:
-        total = total + c[3][suitLevel]
+        total = total + c[3][cog_level]
 
     for c in attacks:
-        count = count + c[3][suitLevel]
+        count = count + c[3][cog_level]
         if randNum < count:
-            attackNum = index
+            attack_num = index
             break
         index = index + 1
 
     # configAttackName = config.GetString('attack-type', 'random')
     configAttackName = 'random'  # ! What is this? Where is that config?
     if configAttackName == 'random':
-        return attackNum
+        return attack_num
     elif configAttackName == 'sequence':
         for i in range(len(attacks)):
             if attacks[i] not in debugAttackSequence:
                 debugAttackSequence[attacks[i]] = 1
                 return i
 
-        return attackNum
+        return attack_num
     else:
         for i in range(len(attacks)):
             if attacks[i][0] == configAttackName:
                 return i
 
-        return attackNum
+        return attack_num
     return
 
 
-def get_cog_attack(suitName, suitLevel, attackNum=-1):
-    attackChoices = COG_ATTRIBUTES[suitName]['attacks']
-    if attackNum == -1:
-        # notify.debug('get_cog_attack: picking attacking for %s' % suitName)
-        attackNum = pick_cog_attack(attackChoices, suitLevel)
-    attack = attackChoices[attackNum]
+def get_cog_attack(cog_key, cog_level, attack_num=-1):
+    """Return dictionary of Cog's attack given cog_attr name and cog_level
+
+    Args:
+        cog_key (str): Key value for COG_ATTRBIUTES of the Cog's name.
+                        e.g. 'f' for Flunky, 'p' for PencilPusher
+        cog_level (int): Level of the Cog
+        attack_num (int, optional): Defaults to -1, selects random attack.
+
+    Returns:
+        dict: Dictionary containing cog key, atk name/id/hp(dmg)/acc/freq etc.
+
+        Attack dictionary example of lvl 2 Flunky ::
+            {
+                'cog_key': 'f',
+                'name': 'PoundKey',
+                'id': 0,
+                'animName': 'phone',
+                'hp': 3,
+                'acc': 80,
+                'freq': 40,
+                'group': 2  # ATK_TGT_SINGLE=2, ATK_TGT_GROUP=3
+            }
+    """
+    attackChoices = COG_ATTRIBUTES[cog_key]['attacks']
+    if attack_num == -1:
+        # notify.debug('get_cog_attack: picking attacking for %s' % cog_key)
+        attack_num = pick_cog_attack(attackChoices, cog_level)
+    attack = attackChoices[attack_num]
     adict = {}
-    adict['suitName'] = suitName
+    adict['cog_key'] = cog_key
     name = attack[0]
     adict['name'] = name
     adict['id'] = list(COG_ATTACKS.keys()).index(name)
     adict['animName'] = COG_ATTACKS[name][0]
-    adict['hp'] = attack[1][suitLevel]
-    adict['acc'] = attack[2][suitLevel]
-    adict['freq'] = attack[3][suitLevel]
+    adict['hp'] = attack[1][cog_level]
+    adict['acc'] = attack[2][cog_level]
+    adict['freq'] = attack[3][cog_level]
     adict['group'] = COG_ATTACKS[name][1]
     return adict
 
