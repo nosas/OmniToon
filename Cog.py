@@ -7,7 +7,7 @@ from .CogGlobals import (
 
 
 class Cog(Entity):
-    def __init__(self, key, name, relative_level=-1):
+    def __init__(self, key, name, relative_level=0):
         self.key = key
         self.name = name
         self.vitals = get_cog_vitals(cog_key=key, level=relative_level)
@@ -15,5 +15,5 @@ class Cog(Entity):
         # ! Relative level should be in range [0,4]
         self.relative_level = relative_level
         self.level = getActualFromRelativeLevel(cog_key=key,
-                                                rel_lvl=relative_level)
+                                                relative_level=relative_level)
         super().__init__(name=self.name, hp=self.hp)
