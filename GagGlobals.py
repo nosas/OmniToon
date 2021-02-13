@@ -16,7 +16,29 @@ UBER_SKILL = 500       # EXP required to unlock final gag
 MAX_SKILL = UBER_SKILL + REG_MAX_SKILL
 GAG_TRACK_LABELS = ["Toon-Up", "Trap", "Lure", "Sound",
                     "Throw", "Squirt", "Drop"]
-
+GAG_LABELS = (
+    ('Feather', 'Megaphone', 'Lipstick',
+        'Bamboo Cane', 'Pixie Dust', 'Juggling Balls',
+        'High Dive'),  # Toon-up
+    ('Banana Peel', 'Rake', 'Marbles',
+        'Quicksand', 'Trapdoor', 'TNT',
+        'Railroad'),  # Trap
+    ('$1 bill', 'Small Magnet', '$5 bill',
+        'Big Magnet', '$10 bill', 'Hypno-goggles',
+        'Presentation'),  # Lure
+    ('Bike Horn', 'Whistle', 'Bugle',
+        'Aoogah', 'Elephant Trunk', 'Foghorn',
+        'Opera Singer'),  # Sound
+    ('Cupcake', 'Fruit Pie Slice', 'Cream Pie Slice',
+        'Whole Fruit Pie', 'Whole Cream Pie', 'Birthday Cake',
+        'Wedding Cake'),  # Throw
+    ('Squirting Flower', 'Glass of Water', 'Squirt Gun',
+        'Seltzer Bottle', 'Fire Hose', 'Storm Cloud',
+        'Geyser'),  # Squirt
+    ('Flower Pot', 'Sandbag', 'Anvil',
+        'Big Weight', 'Safe', 'Grand Piano',
+        'Toontanic')  # Drop
+)
 # Experience points needed to unlock the gag at the indexed position
 LEVELS = [[0, 20, 200, 800, 2000, 6000, 10000],    # Toon-Up
           [0, 20, 100, 800, 2000, 6000, 10000],    # Trap
@@ -26,6 +48,10 @@ LEVELS = [[0, 20, 200, 800, 2000, 6000, 10000],    # Toon-Up
           [0, 10, 50, 400, 2000, 6000, 10000],     # Squirt
           [0, 20, 100, 500, 2000, 6000, 10000]]    # Drop
 
+# MIN_MAX_TUPLE = GAG_DAMAGE[GAG_TRACK_INDEX][GAG_LEVEL] = ((min_dmg, max_dmg), (min_exp, max_exp))  # noqa
+# MIN_DMG, MAX_DMG = MIN_MAX_TUPLE[0] = (min_dmg, max_dmg)
+# MIN_EXP, MAX_EXP = MIN_MAX_TUPLE[1] = (min_exp, max_exp)
+#    Example of Level 3 Throw min/max = GAG_DAMAGE[4][3]
 GAG_DAMAGE = (
     (((8, 10), (LEVELS[0][0], LEVELS[0][1])),      # Toon-Up
         ((15, 18), (LEVELS[0][1], LEVELS[0][2])),
@@ -85,7 +111,7 @@ GAG_CARRY_LIMITS = (((10, 0, 0, 0, 0, 0, 0),      # Toon-up
                      (25, 20, 15, 10, 3, 0, 0),   # Gag level 4
                      (30, 25, 20, 15, 7, 3, 0),   # Gag level 5
                      (30, 25, 20, 15, 7, 3, 1)),  # Gag level 6
-                    ((5, 0, 0, 0, 0, 0, 0),       # Trap
+                    ((5, 0, 0, 0, 0, 0, 0),       # ! Trap, unique carry limit
                      (7, 3, 0, 0, 0, 0, 0),
                      (10, 7, 3, 0, 0, 0, 0),
                      (15, 10, 7, 3, 0, 0, 0),
@@ -152,10 +178,10 @@ def get_gag_damage(gag_track: int, gag_level: int, exp: int):
     # MIN_EXP, MAX_EXP = MIN_MAX_TUPLE[1] = (min_exp, max_exp)
     #    Example of Level 3 Throw min/max = GAG_DAMAGE[4][3]
 
-    min_dmg = GAG_DAMAGE[gag_track][gag_level][0][0]
-    max_dmg = GAG_DAMAGE[gag_track][gag_level][0][1]
-    min_exp = GAG_DAMAGE[gag_track][gag_level][1][0]
-    max_exp = GAG_DAMAGE[gag_track][gag_level][1][1]
+    min_dmg = GAG_DAMAGE[gag_track][gag_level-1][0][0]
+    max_dmg = GAG_DAMAGE[gag_track][gag_level-1][0][1]
+    min_exp = GAG_DAMAGE[gag_track][gag_level-1][1][0]
+    max_exp = GAG_DAMAGE[gag_track][gag_level-1][1][1]
     exp_val = min(exp, max_exp)
     exp_per_hp = float(max_exp - min_exp + 1) / float(max_dmg - min_dmg + 1)
     damage = math_floor((exp_val - min_exp) / exp_per_hp) + min_dmg
@@ -183,61 +209,61 @@ def get_gag_carry_limits(gag_track, gag_level):
         tuple: 7-member tuple of Gag carry limits
     """
 
-    return GAG_CARRY_LIMITS[gag_track][gag_level]
+    return GAG_CARRY_LIMITS[gag_track][gag_level-1]
 
 
 # %% Test `get_gag_damage`
-# TODO: Create tests to verify functions are always working as expected
-gag_track = THROW_TRACK
-gag_level = 5
-exp = 8690
-min_exp = GAG_DAMAGE[gag_track][gag_level][1][0]
-max_exp = GAG_DAMAGE[gag_track][gag_level][1][1]
-gag_damage = get_gag_damage(gag_track=gag_track, gag_level=gag_level, exp=exp)
+# # TODO: Create tests to verify functions are always working as expected
+# gag_track = THROW_TRACK
+# gag_level = 5
+# exp = 8690
+# min_exp = GAG_DAMAGE[gag_track][gag_level][1][0]
+# max_exp = GAG_DAMAGE[gag_track][gag_level][1][1]
+# gag_damage = get_gag_damage(gag_track=gag_track, gag_level=gag_level, exp=exp)
 
-print(min_exp, max_exp, gag_damage)
+# print(min_exp, max_exp, gag_damage)
 
-# %% Test `get_gag_carry_limits`
-gag_track = THROW_TRACK
-gag_level = 5
-carry_limits = get_gag_carry_limits(gag_track=gag_track, gag_level=gag_level)
-print(carry_limits)
+# # %% Test `get_gag_carry_limits`
+# gag_track = THROW_TRACK
+# gag_level = 5
+# carry_limits = get_gag_carry_limits(gag_track=gag_track, gag_level=gag_level)
+# print(carry_limits)
 
-# %% Print carry limits, damage, and EXP of Astro's backpack
-astro_levels = [5, 0, 6, 5, 5, 5, 2]
-astro_exp = [7421, 0, 10101, 9443, 8690, 6862, 191]
+# # %% Print carry limits, damage, and EXP of Astro's backpack
+# astro_levels = [5, 0, 6, 5, 5, 5, 2]
+# astro_exp = [7421, 0, 10101, 9443, 8690, 6862, 191]
 
-for gag_track_index, label in enumerate(GAG_TRACK_LABELS):
-    gag_track = gag_track_index
-    gag_level = astro_levels[gag_track_index]
+# for gag_track_index, label in enumerate(GAG_TRACK_LABELS):
+#     gag_track = gag_track_index
+#     gag_level = astro_levels[gag_track_index]
 
-    if gag_level == 0:  # Skip if Gag track is not unlocked
-        continue
+#     if gag_level == 0:  # Skip if Gag track is not unlocked
+#         continue
 
-    # Get current Gag track EXP and max Gag track EXP
-    exp = astro_exp[gag_track_index]
-    if gag_level != 6:
-        # LEVELS indexing is offset by -1. LEVELS[0] is 0, but LEVELS[6] is 10k
-        # Increment the `gag_level` by 1 to correct the offset, unless the
-        # Gag track is already maxed out at gag_level=6
-        max_exp = LEVELS[gag_track_index][gag_level+1]
-    else:
-        max_exp = LEVELS[gag_track_index][gag_level]
+#     # Get current Gag track EXP and max Gag track EXP
+#     exp = astro_exp[gag_track_index]
+#     if gag_level != 6:
+#         # LEVELS indexing is offset by -1. LEVELS[0] is 0, but LEVELS[6] is 10k
+#         # Increment the `gag_level` by 1 to correct the offset, unless the
+#         # Gag track is already maxed out at gag_level=6
+#         max_exp = LEVELS[gag_track_index][gag_level+1]
+#     else:
+#         max_exp = LEVELS[gag_track_index][gag_level]
 
-    # Get 7-member tuple of Gag carry limits
-    carry_limits = get_gag_carry_limits(
-        gag_track=gag_track, gag_level=gag_level
-    )
+#     # Get 7-member tuple of Gag carry limits
+#     carry_limits = get_gag_carry_limits(
+#         gag_track=gag_track, gag_level=gag_level
+#     )
 
-    print(label)
-    print(f"    EXP: {exp}/{max_exp}")
-    print(f"    LIM: {carry_limits}")
+#     print(label)
+#     print(f"    EXP: {exp}/{max_exp}")
+#     print(f"    LIM: {carry_limits}")
 
-    # Get Gag damage/limit if the Gag is unlocked
-    for gag_index, gag_limit in enumerate(carry_limits):
-        if gag_limit == 0:  # Skip Gag damage/limit if Gag is not unlocked
-            continue
-        damage = get_gag_damage(
-            gag_track=gag_track_index, gag_level=gag_index, exp=exp
-        )
-        print(f"        DMG: {damage}, LIM: {gag_limit}")
+#     # Get Gag damage/limit if the Gag is unlocked
+#     for gag_index, gag_limit in enumerate(carry_limits):
+#         if gag_limit == 0:  # Skip Gag damage/limit if Gag is not unlocked
+#             continue
+#         damage = get_gag_damage(
+#             gag_track=gag_track_index, gag_level=gag_index, exp=exp
+#         )
+#         print(f"        DMG: {damage}, LIM: {gag_limit}")

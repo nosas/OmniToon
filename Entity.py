@@ -7,7 +7,9 @@ class Entity:
     # ? Why can't methods reference their own Class Types when type-hinting?
     # def do_attack(self, target: Entity, amount: int):
     def do_attack(self, target, amount: int):
+        # TODO : Add chance_to_hit argument?
         target.get_attacked(amount=amount)
+        return 1
 
     def get_attacked(self, amount: int):
         self.hp -= amount

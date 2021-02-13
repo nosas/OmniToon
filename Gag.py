@@ -16,31 +16,31 @@ BattleGlobalAvPropStrings = (
 """  # noqa
 
 
-class GagType:
-    def __init__(self, gtype):
-        self.gtype = gtype
+class GagTrack:
+    def __init__(self, gtrack):
+        self.gtrack = gtrack
         self.highest_level = 1
         self.xp_current = 0
         self.xp_needed = 10
 
 
-class Gag(GagType):
-    def __init__(self, gtype, name, level, highest_level, capacity_current,
+class Gag(GagTrack):
+    def __init__(self, gtrack, name, level, highest_level, capacity_current,
                  base_damage):
         """
-        :param GagType gtype: Type of the gag (throw, squirt, toon-up, etc.)
-        :param int level: Level of the current gag (1-7)
-        :param int highest_level: Level of highest unlocked gag of same gtype
+        :param GagTrack gtrack: Type of the gag (throw, squirt, toon-up, etc.)
+        :param int level: Level of the current gag (0-6)
+        :param int highest_level: Level of highest unlocked gag of same gtrack
         :param int/bool aoe: 0 if gag hits single targets, 1 for all targets
         :param int capacity_current: Current number of gags available
         :param int xp_needed: XP needed to advance to use this gag
         :param int xp_provided: XP provided after attacking with this gag
         :param int min_cog_level: Minimum cog level required to receive XP
         """
-        super().__init__(gtype=gtype)
+        super().__init__(gtrack=gtrack)
         self.name = name
         self.level = level
-        self.highest_level = gtype.highest_level
+        self.highest_level = gtrack.highest_level
         self.capacity_current = capacity_current
         # Maximum number of carryable gags of this level
         self.capacity_maximum = 5 + (5*(highest_level-level))

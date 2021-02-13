@@ -3,11 +3,11 @@ from .Entity import Entity
 from .Cog import Cog
 from .Gag import Gag
 from .GagGlobals import (
-    LEVELS, count_all_gags
+    GAG_LABELS, GAG_TRACK_LABELS, LEVELS, count_all_gags, get_gag_damage
 )
 
 DEFAULT_HP = 15
-DEFAULT_LEVELS = [0, 0, 0, 0, 1, 1, 0]
+DEFAULT_LEVELS = [-1, -1, -1, -1, 0, 0, -1]
 # DEFAULT_EXPS = [0, 0, 0, 0, 10, 10, 0]
 # Populate DEFAULT_EXP from Gag track levels in DEFAULT_LEVELS
 DEFAULT_EXPS = [LEVELS[idx][level] for idx, level in enumerate(DEFAULT_LEVELS)]
@@ -32,8 +32,11 @@ class Toon(Entity):
 
         Args:
             name (str): Name of the Toon
-            health (int): Laff-o-Meter of a toon
+            health (int, optional): Laff-o-Meter of a toon
             # ? Gags = 2-D list : [type?][type?].. 2D array of type Gag or int?
+            # ! Create Gags object, remove 2-D list and replace with Gags obj
+            # ! Toon.gags = Gags(toons_gags=2-D list)
+            # ! Toon.gags.get_gag(gtype="throw", level=<1-7|0-6>)
             gags (list, optional): 2-D array, ex: `[GAG_TRACK][GAG]`. Defaults
                 to DEFAULT_GAGS.
             gag_exps ([type], optional): [description]. Defaults to DEFAULT_EXPS.
@@ -53,7 +56,7 @@ class Toon(Entity):
         self.gag_levels = gag_levels
         self.gag_exps = gag_exps
 
-    def __count_all_gags(self):
+    def __count_all_gags(self) -> int:
         count = count_all_gags(gags=self.gags)
 
         assert count <= self.gag_limit, (
@@ -65,10 +68,44 @@ class Toon(Entity):
     def count_gag(self, gag_track: int, gag: int) -> int:
         return self.gags[gag_track][gag]
 
-    def do_attack(self, target: Cog, gag: Gag) -> None:
+    # ? How should I refer to a gag? Gag level or tier or just gag?
+    def do_attack(self, target: Cog, gag_track: int, gag_level: int) -> None:
         # TODO : Return 1 if hit, 0 if miss? Must be done in Entity class
         # Need to calculate Attack accuracy, wrong to assume attacks always hit
-        super().do_attack(target=target, amount=gag.damage)
+        self.gags[gag_track][gag_level] -= 1
+        gag_exp = self.gag_exps[gag_track]
+        gag_damage = get_gag_damage(gag_track=gag_track, gag_level=gag_level,
+                                    exp=gag_exp)
+
+        if super().do_attack(target=target, amount=gag_damage):
+            # TODO : If attack hits, add EXP to gag track
+            # TODO : Add EXP multiplier (cog building, invasions)
+            self.gag_exps[gag_track] += gag_level
+
+    # def do_attack(self, target: Cog, gag: Gag) -> None:
+    #     # TODO : Return 1 if hit, 0 if miss? Must be done in Entity class
+    #     # Need to calculate Attack accuracy, wrong to assume attacks always hit
+    #     super().do_attack(target=target, amount=gag.damage)
+
+    def get_gag(self, gag_track: int, gag: int) -> Gag:
+        if self.has_gag(gag_track=gag_track, gag=gag):
+            self.gags[gag_track][gag] -= 1
+
+    def get_viable_attacks(self, target: Cog) -> list:
+        """Return 2-D list of Gags that can be used and gain Gag EXP
+
+        Args:
+            target (Cog): Cog object that is going to be attacked
+
+        Returns:
+            list: 2-D list of Gags. 0 means the Gag is not available or
+                  does not gain Gag EXP when used. If all Gags are unviable,
+                  it will return the a list of the Toon's Gags.
+        """
+        # However, if the Cog being attacked is at a lower level than the gag,
+        # then the toon will receive no skill points.
+        # https://toontown.fandom.com/wiki/Skill_points#Earning_skill_points
+        return self.gags
 
     def has_gag(self, gag_track: int, gag: int) -> bool:
         return self.count_gag(gag_track, gag) != 0
