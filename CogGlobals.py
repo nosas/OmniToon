@@ -17,8 +17,9 @@ COG_ATTRIBUTES = {
         # 'name': TTLocalizer.SuitFlunky
         # 'singularname': TTLocalizer.SuitFlunkyS,
         # 'pluralname': TTLocalizer.SuitFlunkyP,
-        'level': 0,  # minimum Cog level
-        'hp': COG_HP[0:5],  # Cog levels range from 'level' to 'level'+5
+        # ! TODO: Add 1 to all Cog's minimum levels
+        'level': 1,  # minimum Cog level, max level = min_level+4
+        'hp': COG_HP[0:5],  # Cog HP range from 'level' to 'level'+5
         'def': (2, 5, 10, 12, 15),
         'freq': (50, 30, 10, 5, 5),
         'acc': (35, 40, 45, 50, 55),
@@ -70,36 +71,78 @@ def pickFromFreqList(freqList):
 
 
 def getActualFromRelativeLevel(cog_key, relative_level):
-    data = COG_ATTRIBUTES[cog_key]
-    actualLevel = data['level'] + relative_level + 1
+    cog_data = COG_ATTRIBUTES[cog_key]
+    actualLevel = cog_data['level'] + relative_level
     return actualLevel
 
 
-def get_cog_vitals(cog_key, level=-1):
-    data = COG_ATTRIBUTES[cog_key]
-    if level == -1:
-        level = pickFromFreqList(data['freq'])
-    dict = {}
-    dict['level'] = getActualFromRelativeLevel(cog_key, level)
-    if dict['level'] == 11:  # ? why??
-        level = 0
-    dict['hp'] = data['hp'][level]
-    dict['def'] = data['def'][level]
-    attacks = data['attacks']
-    alist = []
-    for a in attacks:
-        adict = {}
-        name = a[0]
-        adict['name'] = name
-        adict['animName'] = COG_ATTACKS[name][0]
-        adict['hp'] = a[1][level]
-        adict['acc'] = a[2][level]
-        adict['freq'] = a[3][level]
-        adict['group'] = COG_ATTACKS[name][1]
-        alist.append(adict)
+def get_cog_vitals(cog_key, relative_level=-1):
+    """Return dictionary of Cog's vitals
 
-    dict['attacks'] = alist
-    return dict
+    Args:
+        cog_key (str): [description]
+        relative_level (int, optional): Relative level from 0-4. Defaults to -1
+
+    Returns:
+        vitals_dict:
+
+    Example:
+        {
+            'level': 5,
+            'hp': 42,
+            'def': 15,
+            'attacks': [
+                {
+                    'name': 'PoundKey',
+                    'animName': 'phone',
+                    'hp': 6, 'acc': 90,
+                    'freq': 50,
+                    'group': 2
+                },
+                {
+                    'name': 'Shred',
+                    'animName': 'shredder',
+                    'hp': 7,
+                    'acc': 70,
+                    'freq': 30,
+                    'group': 2
+                },
+                {
+                    'name': 'ClipOnTie',
+                    'animName': 'throw-paper',
+                    'hp': 3,
+                    'acc': 95,
+                    'freq': 20,
+                    'group': 2
+                }
+            ]
+        }
+    """
+    data = COG_ATTRIBUTES[cog_key]
+    if relative_level == -1:
+        relative_level = pickFromFreqList(data['freq'])
+    vitals_dict = {}
+    vitals_dict['level'] = getActualFromRelativeLevel(cog_key, relative_level)
+    if vitals_dict['level'] == 11:  # ? why??
+        relative_level = 0
+    vitals_dict['hp'] = data['hp'][relative_level]
+    vitals_dict['def'] = data['def'][relative_level]
+
+    attacks = data['attacks']
+    attacks_list = []
+    for attack in attacks:
+        attacks_dict = {}
+        name = attack[0]
+        attacks_dict['name'] = name
+        attacks_dict['animName'] = COG_ATTACKS[name][0]
+        attacks_dict['hp'] = attack[1][relative_level]
+        attacks_dict['acc'] = attack[2][relative_level]
+        attacks_dict['freq'] = attack[3][relative_level]
+        attacks_dict['group'] = COG_ATTACKS[name][1]
+        attacks_list.append(attacks_dict)
+
+    vitals_dict['attacks'] = attacks_list
+    return vitals_dict
 
 
 def pick_cog_attack(attacks, cog_level):
@@ -178,5 +221,3 @@ def get_cog_attack(cog_key, cog_level, attack_num=-1):
     adict['freq'] = attack[3][cog_level]
     adict['group'] = COG_ATTACKS[name][1]
     return adict
-
-# %%

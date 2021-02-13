@@ -40,10 +40,10 @@ def test_fight():
     print(f"Toon {name} has Toon-Up Gag? {has_gag} {num_gags}")
 
     name = 'f'
-    level = 1
-    flunky_vitals = get_cog_vitals(name=name, level=level)
+    relative_level = 1
+    flunky_vitals = get_cog_vitals(name=name, relative_level=relative_level)
 
-    cog = Cog(name=name, vitals=flunky_vitals, level=level)
+    cog = Cog(name=name, vitals=flunky_vitals, relative_level=relative_level)
 
 
 # %%

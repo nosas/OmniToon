@@ -12,7 +12,7 @@ class TestToonAttack:
         # ! set a flag is viability doesnt matter
         gag_track = THROW_TRACK
         gag_level = 3
-        # assert toon_astro.has_gag(gag_track=gag_track, gag=gag_level)
+        assert toon_astro.has_gag(gag_track=gag_track, gag=gag_level)
         gag_exp = toon_astro.gag_exps[gag_track]  # ? Rename this to track_exp?
         gag_damage = get_gag_damage(gag_track=gag_track, gag_level=gag_level,
                                     exp=gag_exp)
@@ -30,8 +30,8 @@ class TestToonAttack:
         gag_track_name = GAG_TRACK_LABELS[gag_track]
         gag_name = GAG_LABELS[gag_track][gag_level-1]
         cog_level = cog_flunky.level
-        print(f"[!] Toon \"{toon_astro.name}\" used lvl {gag_level} "\
-              f"{gag_track_name}, {gag_name}, against lvl {cog_level} "\
+        print(f"[!] Toon \"{toon_astro.name}\" used lvl {gag_level} "
+              f"{gag_track_name}, {gag_name}, against lvl {cog_level} "
               f"{cog_flunky.name}")
 
         cog_hp_after = cog_flunky.hp
