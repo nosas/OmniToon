@@ -17,27 +17,20 @@ MAX_SKILL = UBER_SKILL + REG_MAX_SKILL
 GAG_TRACK_LABELS = ["Toon-Up", "Trap", "Lure", "Sound",
                     "Throw", "Squirt", "Drop"]
 GAG_LABELS = (
-    ('Feather', 'Megaphone', 'Lipstick',
-        'Bamboo Cane', 'Pixie Dust', 'Juggling Balls',
-        'High Dive'),  # Toon-up
-    ('Banana Peel', 'Rake', 'Marbles',
-        'Quicksand', 'Trapdoor', 'TNT',
-        'Railroad'),  # Trap
-    ('$1 bill', 'Small Magnet', '$5 bill',
-        'Big Magnet', '$10 bill', 'Hypno-goggles',
-        'Presentation'),  # Lure
-    ('Bike Horn', 'Whistle', 'Bugle',
-        'Aoogah', 'Elephant Trunk', 'Foghorn',
-        'Opera Singer'),  # Sound
-    ('Cupcake', 'Fruit Pie Slice', 'Cream Pie Slice',
-        'Whole Fruit Pie', 'Whole Cream Pie', 'Birthday Cake',
-        'Wedding Cake'),  # Throw
-    ('Squirting Flower', 'Glass of Water', 'Squirt Gun',
-        'Seltzer Bottle', 'Fire Hose', 'Storm Cloud',
-        'Geyser'),  # Squirt
-    ('Flower Pot', 'Sandbag', 'Anvil',
-        'Big Weight', 'Safe', 'Grand Piano',
-        'Toontanic')  # Drop
+    ('Feather', 'Megaphone', 'Lipstick', 'Bamboo Cane',
+        'Pixie Dust', 'Juggling Balls', 'High Dive'),  # Toon-up
+    ('Banana Peel', 'Rake', 'Marbles', 'Quicksand',
+        'Trapdoor', 'TNT', 'Railroad'),  # Trap
+    ('$1 bill', 'Small Magnet', '$5 bill', 'Big Magnet',
+        '$10 bill', 'Hypno-goggles', 'Presentation'),  # Lure
+    ('Bike Horn', 'Whistle', 'Bugle', 'Aoogah',
+        'Elephant Trunk', 'Foghorn', 'Opera Singer'),  # Sound
+    ('Cupcake', 'Fruit Pie Slice', 'Cream Pie Slice', 'Whole Fruit Pie',
+        'Whole Cream Pie', 'Birthday Cake', 'Wedding Cake'),  # Throw
+    ('Squirting Flower', 'Glass of Water', 'Squirt Gun', 'Seltzer Bottle',
+        'Fire Hose', 'Storm Cloud', 'Geyser'),  # Squirt
+    ('Flower Pot', 'Sandbag', 'Anvil', 'Big Weight',
+        'Safe', 'Grand Piano', 'Toontanic')  # Drop
 )
 # Experience points needed to unlock the gag at the indexed position
 LEVELS = [[0, 20, 200, 800, 2000, 6000, 10000],    # Toon-Up
@@ -163,6 +156,14 @@ def count_all_gags(gags: list) -> int:
     return count
 
 
+def get_gag_name(gag_track: int, gag_level: int) -> str:
+    return GAG_LABELS[gag_track][gag_level]
+
+
+def get_gag_track_name(gag_track: int) -> str:
+    return GAG_TRACK_LABELS[gag_track]
+
+
 def get_gag_damage(gag_track: int, gag_level: int, exp: int):
     """Return Gag damage based on Gag level and exp
 
@@ -178,10 +179,10 @@ def get_gag_damage(gag_track: int, gag_level: int, exp: int):
     # MIN_EXP, MAX_EXP = MIN_MAX_TUPLE[1] = (min_exp, max_exp)
     #    Example of Level 3 Throw min/max = GAG_DAMAGE[4][3]
 
-    min_dmg = GAG_DAMAGE[gag_track][gag_level-1][0][0]
-    max_dmg = GAG_DAMAGE[gag_track][gag_level-1][0][1]
-    min_exp = GAG_DAMAGE[gag_track][gag_level-1][1][0]
-    max_exp = GAG_DAMAGE[gag_track][gag_level-1][1][1]
+    min_dmg = GAG_DAMAGE[gag_track][gag_level][0][0]
+    max_dmg = GAG_DAMAGE[gag_track][gag_level][0][1]
+    min_exp = GAG_DAMAGE[gag_track][gag_level][1][0]
+    max_exp = GAG_DAMAGE[gag_track][gag_level][1][1]
     exp_val = min(exp, max_exp)
     exp_per_hp = float(max_exp - min_exp + 1) / float(max_dmg - min_dmg + 1)
     damage = math_floor((exp_val - min_exp) / exp_per_hp) + min_dmg
@@ -196,6 +197,17 @@ def get_gag_damage(gag_track: int, gag_level: int, exp: int):
     # elif organicBonus or propBonus:
     #     damage += getDamageBonus(damage)
     return damage
+
+
+def get_gag_exp(gag_track: int, current_exps: list) -> int:
+    return current_exps[gag_track]
+
+
+def get_gag_exp_needed(gag_track: int, gag_level: int,
+                       current_exps: list) -> int:
+    current_gag_exp = get_gag_exp(gag_track, current_exps)
+    next_gag_exp = LEVELS[gag_track][gag_level+1]
+    return next_gag_exp - current_gag_exp
 
 
 def get_gag_carry_limits(gag_track, gag_level):
