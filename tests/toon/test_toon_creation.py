@@ -10,8 +10,8 @@ class TestDefault:
     """Baseline testing for Toon with Default values"""
     # TODO: Add battle scenarios in `test_toon_battle.py`
 
-    def test_health(self, toon_default):
-        assert toon_default.health == DEFAULT_HP
+    def test_hp(self, toon_default):
+        assert toon_default.hp == DEFAULT_HP
 
     def test_gags(self, toon_default):
         assert toon_default.gags == DEFAULT_GAGS
@@ -36,8 +36,8 @@ class TestAstro:
     """Specific testing against my Toon, Astro"""
     # TODO: Add battle scenarios in `test_toon_battle.py`
 
-    def test_health(self, toon_astro):
-        assert toon_astro.health == 65
+    def test_hp(self, toon_astro):
+        assert toon_astro.hp == 65
 
     def test_gag_exps(self, toon_astro):
         assert toon_astro.gag_exps == [7421, 0, 10101, 9443, 8690, 6862, 191]

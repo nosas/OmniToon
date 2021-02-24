@@ -5,7 +5,7 @@ from ...Toon import Toon
 @pytest.fixture
 def toon_astro():
     name = "Astro"
-    health = 65
+    hp = 65
     levels = [5, 0, 6, 5, 5, 5, 2]
     exps = [7421, 0, 10101, 9443, 8690, 6862, 191]
     gags = [[0, 0, 0, 5, 5, 3, 0],  # Toon-up
@@ -17,7 +17,7 @@ def toon_astro():
             [0, 9, 5, 0, 0, 0, 0]]  # Drop
     gag_limit = 70
 
-    return Toon(name=name, health=health, gags=gags, gag_limit=gag_limit,
+    return Toon(name=name, hp=hp, gags=gags, gag_limit=gag_limit,
                 gag_levels=levels, gag_exps=exps)
 
 

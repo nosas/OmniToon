@@ -23,14 +23,14 @@ DEFAULT_GAG_LIMIT = 20
 # ? AssertionErrors when? During initialization of attributes or separate func?
 # ? Should I use @property decorators again?
 class Toon(Entity):
-    def __init__(self, name, health=DEFAULT_HP, gags=DEFAULT_GAGS,
+    def __init__(self, name, hp=DEFAULT_HP, gags=DEFAULT_GAGS,
                  gag_exps=DEFAULT_EXPS, gag_levels=DEFAULT_LEVELS,
                  gag_limit=DEFAULT_GAG_LIMIT):
         """Toon object class
 
         Args:
             name (str): Name of the Toon
-            health (int, optional): Laff-o-Meter of a toon
+            hp (int, optional): Laff-o-Meter of a toon
             # ? Gags = 2-D list : [type?][type?].. 2D array of type Gag or int?
             # ! Create Gags object, remove 2-D list and replace with Gags obj
             # ! Toon.gags = Gags(toons_gags=2-D list)
@@ -42,7 +42,7 @@ class Toon(Entity):
             gag_limit ([type], optional): [description]. Defaults to DEFAULT_GAG_LIMIT.
         """  # noqa
         self.name = name
-        self.health = health
+        self.hp = hp
         self.gag_limit = gag_limit
 
         # Verify total Gag count in `gags` doesn't exceed `gag_limit`
@@ -153,7 +153,7 @@ class Toon(Entity):
 
 
 # name = "Astro"
-# health = "65"
+# hp = "65"
 # levels = [5, 0, 6, 5, 5, 5, 2]
 # exps = [7421, 0, 10101, 9443, 8690, 6862, 191]
 
@@ -164,7 +164,7 @@ class Toon(Entity):
 # gag_limit = 70    # Expect pass
 # # gag_limit = 71  # Expect pass
 # # gag_limit = 69  # Expect failure
-# my_toon = Toon(name=name, health=health, gags=gags, gag_limit=gag_limit,
+# my_toon = Toon(name=name, hp=hp, gags=gags, gag_limit=gag_limit,
 #                gag_levels=levels, gag_exps=exps)
 
 

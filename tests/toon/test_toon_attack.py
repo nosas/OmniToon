@@ -39,11 +39,10 @@ class TestToonAttackThrow:
 
     @pytest.mark.xfail(strict=True)
     def test_attack_target_fail(self, toon_astro):
-        gag_throw = toon_astro.choose_gag(gag_track=self.gag_track,
-                                          gag_level=self.gag_level)
         try:
             toon_astro.do_attack(target=toon_astro, gag_track=self.gag_track,
                                  gag_level=self.gag_level)
+        # TODO : Create InvalidTargetError, and test it here
         except AssertionError as e:
             raise e
 
