@@ -8,7 +8,7 @@ from ...GagGlobals import count_all_gags
 
 class TestDefault:
     """Baseline testing for Toon with Default values"""
-    # TODO: Add battle scenarios in `test_toon_battle.py`
+    # TODO: Add battle scenarios (losing, winning) in `test_toon_battle.py`
 
     def test_hp(self, toon_default):
         assert toon_default.hp == DEFAULT_HP
@@ -34,7 +34,7 @@ class TestDefault:
 
 class TestAstro:
     """Specific testing against my Toon, Astro"""
-    # TODO: Add battle scenarios in `test_toon_battle.py`
+    # TODO: Add battle scenarios (losing, winning) in `test_toon_battle.py`
 
     def test_hp(self, toon_astro):
         assert toon_astro.hp == 65

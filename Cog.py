@@ -15,26 +15,6 @@ class Cog(Entity):
             cog_key=key, relative_level=relative_level)
         super().__init__(name=self.name, hp=self.hp)
 
-    def get_attack(self, attack_index):
-        """[summary]
-        Args:
-            attack_index ([type]): [description]
-
-        Returns:
-            dict: Dictionary containing all attributes of a single Cog's attack
-        Example ::
-            {
-                'acc': 80,
-                'animName': 'phone',
-                'freq': 40,
-                'hp': 3,
-                'id': 0,
-                'name': 'PoundKey',
-                'target': 2  # ATK_TGT_SINGLE=1, ATK_TGT_GROUP=2
-            }
-        """
-        return self.vitals['attacks'][attack_index]
-
     def get_all_attacks(self):
         """[summary]
 
@@ -71,3 +51,23 @@ class Cog(Entity):
             ]
         """
         return self.vitals['attacks']
+
+    def get_attack(self, attack_index):
+        """[summary]
+        Args:
+            attack_index ([type]): [description]
+
+        Returns:
+            dict: Dictionary containing all attributes of a single Cog's attack
+        Example ::
+            {
+                'acc': 80,
+                'animName': 'phone',
+                'freq': 40,
+                'hp': 3,
+                'id': 0,
+                'name': 'PoundKey',
+                'target': 2  # ATK_TGT_SINGLE=1, ATK_TGT_GROUP=2
+            }
+        """
+        return self.vitals['attacks'][attack_index]

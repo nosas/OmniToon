@@ -248,6 +248,7 @@ COG_ATTACKS = {
     'ClipOnTie': ('throw-paper', ATK_TGT_SINGLE)
 }
 # Cog attack indexes
+# TODO Get rid of this, I don't think it's necessary
 CLIPON_TIE = list(COG_ATTACKS.keys()).index('ClipOnTie')
 POUND_KEY = list(COG_ATTACKS.keys()).index('PoundKey')
 SHRED = list(COG_ATTACKS.keys()).index('Shred')
@@ -333,7 +334,8 @@ def get_cog_vitals(cog_key, relative_level=-1):
     if relative_level == -1:
         relative_level = pickFromFreqList(cog_data['freq'])
     vitals_dict = {}
-    vitals_dict['level'] = get_actual_from_relative_level(cog_key, relative_level)
+    vitals_dict['level'] = get_actual_from_relative_level(cog_key,
+                                                          relative_level)
     if vitals_dict['level'] == 11:  # ? why??
         relative_level = 0
     vitals_dict['hp'] = cog_data['hp'][relative_level]
@@ -351,7 +353,7 @@ def get_cog_vitals(cog_key, relative_level=-1):
         attacks_dict['hp'] = attack[ATK_IDX_DMG][relative_level]
         attacks_dict['id'] = cur_index
         attacks_dict['name'] = attack_name
-        attacks_dict['target'] = attack[ATK_IDX_TGT]  # Peviously group
+        attacks_dict['target'] = attack[ATK_IDX_TGT]  # Previously 'group'
         # attacks_dict['group'] = COG_ATTACKS[attack_name][1]
         all_attacks_list.append(attacks_dict)
         cur_index += 1
@@ -361,7 +363,7 @@ def get_cog_vitals(cog_key, relative_level=-1):
 
 
 def pick_cog_attack(attack_choices, relative_level):
-    """ Summary: Return the attack_index of cog attack from cog.vitals['attacks']
+    """ Summary: Return attack_index of cog attack from cog.vitals['attacks']
 
     """
     attack_index = None
@@ -412,15 +414,15 @@ def get_cog_attacks_all_levels(cog_key):
         attack_choices (tuple): All possible Cog attack choices
         example ::
                     'attacks': (
-                        ('PoundKey',                [0] Name
-                            (2, 2, 3, 4, 6),        [1] Damage
-                            (75, 75, 80, 80, 90),   [2] Accuracy
-                            (30, 35, 40, 45, 50)),  [3] Frequency
-                        ('Shred',
+                        ('PoundKey', ATK_TGT_SINGLE  [0] Name, [1] Target
+                            (2, 2, 3, 4, 6),         [2] Damage
+                            (75, 75, 80, 80, 90),    [3] Accuracy
+                            (30, 35, 40, 45, 50)),   [4] Frequency
+                        ('Shred', ATK_TGT_SINGLE
                             (3, 4, 5, 6, 7),
                             (50, 55, 60, 65, 70),
                             (10, 15, 20, 25, 30)),
-                        ('ClipOnTie',
+                        ('ClipOnTie', ATK_TGT_SINGLE
                             (1, 1, 2, 2, 3),
                             (75, 80, 85, 90, 95),
                             (60, 50, 40, 30, 20))

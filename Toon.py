@@ -72,7 +72,7 @@ class Toon(Entity):
             f"{gag.track_name} gags \"{gag.name}\"."
             )
 
-        return(gag)
+        return gag
 
     def count_gag(self, gag_track: int, gag_level: int) -> int:
         return self.gags[gag_track][gag_level]
@@ -95,11 +95,12 @@ class Toon(Entity):
         # These errors should be caught and tested in func `choose_gag`
         except AssertionError as e:
             gag_track_name = get_gag_track_name(gag_track=gag_track)
+            gag_count = self.count_gag(gag_track=gag_track,
+                                       gag_level=gag_level)
             # assert self.has_gag(gag_track=gag_track, gag=gag_level), (
             print(f"Toon \"{self.name}\" tried to attack with lvl {gag_level} "
-                  f"{gag_track_name} ({gag_track}) gag_track, but lacks"
-                  " number of available gags "
-                  f"{self.count_gag(gag_track=gag_track, gag=gag_level)}")
+                  f"{gag_track_name} ({gag_track}) gag_track, but lacks "
+                  f"number of available gags {gag_count}")
             raise e
 
         self.gags[gag_track][gag_level] -= 1
@@ -150,27 +151,3 @@ class Toon(Entity):
         # Return True if the 2-D list is NOT empty, aka Toon has Gags
         # return self.gags != [[0]*7]*7
         return self.__count_all_gags() != 0
-
-
-# name = "Astro"
-# hp = "65"
-# levels = [5, 0, 6, 5, 5, 5, 2]
-# exps = [7421, 0, 10101, 9443, 8690, 6862, 191]
-
-# # TODO Create proper test for Toon object creation
-# gag_labels = ["Toon-Up", "Trap", "Lure", "Sound", "Throw", "Squirt", "Drop"]
-# # gags = [[1]*7] + [[0]*7]*6  # 7 total Gags
-# gags = [[10]*7] + [[0]*7]*6   # 70 total Gags
-# gag_limit = 70    # Expect pass
-# # gag_limit = 71  # Expect pass
-# # gag_limit = 69  # Expect failure
-# my_toon = Toon(name=name, hp=hp, gags=gags, gag_limit=gag_limit,
-#                gag_levels=levels, gag_exps=exps)
-
-
-# num_all_gags = count_all_gags(my_toon.gags)
-# print(f"Toon {name} has Gags? {my_toon.has_gags()} {num_all_gags}")
-
-# has_gag = my_toon.has_gag(gag_track=0, gag=0)
-# num_gags = my_toon.count_gag(gag_track=0, gag=0)
-# print(f"Toon {name} has Toon-Up Gag? {has_gag} {num_gags}")

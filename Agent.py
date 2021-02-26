@@ -1,11 +1,11 @@
 class Agent:
-    def __init__(self, health, game):  # Takes game as input for taking actions
+    def __init__(self, health, battle):  # Takes game as input for taking actions
         self._health = health
-        self._game = game
+        self._battle = battle
         self.available_attacks = []
 
     def is_battling(self):
-        return self._game.get_battling()
+        return self._battle.get_battling()
 
     def get_health(self):
         return self._health()
