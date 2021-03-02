@@ -1,45 +1,73 @@
-# %%
-from Entity import Entity
-from CogGlobals import (
-    COG_ATTRIBUTES, get_cog_vitals, pick_cog_attack, get_cog_attack,
-    CLIPON_TIE, POUND_KEY, SHRED
-)
+from .Entity import Entity
+from .CogGlobals import get_cog_vitals, get_actual_from_relative_level
 
 
 class Cog(Entity):
-    def __init__(self, name, vitals, level):
+    def __init__(self, key, name, relative_level=0):
+        self.key = key
         self.name = name
-        self.vitals = vitals
-        self.level = level
-        self.hp = vitals['hp']
+        self.vitals = get_cog_vitals(cog_key=key,
+                                     relative_level=relative_level)
+        self.hp = self.vitals['hp']
+        # ! Relative level should be in range [0,4]
+        self.relative_level = relative_level
+        self.level = get_actual_from_relative_level(
+            cog_key=key, relative_level=relative_level)
         super().__init__(name=self.name, hp=self.hp)
 
+    def get_all_attacks(self):
+        """[summary]
 
-name = 'f'
-cog_info = COG_ATTRIBUTES[name]
-cog_name = cog_info['name']
-level = 2
-flunky_vitals = get_cog_vitals(name=name, level=level)
+        Returns:
+            [type]: [description]
+            Example: 'attacks': [
+                {
+                    'acc': 75,
+                    'animName': 'phone',
+                    'freq': 30,
+                    'hp': 2,
+                    'id': 0,
+                    'name': 'PoundKey'
+                    'target': 2,
+                },
+                {
+                    'acc': 50,
+                    'animName': 'shredder',
+                    'freq': 10,
+                    'hp': 3,
+                    'id': 1,
+                    'name': 'Shred'
+                    'target': 2,
+                },
+                {
+                    'acc': 75,
+                    'animName': 'throw-paper',
+                    'freq': 60,
+                    'hp': 1,
+                    'id': 2,
+                    'name': 'ClipOnTie'
+                    'target': 2,
+                }
+            ]
+        """
+        return self.vitals['attacks']
 
-cog = Cog(name=name, vitals=flunky_vitals, level=level)
-print(cog.hp)
-# Selects a random attack based on freq unless `attackNum` argument is passed
-attack = get_cog_attack(suitName=cog.name, suitLevel=cog.level)
-print(attack)
-# ! Cannot use argument: attacks=cog.vitals['attacks']. Expects 2-D Tuple, not list of dicts  # noqa
-# vitals['attacks'] = [{'name': 'PoundKey','animName': 'phone','hp': 3,'acc': 80,'freq': 40,'group': 2},{'name': 'Shred'}, {'name': 'ClipOnTie'}]  # noqa
-# COG_ATTRIBUTES[name]['attacks'] = (('PoundKey', (2, 2, 3, 4, 6), (75, 75, 80, 80, 90), (30, 35, 40, 45, 50)), ....)  # noqa
-attack = pick_cog_attack(attacks=COG_ATTRIBUTES[name]['attacks'],
-                         suitLevel=cog.level)
-print(attack)
-# %%
-print("id,name,hp,acc,freq")
-for attackNum in [CLIPON_TIE, POUND_KEY, SHRED]:
-    attack = get_cog_attack(suitName=cog.name,
-                            suitLevel=cog.level,
-                            attackNum=attackNum)
-    print(f"{attack['id']},{attack['name']},{attack['hp']},{attack['acc']},{attack['freq']}")  # noqa
+    def get_attack(self, attack_index):
+        """[summary]
+        Args:
+            attack_index ([type]): [description]
 
-# %%
-
-# %%
+        Returns:
+            dict: Dictionary containing all attributes of a single Cog's attack
+        Example ::
+            {
+                'acc': 80,
+                'animName': 'phone',
+                'freq': 40,
+                'hp': 3,
+                'id': 0,
+                'name': 'PoundKey',
+                'target': 2  # ATK_TGT_SINGLE=1, ATK_TGT_GROUP=2
+            }
+        """
+        return self.vitals['attacks'][attack_index]

@@ -16,31 +16,34 @@ BattleGlobalAvPropStrings = (
 """  # noqa
 
 
-class GagType:
-    def __init__(self, gtype):
-        self.gtype = gtype
-        self.highest_level = 1
-        self.xp_current = 0
-        self.xp_needed = 10
+from .GagGlobals import GAG_TRACK_LABELS, get_gag_damage, get_gag_name
 
 
-class Gag(GagType):
-    def __init__(self, gtype, name, level, highest_level, capacity_current,
-                 base_damage):
+class GagTrack:
+    def __init__(self, track, exp):
+        self.track = track
+        self.track_name = GAG_TRACK_LABELS[track]
+        self.exp = exp
+        # TODO Create `get_highest_level` func?
+
+
+class Gag(GagTrack):
+    def __init__(self, track, exp, level):
         """
-        :param GagType gtype: Type of the gag (throw, squirt, toon-up, etc.)
-        :param int level: Level of the current gag (1-7)
-        :param int highest_level: Level of highest unlocked gag of same gtype
+        # TODO Review and fix docstring pls
+        # TODO Create observer to monitor battles and determine viable gags
+        :param int gag_track: Index of the gag_track (0-6)
+        :param int level: Level of the current gag (0-6)
+        :param int highest_level: Level of highest unlocked gag of same gtrack
         :param int/bool aoe: 0 if gag hits single targets, 1 for all targets
         :param int capacity_current: Current number of gags available
-        :param int xp_needed: XP needed to advance to use this gag
-        :param int xp_provided: XP provided after attacking with this gag
-        :param int min_cog_level: Minimum cog level required to receive XP
         """
-        super().__init__(gtype=gtype)
-        self.name = name
+        super().__init__(track=track, exp=exp)
+        # ! Damage, quantity, capacity need to be dynamically updated after atk
+        self.damage = get_gag_damage(gag_track=track, gag_level=level, exp=exp)
         self.level = level
-        self.highest_level = gtype.highest_level
-        self.capacity_current = capacity_current
+        self.name = get_gag_name(gag_track=track, gag_level=level)
+        # self.highest_level = gag_track.highest_level
+        # self.capacity_current = capacity_current
         # Maximum number of carryable gags of this level
-        self.capacity_maximum = 5 + (5*(highest_level-level))
+        # self.capacity_maximum = 5 + (5*(highest_level-level))
