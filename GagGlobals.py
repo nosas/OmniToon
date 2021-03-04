@@ -22,7 +22,7 @@ GAG_LABELS = (
     ('Banana Peel', 'Rake', 'Marbles', 'Quicksand',
         'Trapdoor', 'TNT', 'Railroad'),  # Trap
     ('$1 bill', 'Small Magnet', '$5 bill', 'Big Magnet',
-        '$10 bill', 'Hypno-goggles', 'Presentation`'),  # Lure
+        '$10 bill', 'Hypno-goggles', 'Presentation'),  # Lure
     ('Bike Horn', 'Whistle', 'Bugle', 'Aoogah',
         'Elephant Trunk', 'Foghorn', 'Opera Singer'),  # Sound
     ('Cupcake', 'Fruit Pie Slice', 'Cream Pie Slice', 'Whole Fruit Pie',
@@ -200,7 +200,7 @@ def get_gag_track_name(gag_track: int) -> str:
     return GAG_TRACK_LABELS[gag_track]
 
 
-def get_gag_damage(gag_track: int, gag_level: int, exp: int):
+def get_gag_damage(gag_track: int, gag_level: int, exp: int) -> int:
     """Calculate and return Gag damage, given gag_track#, gag_level# and exp
 
     Args:
@@ -262,8 +262,7 @@ def get_gag_exp(gag_track: int, current_exps: list) -> int:
     return current_exps[gag_track]
 
 
-def get_gag_exp_needed(gag_track: int, gag_level: int,
-                       current_exps: list) -> int:
+def get_gag_exp_needed(gag_track: int, gag_level: int, current_exps: list) -> int:  # noqa
     """Return the Gag Track EXP required to advance to next Gag Track level
 
     Args:
@@ -291,7 +290,7 @@ def get_gag_exp_needed(gag_track: int, gag_level: int,
     return next_gag_exp - current_gag_exp
 
 
-def get_gag_carry_limits(gag_track, gag_level):
+def get_gag_carry_limits(gag_track: int, gag_level: int) -> tuple:
     """Return list of Gag carry limits based on Gag level
 
     Args:
@@ -305,7 +304,6 @@ def get_gag_carry_limits(gag_track, gag_level):
         gag_track = 6
         gag_level = 1
         return GAG_CARRY_LIMITS[6][1] = (10, 5, 0, 0, 0, 0, 0)
-
     """
 
     return GAG_CARRY_LIMITS[gag_track][gag_level]
