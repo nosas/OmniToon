@@ -175,6 +175,19 @@ def count_all_gags(gags: list) -> int:
     return count
 
 
+def get_gag_accuracy(gag_track: int, gag_level: int) -> int:
+    """atkAcc = propAcc + trackExp + tgtDef + bonus
+
+    Args:
+        gag_track (int): [description]
+        gag_level (int): [description]
+
+    Returns:
+        int: [description]
+    """
+    return -1  # ! TODOOOO
+
+
 def get_gag_name(gag_track: int, gag_level: int) -> str:
     """Return name of the Gag, given a gag_track# and gag_level#
 

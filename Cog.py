@@ -12,6 +12,7 @@ class Cog(Entity):
             cog_key=key, relative_level=relative_level
             )
         self.attacks = self.vitals['attacks']
+        self.defense = self.vitals['def']
         self.hp = self.vitals['hp']
         # ! Relative level should be in range [0,4]
         self.relative_level = relative_level

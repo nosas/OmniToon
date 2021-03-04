@@ -2,9 +2,13 @@
 from .Entity import Entity
 from .Cog import Cog
 from .Gag import Gag
-from .GagGlobals import LEVELS, count_all_gags, get_gag_track_name
+from .GagGlobals import (
+    LEVELS, LURE_TRACK, count_all_gags, get_gag_accuracy,
+    get_gag_exp, get_gag_exp_needed
+)
 
 DEFAULT_HP = 15
+# -1 means the gag_track is locked,0 means lvl 1 Gag is unlocked
 DEFAULT_LEVELS = [-1, -1, -1, -1, 0, 0, -1]
 # DEFAULT_EXPS = [0, 0, 0, 0, 10, 10, 0]
 # Populate DEFAULT_EXP from Gag track levels in DEFAULT_LEVELS
@@ -45,75 +49,97 @@ class Toon(Entity):
         self.hp = hp
         self.gag_limit = gag_limit
 
-        # Verify total Gag count in `gags` doesn't exceed `gag_limit`
-        # ! Raises AssertionError if Gag count exceeds `gag_limit`
         self.gags = gags
-        if self.__count_all_gags() > gag_limit:
+        # Verify total Gag count in `gags` doesn't exceed `gag_limit`
+        if self._count_all_gags() > gag_limit:
             self.gags = DEFAULT_GAGS
 
         self.gag_levels = gag_levels
         self.gag_exps = gag_exps
 
-    def __count_all_gags(self) -> int:
+    def _count_all_gags(self) -> int:
         count = count_all_gags(gags=self.gags)
 
+        # TODO : Raise TooManyGagsError if Gag count exceeds `gag_limit`
         assert count <= self.gag_limit, (
             f"Gag quantity ({count}) exceeds Toon's ({self.name}) gag limit "
             f"({self.gag_limit})."
             )
         return count
 
-    def choose_gag(self, gag_track: int, gag_level: int) -> Gag:
-        gag_exp = self.get_gag_exp(gag_track)
-        gag = Gag(track=gag_track, exp=gag_exp, level=gag_level)
+    def _has_gag(self, gag_track: int, gag_level: int) -> bool:
+        return self.count_gag(gag_track, gag_level) != 0
 
-        assert self.has_gag(gag_track=gag.track, gag=gag.level), (
+    def choose_gag(self, gag_track: int, gag_level: int) -> Gag:
+        gag_exp = self.get_gag_exp(gag_track=gag_track)
+        gag = Gag(track=gag_track, exp=gag_exp, level=gag_level)
+        if self._has_gag(gag_track=gag_track, gag_level=gag_level):
+            return gag
+
+        # TODO : Raise NotEnoughGagsError
+        assert self._has_gag(gag_track=gag.track, gag_level=gag.level), (
             f"Toon \"{self.name}\" does not have any lvl {gag.level} "
             f"{gag.track_name} gags \"{gag.name}\"."
             )
 
-        return gag
-
     def count_gag(self, gag_track: int, gag_level: int) -> int:
+        # TODO : Raise LockedGagTrackError if self.gags[gag_track] == [-1]*7
+        # TODO : Raise LockedGagError if self.gags[gag_track][gag_level] == -1
         return self.gags[gag_track][gag_level]
 
     def do_attack(self, target: Cog, gag_track: int, gag_level: int) -> None:
-        # Need to calculate Attack accuracy, wrong to assume attacks always hit
-        #                   atkAcc = propAcc + trackExp + tgtDef + bonus
-        # https://toontownrewritten.fandom.com/wiki/Accuracy#propAcc
-        # When Trap gag is used, atkAcc is  set to 100, and atkHit is set to 1.
-        # For all other gags, if atkAcc exceeds 95, it will be reduced to 95.
-        # TODO: Create InvalidGagTargetError
+        # TODO: Raise InvalidToonAttackTarget
         assert type(target) == Cog, (
             f"Toon \"{self.name}\" tried to attack a non-Cog object:"
             f"{type(target)}"
         )
 
-        try:
-            gag = self.choose_gag(gag_track=gag_track, gag_level=gag_level)
-        # TODO: Create NotEnoughGagsError, LockedGagError, TooManyGagsError
-        # These errors should be caught and tested in func `choose_gag`
-        except AssertionError as e:
-            gag_track_name = get_gag_track_name(gag_track=gag_track)
-            gag_count = self.count_gag(gag_track=gag_track,
-                                       gag_level=gag_level)
-            # assert self.has_gag(gag_track=gag_track, gag=gag_level), (
-            print(f"Toon \"{self.name}\" tried to attack with lvl {gag_level} "
-                  f"{gag_track_name} ({gag_track}) gag_track, but lacks "
-                  f"number of available gags {gag_count}")
-            raise e
-
-        self.gags[gag_track][gag_level] -= 1
-
+        gag = self.choose_gag(gag_track=gag_track, gag_level=gag_level)
         if super().do_attack(target=target, amount=gag.damage):
             # TODO : Return 1 if hit, 0 if miss? Must be done in Entity class
-            # TODO : If attack hits, add EXP to gag track
-            # TODO : Add EXP multiplier (cog building, invasions)
+            # ! Maybe return tuple containing all attack info when creating
+            # ! the observer: gag track, level, exp, damage, reward, target,
+            # ! target_hp, current_hp
+
             self.gag_exps[gag_track] += gag_level
+        # TODO Create function to add EXP so we can track rewards for model
+        self.gags[gag_track][gag_level] -= 1
+
+    def get_attack_accuracy(self, gag: gag, target: Cog, bonus: int=0) -> int:
+        """Calculate Gag Attack accuracy, given a gag and Cog target
+
+        attack_accuracy = gag_accuracy + gag_exp + target_defense + bonus
+            Source: https://toontownrewritten.fandom.com/wiki/Accuracy#propAcc
+
+        Args:
+            gag (Gag): # ! Fill in
+            target (Cog): # ! Fill in
+            bonus (int, optional): Bonus added when near a prop bonus during
+                                   Battle. Defaults to 0.
+
+        Returns:
+            int: Attack accuracy value in range <0-95>
+        """
+        # ! When Trap gag is used, atkAcc is set to 100, and atkHit is set to 1
+        if gag.track == LURE_TRACK:
+            return 100
+        # ! For all other gags, if atkAcc exceeds 95, it will be reduced to 95
+        gag_acc = get_gag_accuracy(gag.track, gag.level)
+        gag_exp = self.get_gag_exp(gag.track)
+        target_def = target.defense
+
+        # ? Won't this always be 95 bc track_exp is easily > 95
+        atk_acc = gag_acc + gag_exp + target_def + bonus
+        return min(atk_acc, 95)
 
     def get_gag_exp(self, gag_track: int) -> int:
-        # ? Should I change this to use `get_gag_exp` from GagGlobals?
-        return self.gag_exps[gag_track]
+        # return self.gag_exps[gag_track]
+        return get_gag_exp(gag_track=gag_track,
+                           current_exps=self.gag_exps)
+
+    def get_gag_exp_needed(self, gag_track: int) -> int:
+        return get_gag_exp_needed(gag_track=gag_track,
+                                  current_exps=self.gag_exps)
 
     def get_viable_attacks(self, target: Cog) -> list:
         """Return 2-D list of Gags that can be used and gain Gag
@@ -142,12 +168,8 @@ class Toon(Entity):
         else:
             print(f"[!] What the heck is the Cog's level? {target.attrs}")
 
-    def has_gag(self, gag_track: int, gag: int) -> bool:
-        # ! Should also check if gag is unlocked yet, not just quantity.
-        return self.count_gag(gag_track, gag) != 0
-
     def has_gags(self) -> bool:
         # [[0]*7]*7 == 2-D list, 7x7, initialized with 0's
         # Return True if the 2-D list is NOT empty, aka Toon has Gags
         # return self.gags != [[0]*7]*7
-        return self.__count_all_gags() != 0
+        return self._count_all_gags() != 0

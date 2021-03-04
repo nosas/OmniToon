@@ -16,7 +16,9 @@ BattleGlobalAvPropStrings = (
 """  # noqa
 
 
-from .GagGlobals import GAG_TRACK_LABELS, get_gag_damage, get_gag_name
+from .GagGlobals import (
+    GAG_TRACK_LABELS, get_gag_accuracy, get_gag_damage, get_gag_name
+)
 
 
 class GagTrack:
@@ -40,6 +42,7 @@ class Gag(GagTrack):
         """
         super().__init__(track=track, exp=exp)
         # ! Damage, quantity, capacity need to be dynamically updated after atk
+        self.accuracy = get_gag_accuracy(gag_track=track, gag_level=level)
         self.damage = get_gag_damage(gag_track=track, gag_level=level, exp=exp)
         self.level = level
         self.name = get_gag_name(gag_track=track, gag_level=level)

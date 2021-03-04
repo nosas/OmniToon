@@ -132,6 +132,12 @@ class WinState(WinLoseState):
 
     def __init__(self):
         print("[!] Entering state: WinState")
+        """ # TODO
+        * 1. If attack hits and all Cogs are defeated, calculate EXP and add to
+        *    gag track EXP (AI reward)
+
+        * 2. Add EXP multiplier (cog building, invasions)
+        """
 
     def handle_win_lose(self):
         return super().handle_win_lose()

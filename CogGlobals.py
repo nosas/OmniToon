@@ -6,7 +6,6 @@
 
 from random import randint
 
-debugAttackSequence = {}
 ATK_IDX_NAME,  ATK_IDX_TGT, ATK_IDX_DMG, \
     ATK_IDX_ACC, ATK_IDX_FREQ = (0, 1, 2,
                                  3, 4)
@@ -294,6 +293,7 @@ def get_actual_from_relative_level(cog_key: str, relative_level: int) -> int:
         int: Cog's actual level
     """
     cog_data = COG_ATTRIBUTES[cog_key]
+    # TODO Raise IncorrectRelativeLevel
     assert relative_level in range(5), (
             "ERROR: Variable `relative_level` must be in the values "
             "[0, 1, 2, 3, 4], where 0 is the mininmum Cog level and 4 is the "
