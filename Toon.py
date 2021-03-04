@@ -105,7 +105,7 @@ class Toon(Entity):
         # TODO Create function to add EXP so we can track rewards for model
         self.gags[gag_track][gag_level] -= 1
 
-    def get_attack_accuracy(self, gag: gag, target: Cog, bonus: int=0) -> int:
+    def get_attack_accuracy(self, gag: Gag, target: Cog, bonus: int=0) -> int:
         """Calculate Gag Attack accuracy, given a gag and Cog target
 
         attack_accuracy = gag_accuracy + gag_exp + target_defense + bonus
