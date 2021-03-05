@@ -32,7 +32,7 @@ class TestCogGlobalAttack:
 
     # ! How do we check if it's actually actually returning a random index?
     def test_cog_pick_attack_index_random(self, cogf):
-        """Verify `pick_cog_attack` returns an attack_index that is within the
+        """Verify `pick_cog_attack` returns an attack_index within the
         Flunky's attack_index range
 
         Args:

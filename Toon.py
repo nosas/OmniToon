@@ -58,6 +58,11 @@ class Toon(Entity):
         self.gag_exps = gag_exps
 
     def _count_all_gags(self) -> int:
+        """Return the Toon's total number of usable Gags
+
+        Returns:
+            int: Total number of Gags
+        """
         count = count_all_gags(gags=self.gags)
 
         # TODO : Raise TooManyGagsError if Gag count exceeds `gag_limit`
@@ -68,9 +73,28 @@ class Toon(Entity):
         return count
 
     def _has_gag(self, gag_track: int, gag_level: int) -> bool:
+        """True if Toon has the Gag, False if Toon doesn't have, or hasn't yet
+            unlocked, the Gag.
+
+        Args:
+            gag_track (int): Index number of the Gag Track <0-6>
+            gag_level (int): Level of the Gag <0-6>
+
+        Returns:
+            bool: True if Toon has the Gag
+        """
         return self.count_gag(gag_track, gag_level) != 0
 
     def choose_gag(self, gag_track: int, gag_level: int) -> Gag:
+        """Return Gag object containing Gag's vital info, iff Toon has the Gag
+
+        Args:
+            gag_track (int): Index number of the Gag Track <0-6>
+            gag_level (int): Level of the Gag <0-6>
+
+        Returns:
+            Gag: Vital information about the Toon's Gag
+        """
         gag_exp = self.get_gag_exp(gag_track=gag_track)
         gag = Gag(track=gag_track, exp=gag_exp, level=gag_level)
         if self._has_gag(gag_track=gag_track, gag_level=gag_level):
@@ -83,11 +107,30 @@ class Toon(Entity):
             )
 
     def count_gag(self, gag_track: int, gag_level: int) -> int:
+        """Return Toon's current quantity of a Gag(gag_track, gag_level)
+
+        Args:
+            gag_track (int): Index number of the Gag Track <0-6>
+            gag_level (int): Level of the Gag <0-6>
+
+        Returns:
+            int: Current quantity of a Gag
+        """
         # TODO : Raise LockedGagTrackError if self.gags[gag_track] == [-1]*7
         # TODO : Raise LockedGagError if self.gags[gag_track][gag_level] == -1
         return self.gags[gag_track][gag_level]
 
-    def do_attack(self, target: Cog, gag_track: int, gag_level: int) -> None:
+    def do_attack(self, target: Cog, gag_track: int, gag_level: int) -> int:
+        """Perform an attack on a Cog, given gag_track# and gag_level#
+
+        Args:
+            target (Cog): Cog object that is going to be attacked
+            gag_track (int): Index number of the Gag Track <0-6>
+            gag_level (int): Level of the Gag <0-6>
+
+        Returns:
+            int: 0 if the attack misses, 1 if it hits
+        """
         # TODO: Raise InvalidToonAttackTarget
         assert type(target) == Cog, (
             f"Toon \"{self.name}\" tried to attack a non-Cog object:"
@@ -95,15 +138,17 @@ class Toon(Entity):
         )
 
         gag = self.choose_gag(gag_track=gag_track, gag_level=gag_level)
-        if super().do_attack(target=target, amount=gag.damage):
-            # TODO : Return 1 if hit, 0 if miss? Must be done in Entity class
+        # TODO: Pass in attack_accuracy
+        attack_hit = super().do_attack(target=target, amount=gag.damage)
+        if attack_hit:
             # ! Maybe return tuple containing all attack info when creating
-            # ! the observer: gag track, level, exp, damage, reward, target,
+            # ! the Observer: gag track, level, exp, damage, reward, target,
             # ! target_hp, current_hp
-
             self.gag_exps[gag_track] += gag_level
+
         # TODO Create function to add EXP so we can track rewards for model
         self.gags[gag_track][gag_level] -= 1
+        return attack_hit
 
     def get_attack_accuracy(self, gag: Gag, target: Cog, bonus: int=0) -> int:
         """Calculate Gag Attack accuracy, given a gag and Cog target
@@ -112,8 +157,8 @@ class Toon(Entity):
             Source: https://toontownrewritten.fandom.com/wiki/Accuracy#propAcc
 
         Args:
-            gag (Gag): # ! Fill in
-            target (Cog): # ! Fill in
+            gag (Gag): Gag object obtained from `self.choose_gag()`
+            target (Cog): Cog object that is going to be attacked
             bonus (int, optional): Bonus added when near a prop bonus during
                                    Battle. Defaults to 0.
 
@@ -133,11 +178,45 @@ class Toon(Entity):
         return min(atk_acc, 95)
 
     def get_gag_exp(self, gag_track: int) -> int:
+        """Get EXP for a Toon's Gag Track, given gag_track# and list of gag_exps
+
+        Args:
+            gag_track (int): Index number of the Gag Track <0-6>
+
+            Example of valid input ::
+                0     # HEAL_TRACK
+                1     # TRAP_TRACK
+                2     # LURE_TRACK
+                3     # SOUND_TRACK
+                4     # THROW_TRACK
+                5     # SQUIRT_TRACK
+                6     # DROP_TRACK
+
+        Returns:
+            int: Toon's current Gag Track EXP
+        """
         # return self.gag_exps[gag_track]
         return get_gag_exp(gag_track=gag_track,
                            current_exps=self.gag_exps)
 
     def get_gag_exp_needed(self, gag_track: int) -> int:
+        """Return the Gag Track EXP required to advance to next Gag Track level
+
+        Args:
+            gag_track (int): Index number of the Gag Track <0-6>
+
+            Example of valid input ::
+                0     # HEAL_TRACK
+                1     # TRAP_TRACK
+                2     # LURE_TRACK
+                3     # SOUND_TRACK
+                4     # THROW_TRACK
+                5     # SQUIRT_TRACK
+                6     # DROP_TRACK
+
+        Returns:
+            int: EXP required to level up the Toon's Gag Track
+        """
         return get_gag_exp_needed(gag_track=gag_track,
                                   current_exps=self.gag_exps)
 
@@ -169,6 +248,11 @@ class Toon(Entity):
             print(f"[!] What the heck is the Cog's level? {target.attrs}")
 
     def has_gags(self) -> bool:
+        """True if Toon has any available Gags, checks quantity of all Gags
+
+        Returns:
+            bool: True if Toon has any available Gags
+        """
         # [[0]*7]*7 == 2-D list, 7x7, initialized with 0's
         # Return True if the 2-D list is NOT empty, aka Toon has Gags
         # return self.gags != [[0]*7]*7
