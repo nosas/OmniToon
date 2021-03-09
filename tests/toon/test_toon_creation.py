@@ -34,7 +34,11 @@ class TestDefault:
 
 class TestAstro:
     """Specific testing against my Toon, Astro"""
+    # ? Verify structures of the constructor's args, gag[s|[exps|levels|etc.]
     # TODO: Add battle scenarios (losing, winning) in `test_toon_battle.py`
+    # ? Are we neglecting any negative tests?
+    # ? Yes. But we're only focusing on toon_astro for now, until we can create
+    # ? random toons and have multi-toon battle support
 
     def test_hp(self, toon_astro):
         assert toon_astro.hp == 65
@@ -43,7 +47,7 @@ class TestAstro:
         assert toon_astro.gag_exps == [7421, 0, 10101, 9443, 8690, 6862, 191]
 
     def test_levels(self, toon_astro):
-        assert toon_astro.gag_levels == [5, 0, 6, 5, 5, 5, 2]
+        assert toon_astro.gag_levels == [5, -1, 6, 5, 5, 5, 2]
 
     def test_gag_limit(self, toon_astro):
         assert toon_astro.gag_limit == 70
