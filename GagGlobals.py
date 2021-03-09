@@ -153,17 +153,16 @@ def count_all_gags(gags: list) -> int:
 
     Args:
         gags (2-D list): List of Gags, can be obtained from Toon.gags
-
-        `gags` structure ::
-            DEFAULT_GAGS = [
-                [0, 0, 0, 0, 0, 0, 0],  # Toon-Up
-                [0, 0, 0, 0, 0, 0, 0],  # Trap
-                [0, 0, 0, 0, 0, 0, 0],  # Lure
-                [0, 0, 0, 0, 0, 0, 0],  # Sound
-                [0, 0, 0, 0, 0, 0, 0],  # Throw
-                [0, 0, 0, 0, 0, 0, 0],  # Squirt
-                [0, 0, 0, 0, 0, 0, 0]   # Drop
-            ]
+            `gags` structure ::
+                DEFAULT_GAGS = [
+                    [0, 0, 0, 0, 0, 0, 0],  # Toon-Up
+                    [0, 0, 0, 0, 0, 0, 0],  # Trap
+                    [0, 0, 0, 0, 0, 0, 0],  # Lure
+                    [0, 0, 0, 0, 0, 0, 0],  # Sound
+                    [0, 0, 0, 0, 0, 0, 0],  # Throw
+                    [0, 0, 0, 0, 0, 0, 0],  # Squirt
+                    [0, 0, 0, 0, 0, 0, 0]   # Drop
+                ]
 
     Returns:
         int: Total number of Gags
@@ -173,6 +172,19 @@ def count_all_gags(gags: list) -> int:
         count += sum(gag_track)
 
     return count
+
+
+def get_gag_accuracy(gag_track: int, gag_level: int) -> int:
+    """atkAcc = propAcc + trackExp + tgtDef + bonus
+
+    Args:
+        gag_track (int): Index number of the Gag Track <0-6>
+        gag_level (int): Level of the Gag <0-6>
+
+    Returns:
+        int: [description]
+    """
+    return -1  # ! TODOOOO
 
 
 def get_gag_name(gag_track: int, gag_level: int) -> str:
@@ -241,23 +253,22 @@ def get_gag_exp(gag_track: int, current_exps: list) -> int:
     """Get EXP for a Toon's Gag Track, given gag_track# and list of gag_exps
 
     Args:
-        gag_track (int): Index number of the Gag Track <0-7>
+        gag_track (int): Index number of the Gag Track <0-6>
         current_exps (list): Ordered 7-member list of all Gag Track EXPs, can
-                             be retrieved from Toon.gag_exps
-
-        `current_exps` ordered structure ::
-            [
-                TOONUP_TRACK_XP,  # 0
-                TRAP_TRACK_XP,    # 1
-                LURE_TRACK_XP,    # 2
-                SOUND_TRACK_XP,   # 3
-                THROW_TRACK_XP,   # 4
-                SQUIRT_TRACK_XP,  # 5
-                DROP_TRACK_XP     # 6
-            ]
+                             be obtained from Toon.gag_exps
+            `current_exps` ordered structure ::
+                [
+                    HEAL_TRACK_XP,    # 0
+                    TRAP_TRACK_XP,    # 1
+                    LURE_TRACK_XP,    # 2
+                    SOUND_TRACK_XP,   # 3
+                    THROW_TRACK_XP,   # 4
+                    SQUIRT_TRACK_XP,  # 5
+                    DROP_TRACK_XP     # 6
+                ]
 
     Returns:
-        int: Toon's current Gag Track EXP
+        int: Current Gag Track EXP
     """
     return current_exps[gag_track]
 
@@ -269,18 +280,17 @@ def get_gag_exp_needed(gag_track: int, gag_level: int, current_exps: list) -> in
         gag_track (int): Index number of the Gag Track <0-6>
         gag_level (int): Level of the Gag <0-6>
         current_exps (list): Ordered 7-member list of all Gag Track EXPs, can
-                             be retrieved from Toon.gag_exps
-
-        `current_exps` ordered structure ::
-            [
-                TOONUP_TRACK_XP,  # 0
-                TRAP_TRACK_XP,    # 1
-                LURE_TRACK_XP,    # 2
-                SOUND_TRACK_XP,   # 3
-                THROW_TRACK_XP,   # 4
-                SQUIRT_TRACK_XP,  # 5
-                DROP_TRACK_XP     # 6
-            ]
+                             be obtained from Toon.gag_exps
+            `current_exps` ordered structure ::
+                [
+                    HEAL_TRACK_XP,    # 0
+                    TRAP_TRACK_XP,    # 1
+                    LURE_TRACK_XP,    # 2
+                    SOUND_TRACK_XP,   # 3
+                    THROW_TRACK_XP,   # 4
+                    SQUIRT_TRACK_XP,  # 5
+                    DROP_TRACK_XP     # 6
+                ]
 
     Returns:
         int: EXP required to advance to next Gag Track level
@@ -300,10 +310,8 @@ def get_gag_carry_limits(gag_track: int, gag_level: int) -> tuple:
     Returns:
         tuple: 7-member tuple of Gag carry limits
 
-    Return example - Level 2 Drop track carry limits ::
-        gag_track = 6
-        gag_level = 1
-        return GAG_CARRY_LIMITS[6][1] = (10, 5, 0, 0, 0, 0, 0)
+        Example output for level 2 Drop track carry limits (track=6, lvl=1) ::
+            GAG_CARRY_LIMITS[6][1] = (10, 5, 0, 0, 0, 0, 0)
     """
 
     return GAG_CARRY_LIMITS[gag_track][gag_level]

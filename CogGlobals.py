@@ -6,7 +6,6 @@
 
 from random import randint
 
-debugAttackSequence = {}
 ATK_IDX_NAME,  ATK_IDX_TGT, ATK_IDX_DMG, \
     ATK_IDX_ACC, ATK_IDX_FREQ = (0, 1, 2,
                                  3, 4)
@@ -256,16 +255,21 @@ SHRED = list(COG_ATTACKS.keys()).index('Shred')
 
 
 def pick_from_freq_list(freq_list: tuple or list) -> int:
-    """Return a pseudo-random Cog level, given a 5-member tuple or list, can be
-        retrieved from COG_ATTRIBUTES[cog_key]['freq']
+    """Return a pseudo-random relative level of a Cog, given a 5-member tuple
+        or list, can be obtained from COG_ATTRIBUTES[cog_key]['freq'].
+
+        The higher the frequency value <0-99>, the higher chance that relative
+        level (index of the frequency value) is returned.
 
     Args:
         freq_list (<tuple|list>): List containing the 5 frequency values
-            Example freq_list ::
-                freq_list = (50, 30, 10, 5, 5)
+
+        Example of freq_list bias towards relative_level=0 ::
+            freq_list = (50, 30, 10, 5, 5)
+            returns =   (0,   1,  2, 3, 4)
 
     Returns:
-        int: Level of the Cog
+        int: Relative level of the Cog
     """
     rand_num = randint(0, 99)
     count = 0
@@ -291,9 +295,10 @@ def get_actual_from_relative_level(cog_key: str, relative_level: int) -> int:
         relative_level (int): Relative level of the Cog, <0-4>
 
     Returns:
-        int: Cog's actual level
+        int: Cog's actual level (cog_min_level + relative_level)
     """
     cog_data = COG_ATTRIBUTES[cog_key]
+    # TODO Raise IncorrectRelativeLevel
     assert relative_level in range(5), (
             "ERROR: Variable `relative_level` must be in the values "
             "[0, 1, 2, 3, 4], where 0 is the mininmum Cog level and 4 is the "
@@ -304,7 +309,8 @@ def get_actual_from_relative_level(cog_key: str, relative_level: int) -> int:
 
 
 def get_cog_attack(cog_key: str, relative_level: int, attack_index: int=-1) -> dict:   # noqa
-    """Return dictionary of Cog's attack given COG_ATTR key and relative_level
+    """Return dictionary of Cog's attack given COG_ATTR key and relative_level,
+        returns a pseudo-random Cog attack if attack_index argument
 
     Args:
         cog_key (str): Key value for COG_ATTRIBUTES of the Cog's name.
@@ -312,19 +318,21 @@ def get_cog_attack(cog_key: str, relative_level: int, attack_index: int=-1) -> d
         relative_level (int): Relative level of the Cog, <0-4>
         attack_index (int, optional): Defaults to -1, selects random attack.
             Should be within the range of (0, len(Cog.attacks))
+
     Returns:
         dict: Dictionary containing cog key, atk name/id/hp(dmg)/acc/freq etc.
-            Example attack dictionary of lvl 2 Flunky ::
-                {
-                    'cog_key': 'f',
-                    'name': 'PoundKey',
-                    'id': 0,
-                    'animName': 'phone',
-                    'hp': 3,
-                    'acc': 80,
-                    'freq': 40,
-                    'target': 2  # ATK_TGT_SINGLE=1, ATK_TGT_GROUP=2
-                }
+
+        Example attack dictionary for lvl 2 Flunky (key='f', lvl='1', atk=0) ::
+            {
+                'cog_key': 'f',
+                'name': 'PoundKey',
+                'id': 0,
+                'animName': 'phone',
+                'hp': 3,
+                'acc': 80,
+                'freq': 40,
+                'target': 2  # ATK_TGT_SINGLE=1, ATK_TGT_GROUP=2
+            }
     """
     # * attack_choices == COG_ATTRIBUTES[cog_key]['attacks']
     attack_choices = get_cog_attacks_all_levels(cog_key=cog_key)
@@ -334,12 +342,12 @@ def get_cog_attack(cog_key: str, relative_level: int, attack_index: int=-1) -> d
 
     attack_tuple = attack_choices[attack_index]
     """ Example attack tuple ::
-                (
-                    'PoundKey', ATK_TGT_SINGLE, # Name, Target
-                    (2, 2, 3, 4, 6),            # Dmg
-                    (75, 75, 80, 80, 90),       # Acc
-                    (30, 35, 40, 45, 50)        # Freq
-                )
+            (
+                'PoundKey', ATK_TGT_SINGLE, # Name, Target
+                (2, 2, 3, 4, 6),            # Dmg
+                (75, 75, 80, 80, 90),       # Acc
+                (30, 35, 40, 45, 50)        # Freq
+            )
     """
     attack_dict = {}
     attack_dict['cog_key'] = cog_key
@@ -355,7 +363,7 @@ def get_cog_attack(cog_key: str, relative_level: int, attack_index: int=-1) -> d
     return attack_dict
 
 
-def get_cog_attacks_all_levels(cog_key) -> tuple:
+def get_cog_attacks_all_levels(cog_key: str) -> tuple:
     """Return tuple containing all possible Cog attack choices for a single Cog
 
     Args:
@@ -363,21 +371,22 @@ def get_cog_attacks_all_levels(cog_key) -> tuple:
 
     Returns:
         attack_choices (tuple): All possible Cog attack choices
-        example ::
-                    'attacks': (
-                        ('PoundKey', ATK_TGT_SINGLE  [0] Name, [1] Target
-                            (2, 2, 3, 4, 6),         [2] Damage
-                            (75, 75, 80, 80, 90),    [3] Accuracy
-                            (30, 35, 40, 45, 50)),   [4] Frequency
-                        ('Shred', ATK_TGT_SINGLE
-                            (3, 4, 5, 6, 7),
-                            (50, 55, 60, 65, 70),
-                            (10, 15, 20, 25, 30)),
-                        ('ClipOnTie', ATK_TGT_SINGLE
-                            (1, 1, 2, 2, 3),
-                            (75, 80, 85, 90, 95),
-                            (60, 50, 40, 30, 20))
-                    )
+
+        Example output for cog_key='f' ::
+            'attacks': (
+                ('PoundKey', ATK_TGT_SINGLE  [0] Name, [1] Target
+                    (2, 2, 3, 4, 6),         [2] Damage
+                    (75, 75, 80, 80, 90),    [3] Accuracy
+                    (30, 35, 40, 45, 50)),   [4] Frequency
+                ('Shred', ATK_TGT_SINGLE
+                    (3, 4, 5, 6, 7),
+                    (50, 55, 60, 65, 70),
+                    (10, 15, 20, 25, 30)),
+                ('ClipOnTie', ATK_TGT_SINGLE
+                    (1, 1, 2, 2, 3),
+                    (75, 80, 85, 90, 95),
+                    (60, 50, 40, 30, 20))
+            )
     """
     return COG_ATTRIBUTES[cog_key]['attacks']
 
@@ -392,42 +401,42 @@ def get_cog_vitals(cog_key: str, relative_level: int=-1) -> dict:
     Returns:
         vitals_dict: Structured dictionary containing vital Cog information
 
-    Example:
-        {
-            'name': 'Flunky',
-            'level': 5,
-            'hp': 42,
-            'def': 15,
-            'attacks': [
-                {
-                    'acc': 80,
-                    'animName': 'phone',
-                    'freq': 40,
-                    'hp': 3,
-                    'id': 0,
-                    'name': 'PoundKey',
-                    'target': 1  # <0-2> ATK_TGT_SINGLE=1, ATK_TGT_GROUP=2
-                }
-                {
-                    'acc': 70,
-                    'animName': 'shredder',
-                    'freq': 30,
-                    'hp': 7,
-                    'id': 1,
-                    'name': 'Shred',
-                    'target': 1
-                },
-                {
-                    'acc': 95,
-                    'animName': 'throw-paper',
-                    'freq': 20,
-                    'hp': 3,
-                    'id': 2,
-                    'name': 'ClipOnTie',
-                    'target': 1
-                }
-            ]
-        }
+        Example output for (cog_key='f', relative_lvl=4) ::
+            {
+                'name': 'Flunky',
+                'level': 5,
+                'hp': 42,
+                'def': 15,
+                'attacks': [
+                    {
+                        'acc': 80,
+                        'animName': 'phone',
+                        'freq': 40,
+                        'hp': 3,
+                        'id': 0,
+                        'name': 'PoundKey',
+                        'target': 1  # <0-2> ATK_TGT_SINGLE=1, ATK_TGT_GROUP=2
+                    }
+                    {
+                        'acc': 70,
+                        'animName': 'shredder',
+                        'freq': 30,
+                        'hp': 7,
+                        'id': 1,
+                        'name': 'Shred',
+                        'target': 1
+                    },
+                    {
+                        'acc': 95,
+                        'animName': 'throw-paper',
+                        'freq': 20,
+                        'hp': 3,
+                        'id': 2,
+                        'name': 'ClipOnTie',
+                        'target': 1
+                    }
+                ]
+            }
     """
     cog_data = COG_ATTRIBUTES[cog_key]
     # Pick pseudo-random Cog level if no relative_level is provided
@@ -471,7 +480,7 @@ def pick_cog_attack(attack_choices: tuple, relative_level, attack_name='') -> in
     Args:
         attack_choices (tuple): List of Cog's attack choices, retrieved from
             `get_cog_attacks_all_levels` function
-            example `attack_choices` ::
+            Example of `attack_choices` ::
                 attack_choices = (
                     ('PoundKey', ATK_TGT_SINGLE  [0] Name, [1] Target
                         (2, 2, 3, 4, 6),         [2] Damage
@@ -489,8 +498,9 @@ def pick_cog_attack(attack_choices: tuple, relative_level, attack_name='') -> in
         relative_level (int): Level relative to the Cog's minimum lvl <0-5>
         attack_name (str, optional): Attack name as seen in COG_ATTACKS or the
             `get_cog_attacks_all_levels` function
-                example input ::
-                    <'PoundKey'|'Shred'|'ClipOnTie'>
+            Example of valid input ::
+                <'PoundKey'|'Shred'|'ClipOnTie'>
+
     Returns:
         int: Index of the Cog attack
     """
