@@ -45,10 +45,8 @@ class Toon(Entity):
             gag_levels ([type], optional): [description]. Defaults to DEFAULT_LEVELS.
             gag_limit ([type], optional): [description]. Defaults to DEFAULT_GAG_LIMIT.
         """  # noqa
-        self.name = name
-        self.hp = hp
+        super().__init__(name=name, hp=hp)
         self.gag_limit = gag_limit
-
         self.gags = gags
         # Verify total Gag count in `gags` doesn't exceed `gag_limit`
         if self._count_all_gags() > gag_limit:
