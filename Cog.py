@@ -20,6 +20,27 @@ class Cog(Entity):
             cog_key=key, relative_level=relative_level
             )
 
+    # TODO Make this follow Toon's `do_attack`, add  atk_indx
+    def do_attack(self, target, amount: int):
+        """Perform an attack on a Toon, given an attack damage
+
+        Args:
+            target (Toon): Toon object that is going to be attacked
+            amount (int): Attack's damage amount
+
+        Returns:
+            int: 0 if the attack misses, 1 if it hits
+        """
+        from .Toon import Toon
+        # ! Raise InvalidTargetError if type(target) == type(self)
+        assert type(target) == Toon, (
+            f"Cog {self.name} is attacking a non-Toon object"
+        )
+
+        # TODO Add chance_to_hit
+        attack_hit = super().do_attack(target=target, amount=amount)
+        return attack_hit
+
     def get_attack(self, attack_name: str) -> dict:
         """Return dictionary containing Cog attack information, given an index#
 

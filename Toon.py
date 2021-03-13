@@ -160,6 +160,12 @@ class Toon(Entity):
             int: 0 if the attack misses, 1 if it hits
         """
         # TODO: Raise InvalidToonAttackTarget
+        """
+        print(f"[!] Toon \"{toon_astro.name}\" used lvl {gag_throw.level} "
+              f"{gag_throw.track_name}, {gag_throw.name}, for "
+              f"{gag_throw.damage} dmg against lvl {cog_flunky.level} "
+              f"{cog_flunky.name}")
+        """
         assert type(target) == Cog, (
             f"Toon \"{self.name}\" tried to attack a non-Cog object:"
             f"{type(target)}"

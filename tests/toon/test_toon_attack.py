@@ -61,7 +61,7 @@ class TestToonAttackThrow:
 
     @pytest.mark.xfail(strict=True)
     def test_attack_target_fail(self, toon_astro):
-        """Verify Toon's `choose_gag` raises InvalidToonAttackTarget when
+        """Verify Toon's `do_attack` raises InvalidToonAttackTarget when
         trying to attack a non-Cog object
 
         Args:
@@ -109,30 +109,13 @@ class TestToonAttackThrow:
                                           gag_level=self.gag_level)
 
         # TODO : Move the before/after prints to `do_attack`?
-        # ! TODO Remove count_gag checks, we should only check if Cog is hurt
         # Printing will likely be done in some Battle function that monitors
         # the state of all Entities in the battle, not in the `do_attack` func
         cog_hp_before = cog_flunky.hp
-        num_gags_before = toon_astro.count_gag(gag_throw.track,
-                                               gag_throw.level)
-        print(f"\nBEFORE= cog_hp {cog_hp_before}, num_gags {num_gags_before}")
-
         toon_astro.do_attack(target=cog_flunky, gag_track=gag_throw.track,
                              gag_level=gag_throw.level)
 
-        print(f"[!] Toon \"{toon_astro.name}\" used lvl {gag_throw.level} "
-              f"{gag_throw.track_name}, {gag_throw.name}, for "
-              f"{gag_throw.damage} dmg against lvl {cog_flunky.level} "
-              f"{cog_flunky.name}")
-
-        cog_hp_after = cog_flunky.hp
-        num_gags_after = toon_astro.count_gag(gag_throw.track, gag_throw.level)
-        print(f" AFTER= cog_hp {cog_hp_after}, num_gags {num_gags_after}")
-        assert cog_hp_after == cog_hp_before - gag_throw.damage
-
-        # ! Gag EXP should be checked after the Battle, not after each attack
-        if cog_hp_after <= 0:
-            assert cog_flunky.is_defeated()
+        assert cog_flunky.hp == cog_hp_before - gag_throw.damage
 
     @pytest.mark.parametrize('cog_flunky,is_defeated', [
             (0, True), (1, True), (2, True), (3, False), (4, False)
@@ -150,18 +133,8 @@ class TestToonAttackThrow:
         """
         gag_throw = toon_astro.choose_gag(gag_track=self.gag_track,
                                           gag_level=self.gag_level)
-        cog_hp_before = cog_flunky.hp
-        print(f"\nBEFORE= cog_hp {cog_hp_before}")
 
         toon_astro.do_attack(target=cog_flunky, gag_track=gag_throw.track,
                              gag_level=gag_throw.level)
 
-        print(f"[!] Toon \"{toon_astro.name}\" used lvl {gag_throw.level} "
-              f"{gag_throw.track_name}, {gag_throw.name}, for "
-              f"{gag_throw.damage} dmg against lvl {cog_flunky.level} "
-              f"{cog_flunky.name}")
-
-        cog_hp_after = cog_flunky.hp
-        print(f" AFTER= cog_hp {cog_hp_after}")
-        assert cog_hp_after == cog_hp_before - gag_throw.damage
         assert cog_flunky.is_defeated() == is_defeated

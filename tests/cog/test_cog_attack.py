@@ -11,6 +11,36 @@ import pytest
 @pytest.mark.parametrize('cogf', [0, 1, 2, 3, 4], indirect=True)
 class TestCogGlobalAttack:
 
+    # TODO Move to TestCogAttack when its created...
+    @pytest.mark.xfail(strict=True)
+    def test_attack_target_cog_fail(self, cogf):
+        """Verify Cog's `do_attack` raises InvalidCogAttackTarget when
+        trying to attack a non-Toon object
+
+        Args:
+            cogf (Cog): Flunky Cog fixture
+        """
+        try:
+            cogf.do_attack(target=cogf, damage=10)
+        # TODO : Create InvalidTargetError, and test it here
+        except AssertionError as e:
+            raise e
+
+    # TODO Move to TestCogAttack when its created...
+    @pytest.mark.xfail(strict=True)
+    def test_attack_target_defeated_fail(self, cogf):
+        """Verify Cog's `do_attack` raises InvalidCogAttackTarget when
+        trying to attack a defeated Toon (Toon.hp <= 0) object
+
+        Args:
+            cogf (Cog): Flunky Cog fixture
+        """
+        try:
+            cogf.hp = 0
+            cogf.do_attack(target=cogf, amount=10)
+        except AssertionError as e:
+            raise e
+
     @pytest.mark.parametrize('exp_attack_index,exp_attack_name', [
         (0, 'PoundKey'), (1, 'Shred'), (2, 'ClipOnTie')])
     def test_cog_get_cog_attack(self, cogf, exp_attack_index, exp_attack_name):
