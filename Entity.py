@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from .Exceptions import InvalidTargetError
+
 
 class Entity:
     def __init__(self, name, hp):
@@ -15,14 +17,12 @@ class Entity:
         type_target = type(target)
 
         # ! Raise InvalidTargetError if type(target) != Entity
-        assert isinstance(target, Entity), (
-            f"{type_self} {self.name} is attacking a non-Entity object"
-        )
+        if not isinstance(target, Entity):
+            raise InvalidTargetError
 
         # ! Raise InvalidTargetError if type(target) == type(self)
-        assert type_self != type_target, (
-            f"{type_self} {self.name} is attacking {type_target} {target.name}"
-        )
+        if type(target) == type(self):
+            raise InvalidTargetError
 
         # TODO Add chance_to_hit
         target._get_attacked(amount=amount)

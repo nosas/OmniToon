@@ -1,11 +1,16 @@
-from ..fixtures.toon_fixtures import toon_astro
-from ..fixtures.cog_fixtures import cog_flunky
-from ...Gag import Gag
-from ...GagGlobals import THROW_TRACK, get_gag_name, get_gag_track_name
 import pytest
+
+from ...Exceptions import (InvalidToonAttackTarget, LockedGagError,
+                           LockedGagTrackError, NotEnoughGagsError)
+from ...Gag import Gag
+from ...GagGlobals import (THROW_TRACK, TRAP_TRACK, get_gag_name,
+                           get_gag_track_name)
+from ..fixtures.cog_fixtures import cog_flunky
+from ..fixtures.toon_fixtures import toon_astro
 
 
 # ? How can we improve Test docstrings? Pass/fail criteria? Raisable errors?
+# ! Create TestToonAttack for proper negative testing
 class TestToonAttackThrow:
 
     gag_track = THROW_TRACK
@@ -31,7 +36,6 @@ class TestToonAttackThrow:
         assert gag_throw.track_name == get_gag_track_name(gag_throw.track)
         self.gag = gag_throw
 
-    @pytest.mark.xfail(strict=True)
     def test_choose_throw_fail_quantity(self, toon_astro):
         """Verify Toon's `choose_gag` raises a NotEnoughGagsError when passing
         in a Gag level with 0 quantity
@@ -39,13 +43,26 @@ class TestToonAttackThrow:
         Args:
             toon_astro (Toon): Toon fixture of my TTR character
         """
-        gag_throw = toon_astro.choose_gag(gag_track=self.gag_track,
-                                          gag_level=0)
-        # TODO : Create NotEnoughGagsError, and test it here
+        with pytest.raises(NotEnoughGagsError):
+            gag_throw = toon_astro.choose_gag(gag_track=self.gag_track,
+                                              gag_level=0)
+            assert not gag_throw
 
-    # ! Isn't there a pytest.raises function that catches expected errors?
-    @pytest.mark.xfail(strict=True)
-    def test_choose_throw_fail_locked(self, toon_astro):
+    # ! Move to TestToonAttack for proper negative testing
+    def test_choose_throw_fail_locked_gag(self, toon_astro):
+        """Verify Toon's `choose_gag` raises LockedGagError when trying to
+        retrieve a locked Gag track or Gag level
+
+        Args:
+            toon_astro (Toon): Toon fixture of my TTR character
+        """
+        with pytest.raises(LockedGagError):
+            gag_throw = toon_astro.choose_gag(gag_track=self.gag_track,
+                                              gag_level=6)
+            assert not gag_throw
+
+    # ! Move to TestToonAttack for proper negative testing
+    def test_choose_throw_fail_locked_track(self, toon_astro):
         """Verify Toon's `choose_gag` raises LockedGagError when trying to
         retrieve a locked Gag track or Gag level
 
@@ -55,11 +72,12 @@ class TestToonAttackThrow:
         # TODO : Create test to make sure gag is available (unlocked)
         # TODO : Check first if Gag track is unlocked, then Gag level
         # TODO : Create LockedGagError, and test it here
-        gag_throw = toon_astro.choose_gag(gag_track=self.gag_track,
-                                          gag_level=0)
-        # TODO : Create NotEnoughGagsError, and test it here
+        with pytest.raises(LockedGagTrackError):
+            gag_trap = toon_astro.choose_gag(gag_track=TRAP_TRACK,
+                                             gag_level=0)
+            assert not gag_trap
 
-    @pytest.mark.xfail(strict=True)
+    # ! Move to TestToonAttack for proper negative testing
     def test_attack_target_fail(self, toon_astro):
         """Verify Toon's `do_attack` raises InvalidToonAttackTarget when
         trying to attack a non-Cog object
@@ -67,12 +85,11 @@ class TestToonAttackThrow:
         Args:
             toon_astro (Toon): Toon fixture of my TTR character
         """
-        try:
-            toon_astro.do_attack(target=toon_astro, gag_track=self.gag_track,
-                                 gag_level=self.gag_level)
-        # TODO : Create InvalidTargetError, and test it here
-        except AssertionError as e:
-            raise e
+        with pytest.raises(InvalidToonAttackTarget):
+            toon_attack = toon_astro.do_attack(target=toon_astro,
+                                               gag_track=self.gag_track,
+                                               gag_level=self.gag_level)
+            assert not toon_attack
 
     def test_gag_quantity_after_attack(self, toon_astro, cog_flunky):
         """Verify quantity of Toon's Gag reduces by 1 after the Toon attacks
@@ -107,10 +124,6 @@ class TestToonAttackThrow:
         # ! set a flag is viability doesnt matter
         gag_throw = toon_astro.choose_gag(gag_track=self.gag_track,
                                           gag_level=self.gag_level)
-
-        # TODO : Move the before/after prints to `do_attack`?
-        # Printing will likely be done in some Battle function that monitors
-        # the state of all Entities in the battle, not in the `do_attack` func
         cog_hp_before = cog_flunky.hp
         toon_astro.do_attack(target=cog_flunky, gag_track=gag_throw.track,
                              gag_level=gag_throw.level)
@@ -133,7 +146,6 @@ class TestToonAttackThrow:
         """
         gag_throw = toon_astro.choose_gag(gag_track=self.gag_track,
                                           gag_level=self.gag_level)
-
         toon_astro.do_attack(target=cog_flunky, gag_track=gag_throw.track,
                              gag_level=gag_throw.level)
 

@@ -1,10 +1,8 @@
-from .Toon import Toon
+from .BattleState import (AttackState, BattleContext, BattleState,
+                          CogAttackState, LoseState, ToonAttackState,
+                          WinLoseState, WinState)
 from .Cog import Cog
-from .BattleState import (
-    BattleContext, BattleState, AttackState, WinLoseState,
-    ToonAttackState, CogAttackState, WinState, LoseState
-)
-
+from .Toon import Toon
 
 # TODO Create BattleCogBuilding w/ constructor accepting multi-toon&cogs
 # TODO Look into Strategy design patterns for Toon decision making
@@ -13,6 +11,7 @@ from .BattleState import (
 # Toon who has done him the most damage, you are less likely to be attacked
 # if you choose Pass. This is a good strategy in a group battle if your Laff
 # points are dangerously low.
+
 
 # ! TODO Implement State design pattern, create BattleStates:
 # ! e.g. ToonAttackState, CogAttackState, BattleWinState, BattleLoseState

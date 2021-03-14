@@ -16,9 +16,8 @@ BattleGlobalAvPropStrings = (
 """  # noqa
 
 
-from .GagGlobals import (
-    GAG_TRACK_LABELS, get_gag_accuracy, get_gag_damage, get_gag_name
-)
+from .GagGlobals import (GAG_TRACK_LABELS, get_gag_accuracy, get_gag_damage,
+                         get_gag_name)
 
 
 class GagTrack:

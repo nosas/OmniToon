@@ -1,7 +1,8 @@
 import pytest
-from ..fixtures.cog_fixtures import cog_flunky
+
 from ...Cog import Cog
-from ...CogGlobals import COG_HP, COG_ATTRIBUTES
+from ...CogGlobals import COG_ATTRIBUTES, COG_HP
+from ..fixtures.cog_fixtures import cog_flunky
 
 
 @pytest.mark.parametrize('cog_flunky', [0, 1, 2, 3, 4], indirect=True)

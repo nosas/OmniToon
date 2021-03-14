@@ -1,5 +1,7 @@
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
+
 from .Cog import Cog
 from .GagGlobals import THROW_TRACK
 from .Toon import Toon

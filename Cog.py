@@ -1,7 +1,8 @@
 from random import randint
+
+from .CogGlobals import get_actual_from_relative_level, get_cog_vitals
 from .Entity import Entity
-from .CogGlobals import (
-    get_cog_vitals, get_actual_from_relative_level, ATK_IDX_FREQ)
+from .Exceptions import InvalidCogAttackTarget
 
 
 class Cog(Entity):
@@ -32,10 +33,12 @@ class Cog(Entity):
             int: 0 if the attack misses, 1 if it hits
         """
         from .Toon import Toon
-        # ! Raise InvalidTargetError if type(target) == type(self)
-        assert type(target) == Toon, (
-            f"Cog {self.name} is attacking a non-Toon object"
-        )
+
+        if type(target) != Toon:
+            raise InvalidCogAttackTarget
+
+        if target.is_defeated():
+            raise InvalidCogAttackTarget
 
         # TODO Add chance_to_hit
         attack_hit = super().do_attack(target=target, amount=amount)

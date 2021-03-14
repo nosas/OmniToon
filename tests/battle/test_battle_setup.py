@@ -1,6 +1,6 @@
-from ..fixtures.toon_fixtures import toon_astro
-from ..fixtures.cog_fixtures import cog_flunky
 from ...Battle import Battle
+from ..fixtures.cog_fixtures import cog_flunky
+from ..fixtures.toon_fixtures import toon_astro
 
 
 class TestBattleSetup:
