@@ -14,13 +14,13 @@ DEFAULT_LEVELS = [-1, -1, -1, -1, 0, 0, -1]
 # DEFAULT_EXPS = [0, 0, 0, 0, 10, 10, 0]
 # Populate DEFAULT_EXP from Gag track levels in DEFAULT_LEVELS
 DEFAULT_EXPS = [LEVELS[idx][level] for idx, level in enumerate(DEFAULT_LEVELS)]
-DEFAULT_GAGS = [[0, 0, 0, 0, 0, 0, 0],  # Toon-Up
-                [0, 0, 0, 0, 0, 0, 0],  # Trap
-                [0, 0, 0, 0, 0, 0, 0],  # Lure
-                [0, 0, 0, 0, 0, 0, 0],  # Sound
-                [0, 0, 0, 0, 0, 0, 0],  # Throw
-                [0, 0, 0, 0, 0, 0, 0],  # Squirt
-                [0, 0, 0, 0, 0, 0, 0]]  # Drop
+DEFAULT_GAGS = [[-1, -1, -1, -1, -1, -1, -1],  # Toon-Up
+                [-1, -1, -1, -1, -1, -1, -1],  # Trap
+                [-1, -1, -1, -1, -1, -1, -1],  # Lure
+                [-1, -1, -1, -1, -1, -1, -1],  # Sound
+                [0,  -1, -1, -1, -1, -1, -1],  # Throw
+                [0,  -1, -1, -1, -1, -1, -1],  # Squirt
+                [-1, -1, -1, -1, -1, -1, -1]]  # Drop
 DEFAULT_GAG_LIMIT = 20
 
 
@@ -150,6 +150,7 @@ class Toon(Entity):
 
         return gag_count
 
+    # TODO Replace all gag_track,gag_level args to Gag objects
     def do_attack(self, target: Cog, gag_track: int, gag_level: int) -> int:
         """Perform an attack on a Cog, given gag_track# and gag_level#
 

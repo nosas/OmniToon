@@ -1,10 +1,8 @@
 import pytest
 
-from ...Exceptions import (InvalidToonAttackTarget, LockedGagError,
-                           LockedGagTrackError, NotEnoughGagsError)
+from ...Exceptions import InvalidToonAttackTarget
 from ...Gag import Gag
-from ...GagGlobals import (THROW_TRACK, TRAP_TRACK, get_gag_name,
-                           get_gag_track_name)
+from ...GagGlobals import THROW_TRACK, get_gag_name, get_gag_track_name
 from ..fixtures.cog_fixtures import cog_flunky
 from ..fixtures.toon_fixtures import toon_astro
 
@@ -15,6 +13,19 @@ class TestToonAttackThrow:
 
     gag_track = THROW_TRACK
     gag_level = 3
+
+    def test_attack_target_fail(self, toon_astro):
+        """Verify Toon's `do_attack` raises InvalidToonAttackTarget when
+        trying to attack a non-Cog object
+
+        Args:
+            toon_astro (Toon): Toon fixture of my TTR character
+        """
+        with pytest.raises(InvalidToonAttackTarget):
+            toon_attack = toon_astro.do_attack(target=toon_astro,
+                                               gag_track=self.gag_track,
+                                               gag_level=self.gag_level)
+            assert not toon_attack
 
     def test_choose_throw_ok(self, toon_astro):
         """Verify Toon's `choose_gag` method returns the correct Gag when
@@ -35,61 +46,6 @@ class TestToonAttackThrow:
         assert gag_throw.track_name == "Throw"
         assert gag_throw.track_name == get_gag_track_name(gag_throw.track)
         self.gag = gag_throw
-
-    def test_choose_throw_fail_quantity(self, toon_astro):
-        """Verify Toon's `choose_gag` raises a NotEnoughGagsError when passing
-        in a Gag level with 0 quantity
-
-        Args:
-            toon_astro (Toon): Toon fixture of my TTR character
-        """
-        with pytest.raises(NotEnoughGagsError):
-            gag_throw = toon_astro.choose_gag(gag_track=self.gag_track,
-                                              gag_level=0)
-            assert not gag_throw
-
-    # ! Move to TestToonAttack for proper negative testing
-    def test_choose_throw_fail_locked_gag(self, toon_astro):
-        """Verify Toon's `choose_gag` raises LockedGagError when trying to
-        retrieve a locked Gag track or Gag level
-
-        Args:
-            toon_astro (Toon): Toon fixture of my TTR character
-        """
-        with pytest.raises(LockedGagError):
-            gag_throw = toon_astro.choose_gag(gag_track=self.gag_track,
-                                              gag_level=6)
-            assert not gag_throw
-
-    # ! Move to TestToonAttack for proper negative testing
-    def test_choose_throw_fail_locked_track(self, toon_astro):
-        """Verify Toon's `choose_gag` raises LockedGagError when trying to
-        retrieve a locked Gag track or Gag level
-
-        Args:
-            toon_astro (Toon): Toon fixture of my TTR character
-        """
-        # TODO : Create test to make sure gag is available (unlocked)
-        # TODO : Check first if Gag track is unlocked, then Gag level
-        # TODO : Create LockedGagError, and test it here
-        with pytest.raises(LockedGagTrackError):
-            gag_trap = toon_astro.choose_gag(gag_track=TRAP_TRACK,
-                                             gag_level=0)
-            assert not gag_trap
-
-    # ! Move to TestToonAttack for proper negative testing
-    def test_attack_target_fail(self, toon_astro):
-        """Verify Toon's `do_attack` raises InvalidToonAttackTarget when
-        trying to attack a non-Cog object
-
-        Args:
-            toon_astro (Toon): Toon fixture of my TTR character
-        """
-        with pytest.raises(InvalidToonAttackTarget):
-            toon_attack = toon_astro.do_attack(target=toon_astro,
-                                               gag_track=self.gag_track,
-                                               gag_level=self.gag_level)
-            assert not toon_attack
 
     def test_gag_quantity_after_attack(self, toon_astro, cog_flunky):
         """Verify quantity of Toon's Gag reduces by 1 after the Toon attacks

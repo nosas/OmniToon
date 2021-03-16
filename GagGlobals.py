@@ -155,13 +155,13 @@ def count_all_gags(gags: list) -> int:
         gags (2-D list): List of Gags, can be obtained from Toon.gags
             `gags` structure ::
                 DEFAULT_GAGS = [
-                    [0, 0, 0, 0, 0, 0, 0],  # Toon-Up
-                    [0, 0, 0, 0, 0, 0, 0],  # Trap
-                    [0, 0, 0, 0, 0, 0, 0],  # Lure
-                    [0, 0, 0, 0, 0, 0, 0],  # Sound
-                    [0, 0, 0, 0, 0, 0, 0],  # Throw
-                    [0, 0, 0, 0, 0, 0, 0],  # Squirt
-                    [0, 0, 0, 0, 0, 0, 0]   # Drop
+                    [-1, -1, -1, -1, -1, -1, -1],  # Toon-Up
+                    [-1, -1, -1, -1, -1, -1, -1],  # Trap
+                    [-1, -1, -1, -1, -1, -1, -1],  # Lure
+                    [-1, -1, -1, -1, -1, -1, -1],  # Sound
+                    [0,  -1, -1, -1, -1, -1, -1],  # Throw
+                    [0,  -1, -1, -1, -1, -1, -1],  # Squirt
+                    [-1, -1, -1, -1, -1, -1, -1]   # Drop
                 ]
 
     Returns:
@@ -169,7 +169,10 @@ def count_all_gags(gags: list) -> int:
     """
     count = 0
     for gag_track in gags:
-        count += sum(gag_track)
+        # Summing the -1 values will result in a negative Gag count
+        # We can negate summing of -1 values by adding the count of -1 in the
+        # current Gag track list to the sum(gag_track)
+        count += sum(gag_track) + gag_track.count(-1)
 
     return count
 
