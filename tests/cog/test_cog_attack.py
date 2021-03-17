@@ -1,15 +1,41 @@
+import pytest
+
+from ...CogGlobals import (get_cog_attack, get_cog_attacks_all_levels,
+                           pick_cog_attack)
+from ...Exceptions import InvalidCogAttackTarget
 from ..fixtures.cog_fixtures import cog_flunky as cogf
 from ..fixtures.toon_fixtures import toon_astro
-from ...CogGlobals import (
-    get_cog_attack, get_cog_attacks_all_levels, pick_cog_attack
-    )
-import pytest
 
 
 # TODO create TestCogAttack, test against the Cog's methods instead of Globals
 # TODO test `pick_cog_attack` with valid and invalid arguments for attack_name
 @pytest.mark.parametrize('cogf', [0, 1, 2, 3, 4], indirect=True)
 class TestCogGlobalAttack:
+
+    # TODO Move to TestCogAttack when its created...
+    def test_attack_target_cog_fail(self, cogf):
+        """Verify Cog's `do_attack` raises InvalidCogAttackTarget when
+        trying to attack a non-Toon object
+
+        Args:
+            cogf (Cog): Flunky Cog fixture
+        """
+        with pytest.raises(InvalidCogAttackTarget):
+            attack_hit = cogf.do_attack(target=cogf, amount=10)
+            assert not attack_hit
+
+    # TODO Move to TestCogAttack when its created...
+    def test_attack_target_defeated_fail(self, cogf):
+        """Verify Cog's `do_attack` raises InvalidCogAttackTarget when
+        trying to attack a defeated Toon (Toon.hp <= 0) object
+
+        Args:
+            cogf (Cog): Flunky Cog fixture
+        """
+        with pytest.raises(InvalidCogAttackTarget):
+            cogf.hp = 0
+            attack_hit = cogf.do_attack(target=cogf, amount=10)
+            assert not attack_hit
 
     @pytest.mark.parametrize('exp_attack_index,exp_attack_name', [
         (0, 'PoundKey'), (1, 'Shred'), (2, 'ClipOnTie')])

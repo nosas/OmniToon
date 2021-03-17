@@ -1,9 +1,7 @@
-from ..fixtures.toon_fixtures import toon_astro, toon_default
-from ...Toon import (
-    DEFAULT_HP, DEFAULT_LEVELS, DEFAULT_EXPS, DEFAULT_GAGS,
-    DEFAULT_GAG_LIMIT
-)
 from ...GagGlobals import count_all_gags
+from ...Toon import (DEFAULT_EXPS, DEFAULT_GAG_LIMIT, DEFAULT_GAGS, DEFAULT_HP,
+                     DEFAULT_LEVELS)
+from ..fixtures.toon_fixtures import toon_astro, toon_default
 
 
 class TestDefault:

@@ -1,11 +1,16 @@
 from random import randint
+
+from .CogGlobals import get_cog_vitals
 from .Entity import Entity
-from .CogGlobals import (
-    get_cog_vitals, get_actual_from_relative_level, ATK_IDX_FREQ)
+from .Exceptions import InvalidCogAttackTarget
 
 
 class Cog(Entity):
     def __init__(self, key, name, relative_level=0):
+        # ! Relative level should be in range [0,4]
+        # TODO Raise IncorrectRelativeLevel
+        # ! Turn relative level into a property or raise the exception here
+        self.relative_level = relative_level
         self.vitals = get_cog_vitals(
             cog_key=key, relative_level=relative_level
             )
@@ -14,12 +19,34 @@ class Cog(Entity):
         self.key = key
         self.attacks = self.vitals['attacks']
         self.defense = self.vitals['def']
-        # ! Relative level should be in range [0,4]
-        self.relative_level = relative_level
-        self.level = get_actual_from_relative_level(
-            cog_key=key, relative_level=relative_level
-            )
+        self.level = self.vitals['level']
+        # TODO Create CogStates
+        self.is_lured = False
 
+    # TODO Make this follow Toon's `do_attack`, add  atk_indx
+    def do_attack(self, target, amount: int):
+        """Perform an attack on a Toon, given an attack damage
+
+        Args:
+            target (Toon): Toon object that is going to be attacked
+            amount (int): Attack's damage amount
+
+        Returns:
+            int: 0 if the attack misses, 1 if it hits
+        """
+        from .Toon import Toon
+
+        if type(target) != Toon:
+            raise InvalidCogAttackTarget
+
+        if target.is_defeated():
+            raise InvalidCogAttackTarget
+
+        # TODO Add chance_to_hit
+        attack_hit = super().do_attack(target=target, amount=amount)
+        return attack_hit
+
+    # TODO Create overloaded method to get attack from attack_idx?
     def get_attack(self, attack_name: str) -> dict:
         """Return dictionary containing Cog attack information, given an index#
 
