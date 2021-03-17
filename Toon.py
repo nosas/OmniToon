@@ -248,6 +248,11 @@ class Toon(Entity):
         return get_gag_exp_needed(gag_track=gag_track,
                                   current_exps=self.gag_exps)
 
+    # TODO : We should probably move this to Strategy, when we make Strategies.
+    # TODO : Make sure to check against the highest level Cog in the battle
+    # However, if the Cog being attacked is at a lower level than the gag,
+    # then the toon will receive no skill points.
+    # https://toontown.fandom.com/wiki/Skill_points#Earning_skill_points
     def get_viable_attacks(self, target: Cog) -> list:
         """Return 2-D list of Gags that can be used and gain Gag
             A Gag is viable if its level is at or below the Cog's level.
@@ -259,21 +264,59 @@ class Toon(Entity):
             list: 2-D list of Gags. 0 means the Gag is not available or
                   does not gain Gag EXP when used. If all Gags are unviable,
                   it will return the a list of the Toon's Gags.
+
+        Example of Toon Astro's vibale Gags against level 4 Cog ::
+            toon_astro.gags = [
+                [0,   0,  0,  5,  5,  3, -1],
+                [-1, -1, -1, -1, -1, -1, -1],
+                [0,   0,  0,  0,  5,  3,  1],
+                [0,   0,  0,  0,  5,  3, -1],
+                [0,   2,  1,  4,  4,  2, -1],
+                [0,   0,  0,  5,  5,  3, -1],
+                [0,   9,  5, -1, -1, -1, -1]
+            ]
+
+            all_viable_gags = [
+                [-1, -1, -1,  5, -1, -1, -1],
+                [-1, -1, -1, -1, -1, -1, -1],
+                [-1, -1, -1, -1, -1, -1, -1],
+                [-1, -1, -1, -1, -1, -1, -1],
+                [-1,  2,  1,  4, -1, -1, -1],
+                [-1, -1, -1,  5, -1, -1, -1],
+                [-1,  9,  5, -1, -1, -1, -1]
+            ]
         """
-        # However, if the Cog being attacked is at a lower level than the gag,
-        # then the toon will receive no skill points.
-        # https://toontown.fandom.com/wiki/Skill_points#Earning_skill_points
-        # TODO : Make sure to check against the highest level Cog in the battle
         # TODO : Add attributes to Gags to determine if valid/invalid/locked
+        # All Gags are viable against lvl 7+ Cogs
         if target.level >= 7:
             return self.gags
-        elif target.level >= 0:
-            viable_gags = [
-                gag_track[0:target.level] for gag_track in self.gags
-            ]
-            return viable_gags
-        else:
-            print(f"[!] What the heck is the Cog's level? {target.attrs}")
+
+        # Return Gags with index ranging from (0, target.level) aka (0,6)
+        assert 7 > target.level >= 0, (
+            f"[!] What the heck is the Cog's level? level={target.level}")
+
+        all_viable_gags = []
+        num_invalid_gags = 7 - target.level
+
+        for gag_track in self.gags:
+            viable_gags = gag_track.copy()
+            track_index = self.gags.index(gag_track)
+
+            # Can't use Lure against a lured Cog
+            if target.is_lured and track_index == LURE_TRACK:
+                all_viable_gags.append([-1]*7)
+                continue
+
+            # Pad the viable_gags list with -1s to make len(viable_gags) == 7
+            # viable_gags = gag_track[:target.level] + [-1]*num_invalid_gags
+            viable_gags[target.level:] = [-1]*num_invalid_gags
+            for idx, gag in enumerate(viable_gags[:target.level]):
+                # Can't use Gag if locked or quantity is 0
+                viable_gags[idx] = -1 if gag in [0, -1] else gag
+
+            all_viable_gags.append(viable_gags)
+
+        return all_viable_gags
 
     def has_gags(self) -> bool:
         """True if Toon has any available Gags, checks quantity of all Gags
