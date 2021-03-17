@@ -98,6 +98,23 @@ class Toon(Entity):
 
         return count
 
+    def _count_gag(self, gag_track: int, gag_level: int) -> int:
+        """Return Toon's current quantity of a Gag(gag_track, gag_level)
+
+        Args:
+            gag_track (int): Index number of the Gag Track <0-6>
+            gag_level (int): Level of the Gag <0-6>
+
+        Returns:
+            int: Current quantity of a Gag
+        """
+        assert gag_track in range(7)
+        assert gag_level in range(7)
+
+        gag_count = self.gags[gag_track][gag_level]
+
+        return gag_count
+
     def _has_gag(self, gag_track: int, gag_level: int) -> bool:
         """True if Toon has the Gag, False if Toon doesn't have, or hasn't yet
             unlocked, the Gag.
@@ -110,7 +127,7 @@ class Toon(Entity):
             bool: True if Toon has the Gag
         """
         # Not in [0, -1]
-        return self.count_gag(gag_track, gag_level) > 0
+        return self._count_gag(gag_track, gag_level) > 0
 
     def choose_gag(self, gag_track: int, gag_level: int) -> Gag:
         """Return Gag object containing Gag's vital info, iff Toon has the Gag
@@ -122,33 +139,17 @@ class Toon(Entity):
         Returns:
             Gag: Vital information about the Toon's Gag
         """
-        if self._has_gag(gag_track=gag_track, gag_level=gag_level):
-            gag_exp = self.get_gag_exp(gag_track=gag_track)
-            return Gag(track=gag_track, exp=gag_exp, level=gag_level)
-        else:
-            raise GagCountError
-
-    def count_gag(self, gag_track: int, gag_level: int) -> int:
-        """Return Toon's current quantity of a Gag(gag_track, gag_level)
-
-        Args:
-            gag_track (int): Index number of the Gag Track <0-6>
-            gag_level (int): Level of the Gag <0-6>
-
-        Returns:
-            int: Current quantity of a Gag
-        """
-        gag_track = self.gags[gag_track]
-        gag_count = gag_track[gag_level]
+        gag_count = self._count_gag(gag_track, gag_level)
 
         if gag_count == 0:
             raise NotEnoughGagsError
-        if gag_track == [-1]*7:
+        if self.gags[gag_track] == [-1]*7:
             raise LockedGagTrackError(gag_track)
         if gag_count == -1:
             raise LockedGagError(gag_level)
 
-        return gag_count
+        gag_exp = self.get_gag_exp(gag_track=gag_track)
+        return Gag(track=gag_track, exp=gag_exp, level=gag_level)
 
     # TODO Replace all gag_track,gag_level args to Gag objects
     def do_attack(self, target: Cog, gag_track: int, gag_level: int) -> int:

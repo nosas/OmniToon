@@ -56,13 +56,13 @@ class TestToonAttackThrow:
         """
         gag_throw = toon_astro.choose_gag(gag_track=self.gag_track,
                                           gag_level=self.gag_level)
-        gag_quantity_before = toon_astro.count_gag(gag_track=gag_throw.track,
-                                                   gag_level=gag_throw.level)
+        gag_quantity_before = toon_astro._count_gag(gag_track=gag_throw.track,
+                                                    gag_level=gag_throw.level)
 
         toon_astro.do_attack(cog_flunky, gag_throw.track, gag_throw.level)
 
-        gag_quantity_after = toon_astro.count_gag(gag_track=gag_throw.track,
-                                                  gag_level=gag_throw.level)
+        gag_quantity_after = toon_astro._count_gag(gag_track=gag_throw.track,
+                                                   gag_level=gag_throw.level)
         assert gag_quantity_after == gag_quantity_before - 1
 
     @pytest.mark.parametrize('cog_flunky', [0, 1, 2, 3, 4], indirect=True)

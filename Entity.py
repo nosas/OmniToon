@@ -28,8 +28,5 @@ class Entity:
         target._get_attacked(amount=amount)
         return 1
 
-    def get_name(self):
-        return self.name
-
     def is_defeated(self):
         return self.hp <= 0
