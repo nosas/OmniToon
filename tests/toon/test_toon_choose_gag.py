@@ -1,7 +1,7 @@
 import pytest
 
-from ...Exceptions import (InvalidToonAttackTarget, LockedGagError,
-                           LockedGagTrackError, NotEnoughGagsError)
+from ...Exceptions import (LockedGagError, LockedGagTrackError,
+                           NotEnoughGagsError)
 from ...Gag import Gag
 from ...GagGlobals import (SQUIRT_TRACK, TRAP_TRACK, get_gag_name,
                            get_gag_track_name)
@@ -24,20 +24,32 @@ class TestToonChooseGag:
         Args:
             toon_astro (Toon): Toon fixture of my TTR character
         """
-        gag_squirt = toon_astro.choose_gag(gag_track=self.gag_track,
-                                           gag_level=self.gag_level)
+        gag_squirt = toon_astro.choose_gag(track=self.gag_track,
+                                           level=self.gag_level)
         assert type(gag_squirt) == Gag
         # TODO Should move the below tests to `test_gag_creation`
         assert gag_squirt.track == self.gag_track
         assert gag_squirt.level == self.gag_level
-        assert gag_squirt.exp == toon_astro.get_gag_exp(gag_squirt.track)
+        assert gag_squirt.exp == toon_astro.get_gag_exp(track=gag_squirt.track)
 
         assert gag_squirt.name == "Seltzer Bottle"
-        assert gag_squirt.name == get_gag_name(gag_squirt.track,
-                                               gag_squirt.level)
+        assert gag_squirt.name == get_gag_name(track=gag_squirt.track,
+                                               level=gag_squirt.level)
 
         assert gag_squirt.track_name == "Squirt"
-        assert gag_squirt.track_name == get_gag_track_name(gag_squirt.track)
+        assert gag_squirt.track_name == get_gag_track_name(
+            track=gag_squirt.track)
+
+    # Create negative tests for random gag
+    def test_choose_gag_random_ok(self, toon_astro):
+        # ! This test hangs..
+        for _ in range(25):
+            random_gag = toon_astro._pick_random_gag()
+            level, name, track = (random_gag.level,
+                                  random_gag.name,
+                                  random_gag.track)
+            # print(f"Randomly selected {track} Gag: Lvl {level} \"{name}\"")
+        pass
 
     def test_choose_gag_fail_quantity(self, toon_astro):
         """Verify Toon's `choose_gag` raises a NotEnoughGagsError when passing
@@ -47,8 +59,7 @@ class TestToonChooseGag:
             toon_astro (Toon): Toon fixture of my TTR character
         """
         with pytest.raises(NotEnoughGagsError):
-            gag_squirt = toon_astro.choose_gag(gag_track=self.gag_track,
-                                               gag_level=0)
+            gag_squirt = toon_astro.choose_gag(track=self.gag_track, level=0)
             assert not gag_squirt
 
     def test_choose_gag_fail_locked_gag(self, toon_astro):
@@ -59,8 +70,7 @@ class TestToonChooseGag:
             toon_astro (Toon): Toon fixture of my TTR character
         """
         with pytest.raises(LockedGagError):
-            gag_squirt = toon_astro.choose_gag(gag_track=self.gag_track,
-                                               gag_level=6)
+            gag_squirt = toon_astro.choose_gag(track=self.gag_track, level=6)
             assert not gag_squirt
 
     def test_choose_gag_fail_locked_track(self, toon_astro):
@@ -70,10 +80,6 @@ class TestToonChooseGag:
         Args:
             toon_astro (Toon): Toon fixture of my TTR character
         """
-        # TODO : Create test to make sure gag is available (unlocked)
-        # TODO : Check first if Gag track is unlocked, then Gag level
-        # TODO : Create LockedGagError, and test it here
         with pytest.raises(LockedGagTrackError):
-            gag_trap = toon_astro.choose_gag(gag_track=TRAP_TRACK,
-                                             gag_level=0)
+            gag_trap = toon_astro.choose_gag(track=TRAP_TRACK, level=0)
             assert not gag_trap

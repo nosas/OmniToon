@@ -1,4 +1,5 @@
 from builtins import Exception
+from .Gag import Gag
 
 
 class Error(Exception):
@@ -12,24 +13,25 @@ class GagCountError(Error):
 class LockedGagError(GagCountError):
     """ Toon has not unlocked this Gag"""
 
-    def __init__(self, gag_level, message="Gag is not unlocked yet`"):
-        self.gag_level = gag_level
+    # TODO Add Gag names to the Error messages
+    def __init__(self, level, message="Gag is not unlocked yet"):
+        self.level = level
         self.message = message
         super().__init__(self.message)
 
     def __str__(self):
-        return f'{self.gag_level} -> {self.message}'
+        return f'{self.level} -> {self.message}'
 
 
 class LockedGagTrackError(GagCountError):
     """ Toon has not unlocked this Gag Track"""
-    def __init__(self, gag_track, message="Gag Track is not unlocked yet`"):
-        self.gag_track = gag_track
+    def __init__(self, track, message="Gag Track is not unlocked yet"):
+        self.track = track
         self.message = message
         super().__init__(self.message)
 
     def __str__(self):
-        return f'{self.gag_track} -> {self.message}'
+        return f'{self.track} -> {self.message}'
 
 
 class TooManyGagsError(GagCountError):
@@ -39,7 +41,18 @@ class TooManyGagsError(GagCountError):
 
 class NotEnoughGagsError(GagCountError):
     """ Toon chooses a Gag with 0 quantity"""
-    pass
+    def __init__(self, gag: Gag=None, message="Insufficient Gag quantity"):
+        self.gag = gag
+        self.message = message
+        super().__init__(self.message)
+
+    def __str__(self):
+        err_msg = f'{self.gag.count} -> {self.message}'
+        if self.gag:
+            err_msg = f"Insufficient number of Gags: \"{self.gag.name}\","\
+                    f"lvl {self.gag.level} {self.gag.track_name} count = "\
+                    f" {self.gag.count}"
+        return err_msg
 
 
 class InvalidTargetError(Error):

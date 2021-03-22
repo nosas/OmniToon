@@ -25,11 +25,10 @@ class GagTrack:
         self.track = track
         self.track_name = GAG_TRACK_LABELS[track]
         self.exp = exp
-        # TODO Create `get_highest_level` func?
 
 
 class Gag(GagTrack):
-    def __init__(self, track, exp, level):
+    def __init__(self, track, exp, level, count=0):
         """
         # TODO Review and fix docstring pls
         # TODO Create observer to monitor battles and determine viable gags
@@ -41,10 +40,11 @@ class Gag(GagTrack):
         """
         super().__init__(track=track, exp=exp)
         # ! Damage, quantity, capacity need to be dynamically updated after atk
-        self.accuracy = get_gag_accuracy(gag_track=track, gag_level=level)
-        self.damage = get_gag_damage(gag_track=track, gag_level=level, exp=exp)
+        self.accuracy = get_gag_accuracy(track=track, level=level)
+        self.count = count
+        self.damage = get_gag_damage(track=track, level=level, exp=exp)
         self.level = level
-        self.name = get_gag_name(gag_track=track, gag_level=level)
+        self.name = get_gag_name(track=track, level=level)
         # self.highest_level = gag_track.highest_level
         # self.capacity_current = capacity_current
         # Maximum number of carryable gags of this level

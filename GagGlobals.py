@@ -171,18 +171,18 @@ def count_all_gags(gags: list) -> int:
     for gag_track in gags:
         # Summing the -1 values will result in a negative Gag count
         # We can negate summing of -1 values by adding the count of -1 in the
-        # current Gag track list to the sum(gag_track)
-        count += sum(gag_track) + gag_track.count(-1)
+        # current Gag track list to the starting index of sum(gag_track)
+        count += sum(gag_track, start=gag_track.count(-1))
 
     return count
 
 
-def get_gag_accuracy(gag_track: int, gag_level: int) -> int:
+def get_gag_accuracy(track: int, level: int) -> int:
     """atkAcc = propAcc + trackExp + tgtDef + bonus
 
     Args:
-        gag_track (int): Index number of the Gag Track <0-6>
-        gag_level (int): Level of the Gag <0-6>
+        track (int): Index number of the Gag Track <0-6>
+        level (int): Level of the Gag <0-6>
 
     Returns:
         int: [description]
@@ -190,37 +190,37 @@ def get_gag_accuracy(gag_track: int, gag_level: int) -> int:
     return -1  # ! TODOOOO
 
 
-def get_gag_name(gag_track: int, gag_level: int) -> str:
-    """Return name of the Gag, given a gag_track# and gag_level#
+def get_gag_name(track: int, level: int) -> str:
+    """Return name of the Gag, given a track# and level#
 
     Args:
-        gag_track (int): Index number of the Gag Track <0-6>
-        gag_level (int): Level of the Gag <0-6>
+        track (int): Index number of the Gag Track <0-6>
+        level (int): Level of the Gag <0-6>
 
     Returns:
         str: Name of the Gag, typically used for logging messages
     """
-    return GAG_LABELS[gag_track][gag_level]
+    return GAG_LABELS[track][level]
 
 
-def get_gag_track_name(gag_track: int) -> str:
-    """Return name of the Gag Track, given a gag_track#
+def get_gag_track_name(track: int) -> str:
+    """Return name of the Gag Track, given a track#
 
     Args:
-        gag_track (int): Index number of the Gag Track <0-6>
+        track (int): Index number of the Gag Track <0-6>
 
     Returns:
         str: Name of the Gag Track, typically used for logging messages
     """
-    return GAG_TRACK_LABELS[gag_track]
+    return GAG_TRACK_LABELS[track]
 
 
-def get_gag_damage(gag_track: int, gag_level: int, exp: int) -> int:
-    """Calculate and return Gag damage, given gag_track#, gag_level# and exp
+def get_gag_damage(track: int, level: int, exp: int) -> int:
+    """Calculate and return Gag damage, given track#, level# and exp
 
     Args:
-        gag_track (int): Index number of the Gag Track <0-6>
-        gag_level (int): Level of the Gag <0-6>
+        track (int): Index number of the Gag Track <0-6>
+        level (int): Level of the Gag <0-6>
         exp (int): Current EXP of the Gag Track <0-10000?>
 
     Returns:
@@ -232,10 +232,10 @@ def get_gag_damage(gag_track: int, gag_level: int, exp: int) -> int:
     # MIN_EXP, MAX_EXP = MIN_MAX_TUPLE[1] = (min_exp, max_exp)
     #    Example of Level 3 Throw min/max = GAG_DAMAGE[4][3]
 
-    min_dmg = GAG_DAMAGE[gag_track][gag_level][0][0]
-    max_dmg = GAG_DAMAGE[gag_track][gag_level][0][1]
-    min_exp = GAG_DAMAGE[gag_track][gag_level][1][0]
-    max_exp = GAG_DAMAGE[gag_track][gag_level][1][1]
+    min_dmg = GAG_DAMAGE[track][level][0][0]
+    max_dmg = GAG_DAMAGE[track][level][0][1]
+    min_exp = GAG_DAMAGE[track][level][1][0]
+    max_exp = GAG_DAMAGE[track][level][1][1]
     exp_val = min(exp, max_exp)
     exp_per_hp = float(max_exp - min_exp + 1) / float(max_dmg - min_dmg + 1)
     damage = math_floor((exp_val - min_exp) / exp_per_hp) + min_dmg
@@ -252,11 +252,11 @@ def get_gag_damage(gag_track: int, gag_level: int, exp: int) -> int:
     return damage
 
 
-def get_gag_exp(gag_track: int, current_exps: list) -> int:
-    """Get EXP for a Toon's Gag Track, given gag_track# and list of gag_exps
+def get_gag_exp(track: int, current_exps: list) -> int:
+    """Get EXP for a Toon's Gag Track, given track# and list of Gag exps
 
     Args:
-        gag_track (int): Index number of the Gag Track <0-6>
+        track (int): Index number of the Gag Track <0-6>
         current_exps (list): Ordered 7-member list of all Gag Track EXPs, can
                              be obtained from Toon.gag_exps
             `current_exps` ordered structure ::
@@ -273,15 +273,15 @@ def get_gag_exp(gag_track: int, current_exps: list) -> int:
     Returns:
         int: Current Gag Track EXP
     """
-    return current_exps[gag_track]
+    return current_exps[track]
 
 
-def get_gag_exp_needed(gag_track: int, gag_level: int, current_exps: list) -> int:  # noqa
+def get_gag_exp_needed(track: int, level: int, current_exps: list) -> int:  # noqa
     """Return the Gag Track EXP required to advance to next Gag Track level
 
     Args:
-        gag_track (int): Index number of the Gag Track <0-6>
-        gag_level (int): Level of the Gag <0-6>
+        track (int): Index number of the Gag Track <0-6>
+        level (int): Level of the Gag <0-6>
         current_exps (list): Ordered 7-member list of all Gag Track EXPs, can
                              be obtained from Toon.gag_exps
             `current_exps` ordered structure ::
@@ -298,17 +298,17 @@ def get_gag_exp_needed(gag_track: int, gag_level: int, current_exps: list) -> in
     Returns:
         int: EXP required to advance to next Gag Track level
     """
-    current_gag_exp = get_gag_exp(gag_track, current_exps)
-    next_gag_exp = LEVELS[gag_track][gag_level+1]
+    current_gag_exp = get_gag_exp(track, current_exps)
+    next_gag_exp = LEVELS[track][level+1]
     return next_gag_exp - current_gag_exp
 
 
-def get_gag_carry_limits(gag_track: int, gag_level: int) -> tuple:
+def get_gag_carry_limits(track: int, level: int) -> tuple:
     """Return list of Gag carry limits based on Gag level
 
     Args:
-        gag_track (int): Index number of the Gag Track <0-6>
-        gag_level (int): Level of the Gag <0-6>
+        track (int): Index number of the Gag Track <0-6>
+        level (int): Level of the Gag <0-6>
 
     Returns:
         tuple: 7-member tuple of Gag carry limits
@@ -317,4 +317,4 @@ def get_gag_carry_limits(gag_track: int, gag_level: int) -> tuple:
             GAG_CARRY_LIMITS[6][1] = (10, 5, 0, 0, 0, 0, 0)
     """
 
-    return GAG_CARRY_LIMITS[gag_track][gag_level]
+    return GAG_CARRY_LIMITS[track][level]

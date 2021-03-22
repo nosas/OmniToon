@@ -106,9 +106,7 @@ class ToonAttackState(AttackState):
         target_cog = self.context.cogs[0]
         # target_cog.hp = 100
         # TODO Create function/overload to randomly choose attack
-        my_toon.do_attack(target=target_cog,
-                          gag_track=THROW_TRACK,
-                          gag_level=1)
+        my_toon.do_attack(target=target_cog, track=THROW_TRACK, level=1)
 
         if target_cog.is_defeated():
             # ! First need to check if all cogs defeated, then battle is Won
