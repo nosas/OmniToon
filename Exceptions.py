@@ -77,3 +77,9 @@ class InvalidToonHealTarget(InvalidTargetError):
 class InvalidRelativeLevel(Error):
     """ Must be in range [0-4]"""
     pass
+
+
+# TODO Create test for this exception
+class TargetDefeatedError(InvalidTargetError):
+    """ Entity tries to attack a defeated Entity """
+    pass

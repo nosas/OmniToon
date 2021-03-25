@@ -437,6 +437,7 @@ def get_cog_vitals(cog_key: str, relative_level: int=-1) -> dict:
                 ]
             }
     """
+    # TODO Assert `key` and `relative_level` are valid inputs
     cog_data = COG_ATTRIBUTES[cog_key]
     # Pick pseudo-random Cog level if no relative_level is provided
     if relative_level == -1:

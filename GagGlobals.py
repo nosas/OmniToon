@@ -215,6 +215,14 @@ def get_gag_track_name(track: int) -> str:
     return GAG_TRACK_LABELS[track]
 
 
+def get_gag_min_max_damage(track: int, level: int, exp: int) -> tuple:
+    return GAG_DAMAGE[track][level][0]
+
+
+def get_gag_min_max_exp(track: int, level: int) -> tuple:
+    return GAG_DAMAGE[track][level][1]
+
+
 def get_gag_damage(track: int, level: int, exp: int) -> int:
     """Calculate and return Gag damage, given track#, level# and exp
 
@@ -232,10 +240,9 @@ def get_gag_damage(track: int, level: int, exp: int) -> int:
     # MIN_EXP, MAX_EXP = MIN_MAX_TUPLE[1] = (min_exp, max_exp)
     #    Example of Level 3 Throw min/max = GAG_DAMAGE[4][3]
 
-    min_dmg = GAG_DAMAGE[track][level][0][0]
-    max_dmg = GAG_DAMAGE[track][level][0][1]
-    min_exp = GAG_DAMAGE[track][level][1][0]
-    max_exp = GAG_DAMAGE[track][level][1][1]
+    min_dmg, max_dmg = get_gag_min_max_damage(track=track, level=level,
+                                              exp=exp)
+    min_exp, max_exp = get_gag_min_max_exp(track=track, level=level)
     exp_val = min(exp, max_exp)
     exp_per_hp = float(max_exp - min_exp + 1) / float(max_dmg - min_dmg + 1)
     damage = math_floor((exp_val - min_exp) / exp_per_hp) + min_dmg
@@ -276,7 +283,8 @@ def get_gag_exp(track: int, current_exps: list) -> int:
     return current_exps[track]
 
 
-def get_gag_exp_needed(track: int, level: int, current_exps: list) -> int:  # noqa
+def get_gag_exp_needed(track: int, level: int, current_exps: list=None,
+                       current_exp: int=None) -> int:  # noqa
     """Return the Gag Track EXP required to advance to next Gag Track level
 
     Args:
@@ -298,9 +306,12 @@ def get_gag_exp_needed(track: int, level: int, current_exps: list) -> int:  # no
     Returns:
         int: EXP required to advance to next Gag Track level
     """
-    current_gag_exp = get_gag_exp(track, current_exps)
-    next_gag_exp = LEVELS[track][level+1]
-    return next_gag_exp - current_gag_exp
+    assert current_exp or current_exps
+    if current_exps:  # If passing in Toon's EXPs
+        current_exp = get_gag_exp(track, current_exps)
+
+    next_gag_exp = LEVELS[track][level]
+    return next_gag_exp - current_exp
 
 
 def get_gag_carry_limits(track: int, level: int) -> tuple:

@@ -22,12 +22,16 @@ class Battle:
     countdown_timer = 99
 
     def __init__(self, first_cog: Cog, first_toon: Toon):
+        self._reward = [0]*7
         self._states = []
-        self._reward = 0
         self._context = BattleContext(state=ToonAttackState(),
                                       cogs=[first_cog],
                                       toons=[first_toon],
                                       reward=self._reward)
+
+    @property
+    def context(self):
+        return self._context
 
     @property
     def cogs(self):
@@ -39,20 +43,28 @@ class Battle:
 
     def add_cog(self, new_cog: Cog):
         self.context.add_cog(new_cog)
-        # self._cogs.append(new_cog)
 
     def add_toon(self, new_toon: Toon):
         self.context.add_toon(new_toon)
-        # self._toons.append(new_toon)
 
-    def calculate_rewards(self):
-        if self.state == LoseState:
-            self._reward = 0
-        else:
-            reward_states = [state for state in self._states if
-                             type(state) == ToonAttackState]
-            self._reward = sum(state.reward for state in reward_states)
+    def calculate_rewards(self) -> list:
+        if type(self.context.state) == WinState:
+            reward_states = [
+                (state.gag_atk, state.reward) for state in
+                self.context._completed_states if
+                type(state) == ToonAttackState
+            ]
+
+            for gag, reward in reward_states:
+                self._reward[gag.track] += reward
+
+            import pprint
+            pp = pprint.PrettyPrinter(indent=1)
+            print(f"[$] `calculate_rewards` attack states : ")
+            pp.pprint(reward_states)
+
+        print(f"[$] `calculate_rewards` total rewards : {self._reward}")
         return self._reward
 
     def update(self):
-        self._context.update()
+        self.context.update()

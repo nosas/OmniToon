@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .Exceptions import InvalidTargetError
+from .Exceptions import InvalidTargetError, TargetDefeatedError
 
 
 class Entity:
@@ -12,17 +12,16 @@ class Entity:
     def _get_attacked(self, amount: int):
         self.hp -= amount
 
-    def do_attack(self, target: Entity, amount: int):
-        type_self = type(self)
-        type_target = type(target)
+    def do_attack(self, target: Entity, amount: int) -> int:
 
-        # ! Raise InvalidTargetError if type(target) != Entity
         if not isinstance(target, Entity):
-            raise InvalidTargetError
+            raise InvalidTargetError("Target must be a subclass of Entity")
 
-        # ! Raise InvalidTargetError if type(target) == type(self)
         if type(target) == type(self):
-            raise InvalidTargetError
+            raise InvalidTargetError("Target must not be of the same type")
+
+        if target.is_defeated():
+            raise TargetDefeatedError("Target is defeated")
 
         # TODO Add chance_to_hit
         target._get_attacked(amount=amount)

@@ -57,7 +57,7 @@ class TestCogGlobalAttack:
         assert cog_attack['id'] == exp_attack_index
 
     # ! How do we check if it's actually actually returning a random index?
-    def test_cog_pick_attack_index_random(self, cogf):
+    def test_cog_choose_attack_index_random(self, cogf):
         """Verify `pick_cog_attack` returns an attack_index within the
         Flunky's attack_index range
 
@@ -69,7 +69,7 @@ class TestCogGlobalAttack:
                                        relative_level=cogf.relative_level)
         assert attack_index in range(len(attack_choices))
 
-    def test_cog_pick_attack_random(self, cogf):
+    def test_cog_choose_attack_random(self, cogf):
         """Verify `get_cog_attack` returns a valid Cog attack dictionary when
         passing in the `random_attack_idx` obtained from `pick_cog_attack`
 
