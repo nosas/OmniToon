@@ -237,7 +237,7 @@ class Toon(Entity):
             gag = self.choose_gag(track=track, level=level)
         return gag
 
-    # TODO Replace all gag_track,gag_level args to Gag objects
+    # TODO #11, Replace all gag_track,gag_level args to Gag objects
     def do_attack(self, target: Cog, gag_atk: Gag) -> int:
         """Perform an attack on a Cog, given track# and level#
 
@@ -253,7 +253,7 @@ class Toon(Entity):
 
         gag_atk = self._get_gag(track=gag_atk.track, level=gag_atk.level)
         target_hp_before = target.hp
-        # TODO: Pass in attack_accuracy
+        # TODO #10, Pass in attack_accuracy
 
         try:
             attack_hit = super().do_attack(target=target,
@@ -276,7 +276,7 @@ class Toon(Entity):
         else:
             print(f"        [-] `do_attack` misses : {target_hp_before}hp-0"
                   f"dmg -> {target}")
-        # TODO Create func: Add Gag EXP (reward), so we can track model rewards
+        # TODO #37, Implement : Add Gag EXP (reward), so we can track rewards
         self.gags[gag_atk.track][gag_atk.level] -= 1
         return attack_hit
 
@@ -351,14 +351,16 @@ class Toon(Entity):
                                   current_exps=self.get_gag_exp(track)
                                   )
 
-    # TODO : We should probably move this to Strategy, when we make Strategies.
-    # TODO : Make sure to check against the highest level Cog in the battle
+    # TODO #38 : We should move this to Strategy, when we make Strategies.
+    # TODO #38 : Make sure to check against the highest level Cog in the battle
     # However, if the Cog being attacked is at a lower level than the gag,
     # then the toon will receive no skill points.
     # https://toontown.fandom.com/wiki/Skill_points#Earning_skill_points
     def get_viable_attacks(self, target: Cog) -> list:
         """Return 2-D list of Gags that can be used and gain Gag EXP (reward)
-            A Gag is viable if its level below the Cog's level.
+            A Gag is viable if its level is below the Cog's level.
+
+            NOTE: We're using 0-indexing for Gag levels, but 1-indexing for Cog
 
         Args:
             target (Cog): Cog object that is going to be attacked

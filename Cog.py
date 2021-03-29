@@ -1,15 +1,13 @@
 from random import randint
 
-from .CogGlobals import get_cog_attack, get_cog_vitals
+from .CogGlobals import get_cog_vitals
 from .Entity import Entity
-from .Exceptions import InvalidCogAttackTarget
+from .Exceptions import InvalidCogAttackTarget, InvalidRelativeLevel
 
 
 class Cog(Entity):
     def __init__(self, key, name, relative_level=0, hp=-1):
         # ! Relative level should be in range [0,4]
-        # TODO Raise IncorrectRelativeLevel
-        # ! Turn relative level into a property or raise the exception here
         self.relative_level = relative_level
         self.vitals = get_cog_vitals(
             cog_key=key, relative_level=relative_level
@@ -21,14 +19,24 @@ class Cog(Entity):
         self.defense = self.vitals['def']
         self.hp_max = self.vitals['hp']
         self.level = self.vitals['level']
-        # TODO Create CogStates
+        # TODO (??) Create CogStates
         self.is_lured = False
 
     def __str__(self):
         return f'lvl {self.level} "{self.name}" ({self.hp}/{self.hp_max}hp)'
 
-    # TODO: Create `pick_target` function to choose a target when vs 2+ toons
-    # ! Need to write tests for this method
+    @property
+    def relative_level(self):
+        return self._relative_level
+
+    @relative_level.setter
+    def relative_level(self, new_rel_lvl):
+        if new_rel_lvl not in range(5):
+            raise InvalidRelativeLevel
+        self._relative_level = new_rel_lvl
+
+    # TODO #40, `choose_target` method to choose a target when vs 2+ toons
+    # TODO #39, Need to write tests for this method
     def choose_attack(self, attack_name: str='') -> int:
         """Return attack_index of cog attack from cog.attacks, a pseudo-random
             attack index is returned by default unless the `attack_name`
@@ -84,7 +92,7 @@ class Cog(Entity):
         if target.is_defeated():
             raise InvalidCogAttackTarget("Cannot attack defeated Toon")
 
-        # TODO Add chance_to_hit
+        # TODO #10, add chance_to_hit
         attack_hit = super().do_attack(target=target, amount=amount)
         return attack_hit
 

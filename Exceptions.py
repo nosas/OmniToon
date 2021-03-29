@@ -13,7 +13,7 @@ class GagCountError(Error):
 class LockedGagError(GagCountError):
     """ Toon has not unlocked this Gag"""
 
-    # TODO Add Gag names to the Error messages
+    # TODO #29, Add Gag names to the Error messages
     def __init__(self, level, message="Gag is not unlocked yet"):
         self.level = level
         self.message = message
@@ -79,7 +79,7 @@ class InvalidRelativeLevel(Error):
     pass
 
 
-# TODO Create test for this exception
+# TODO #9, Create test for this exception
 class TargetDefeatedError(InvalidTargetError):
     """ Entity tries to attack a defeated Entity """
     pass

@@ -7,7 +7,7 @@ class Entity:
     def __init__(self, name, hp):
         self.name = name
         self.hp = hp
-        # TODO Create Publisher object to push notifications
+        # TODO #25, Create Publisher object to push notifications
 
     def _get_attacked(self, amount: int):
         self.hp -= amount
@@ -23,7 +23,7 @@ class Entity:
         if target.is_defeated():
             raise TargetDefeatedError("Target is defeated")
 
-        # TODO Add chance_to_hit
+        # TODO #10, Add chance_to_hit
         target._get_attacked(amount=amount)
         return 1
 

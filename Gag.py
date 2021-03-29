@@ -31,7 +31,7 @@ class Gag(GagTrack):
     def __init__(self, track, exp, level, count=0):
         """
         # TODO Review and fix docstring pls
-        # TODO Create observer to monitor battles and determine viable gags
+        # TODO #25, Create observer to monitor battles & determine viable Gags
         """
         super().__init__(track=track, exp=exp)
         # ! Damage, quantity, capacity need to be dynamically updated after atk

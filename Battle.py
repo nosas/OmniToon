@@ -1,20 +1,16 @@
-from .BattleState import (AttackState, BattleContext, BattleState,
-                          CogAttackState, LoseState, ToonAttackState,
-                          WinLoseState, WinState)
+from .BattleState import BattleContext, ToonAttackState, WinState
 from .Cog import Cog
 from .Toon import Toon
 
 # TODO Create BattleCogBuilding w/ constructor accepting multi-toon&cogs
 # TODO Look into Strategy design patterns for Toon decision making
-# TODO Different strategies: max_reward, asap_win_ignore_reward, survive, etc.
+# TODO #38 Different strategies: max_reward, fast_win_ignore_reward, survive..
 # Pass: Clicking on PASS lets you skip your turn. Since Cogs will attack the
 # Toon who has done him the most damage, you are less likely to be attacked
 # if you choose Pass. This is a good strategy in a group battle if your Laff
 # points are dangerously low.
 
 
-# ! TODO Implement State design pattern, create BattleStates:
-# ! e.g. ToonAttackState, CogAttackState, BattleWinState, BattleLoseState
 class Battle:
 
     # Countdown timer for the Toon[s] to select a Gag and Target, or escape

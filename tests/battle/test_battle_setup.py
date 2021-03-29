@@ -9,7 +9,7 @@ class TestBattleSetup:
         print("*********************************")
         print(type(toon_astro), (type(cog_flunky)))
         first_battle = Battle(first_cog=cog_flunky, first_toon=toon_astro)
-        # TODO Create __str__ functions for toons/cogs so they display
+        # TODO #36, Create __str__ functions for toons/cogs so they display
         # TODO some useful information when printing
         print(first_battle.toons)
         print(first_battle.cogs)
