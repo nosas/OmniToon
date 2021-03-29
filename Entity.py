@@ -4,13 +4,16 @@ from .Exceptions import InvalidTargetError, TargetDefeatedError
 
 
 class Entity:
-    def __init__(self, name, hp):
+    def __init__(self, name: str, hp: int):
         self.name = name
         self.hp = hp
         # TODO #25, Create Publisher object to push notifications
 
     def _get_attacked(self, amount: int):
         self.hp -= amount
+
+    def choose_attack():
+        raise NotImplementedError
 
     def do_attack(self, target: Entity, amount: int) -> int:
 
@@ -23,9 +26,16 @@ class Entity:
         if target.is_defeated():
             raise TargetDefeatedError("Target is defeated")
 
+        target_hp_before = target.hp
+
         # TODO #10, Add chance_to_hit
+        attack_hit = True
+        hit_miss = 'hits' if attack_hit else 'misses'
         target._get_attacked(amount=amount)
-        return 1
+
+        print(f"        [-] `do_attack` {hit_miss} : {target_hp_before}hp-"
+              f"{amount if attack_hit else 0}dmg -> {target}")
+        return attack_hit
 
     def is_defeated(self):
         return self.hp <= 0

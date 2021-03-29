@@ -8,8 +8,9 @@ from .Exceptions import (GagCountError, InvalidToonAttackTarget,
                          NotEnoughGagsError, TargetDefeatedError,
                          TooManyGagsError)
 from .Gag import Gag
-from .GagGlobals import (HEAL_TRACK, LEVELS, LURE_TRACK, count_all_gags,
-                         get_gag_accuracy, get_gag_exp, get_gag_exp_needed)
+from .GagGlobals import (DROP_TRACK, HEAL_TRACK, LEVELS, LURE_TRACK,
+                         count_all_gags, get_gag_accuracy, get_gag_exp,
+                         get_gag_exp_needed)
 
 DEFAULT_HP = 15
 # -1 means the gag_track is locked,0 means lvl 1 Gag is unlocked
@@ -228,7 +229,7 @@ class Toon(Entity):
         print(f"        [>] `choose_gag` chosen Gag    : {gag}")
         return gag
 
-    def choose_attack(self, target: Cog=None, track: int=-1, level: int=-1) -> Gag:  # noqa
+    def choose_attack(self, target: Cog = None, track: int = -1, level: int = -1) -> Gag:  # noqa
         # If no arguments were provided, pick a random attack
         if track == -1 or level == -1:
             gag = self._pick_random_attack(target=target)
@@ -252,35 +253,30 @@ class Toon(Entity):
             raise InvalidToonAttackTarget
 
         gag_atk = self._get_gag(track=gag_atk.track, level=gag_atk.level)
-        target_hp_before = target.hp
-        # TODO #10, Pass in attack_accuracy
 
         try:
-            attack_hit = super().do_attack(target=target,
-                                           amount=gag_atk.damage)
+            # TODO #10, Pass in attack_accuracy
+            attack_hit = Entity.do_attack(self, target=target,
+                                          amount=gag_atk.damage)
+            if attack_hit and gag_atk.track == LURE_TRACK:
+                target.is_lured = True
+            elif attack_hit and target.is_lured:
+                # TODO #20, add bonus damage for attacking lured Cog
+                target.is_lured = False
+
         except TargetDefeatedError:
             # Target is already defeated. Return 0, do not decrease Gag count
             print(f"    [!] WARNING `do_attack` : {self} tried to attack a "
-                  "defeated Cog {target}")
+                  f"defeated Cog {target}")
             print(f"        [-] Skipping {gag_atk} attack, Cog {target} is "
                   "already defeated")
             return 0
 
-        if attack_hit:
-            print(f"        [-] `do_attack` hits : {target_hp_before}hp-"
-                  f"{gag_atk.damage}dmg -> {target}")
-            # ! Maybe return tuple containing all attack info when creating
-            # ! the Observer: gag track, level, exp, damage, reward, target,
-            # ! target_hp, current_hp
-            # self.gag_exps[gag_atk.track] += gag_atk.level + 1
-        else:
-            print(f"        [-] `do_attack` misses : {target_hp_before}hp-0"
-                  f"dmg -> {target}")
         # TODO #37, Implement : Add Gag EXP (reward), so we can track rewards
         self.gags[gag_atk.track][gag_atk.level] -= 1
         return attack_hit
 
-    def get_attack_accuracy(self, gag: Gag, target: Cog, bonus: int=0) -> int:
+    def get_attack_accuracy(self, gag: Gag, target: Cog, bonus: int = 0) -> int:  # noqa
         """Calculate Gag Attack accuracy, given a gag and Cog target
 
         attack_accuracy = gag_accuracy + gag_exp + target_defense + bonus
@@ -440,7 +436,11 @@ class Toon(Entity):
             viable_gags = gag_track.copy()
 
             # Can't use Lure against a lured Cog
-            if target.is_lured and track_index == LURE_TRACK:
+            # Drop could be viable if a Cog is lured, because another Toon can
+            # attack the Cog when it's lured, and then we use Drop. But we'll
+            # assume it's unviable until we develop Strategies
+            # TODO #38
+            if target.is_lured and track_index in [LURE_TRACK, DROP_TRACK]:
                 all_viable_gags.append([-1]*7)
                 continue
 

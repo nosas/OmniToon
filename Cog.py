@@ -37,7 +37,7 @@ class Cog(Entity):
 
     # TODO #40, `choose_target` method to choose a target when vs 2+ toons
     # TODO #39, Need to write tests for this method
-    def choose_attack(self, attack_name: str='') -> int:
+    def choose_attack(self, attack_name: str = '') -> int:
         """Return attack_index of cog attack from cog.attacks, a pseudo-random
             attack index is returned by default unless the `attack_name`
             argument is provided
@@ -73,7 +73,7 @@ class Cog(Entity):
         attack = self.get_attack(attack_name=attack_name)
         return attack['hp']
 
-    # TODO Make this follow Toon's `do_attack`, add  atk_indx
+    # TODO Make this follow Toon's `do_attack`, add atk_indx
     def do_attack(self, target, amount: int):
         """Perform an attack on a Toon, given an attack damage
 
@@ -84,6 +84,8 @@ class Cog(Entity):
         Returns:
             int: 0 if the attack misses, 1 if it hits
         """
+        # Have to import Toon here due to circular import issue when importing
+        # Toon at the top of the file
         from .Toon import Toon
 
         if type(target) != Toon:
@@ -93,7 +95,7 @@ class Cog(Entity):
             raise InvalidCogAttackTarget("Cannot attack defeated Toon")
 
         # TODO #10, add chance_to_hit
-        attack_hit = super().do_attack(target=target, amount=amount)
+        attack_hit = Entity.do_attack(self, target=target, amount=amount)
         return attack_hit
 
     # TODO Create overloaded method to get attack from attack_idx?

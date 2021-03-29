@@ -3,7 +3,6 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 
 from .Cog import Cog
-from .GagGlobals import THROW_TRACK
 from .Toon import Toon
 
 
@@ -92,7 +91,7 @@ class BattleState(ABC):
 class AttackState(BattleState):
 
     @abstractmethod
-    def handle_attacks(self):
+    def handle_attacks():
         pass
 
     def __init__(self):
@@ -102,7 +101,7 @@ class AttackState(BattleState):
 class WinLoseState(BattleState):
 
     @abstractmethod
-    def handle_win_lose(self):
+    def handle_win_lose():
         pass
 
     def __init__(self):
@@ -153,10 +152,6 @@ class CogAttackState(AttackState):
 
         cog_atk = target_cog.choose_attack()
         atk_hit = target_cog.do_attack(target=my_toon, amount=cog_atk)
-        hit_miss = 'hits' if atk_hit else 'misses'
-        # ! TODO Move this into Cog's `do_attack`
-        print(f"        [-] `do_attack` {hit_miss} : {my_toon} for "
-              f"{cog_atk if atk_hit else 0}dmg")
 
         # ! CogAtkState : If all Toons defeated -> LoseState else ToonAtkState
         if my_toon.is_defeated():
@@ -194,7 +189,7 @@ class LoseState(WinLoseState):
     def __init__(self):
         super()
 
-    def handle_win_lose(self):
+    def handle_win_lose():
         return super().handle_win_lose()
 
 
