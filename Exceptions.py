@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from builtins import Exception
+
 from .Gag import Gag
 
 
@@ -76,6 +79,11 @@ class InvalidToonHealTarget(InvalidTargetError):
 
 class InvalidRelativeLevel(Error):
     """ Must be in range [0-4]"""
+    pass
+
+
+class InvalidCogKey(Error):
+    """ Cog key must be in `COG_ATTRIBUTES` dictionary"""
     pass
 
 

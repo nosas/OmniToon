@@ -73,7 +73,7 @@ class Cog(Entity):
         attack = self.get_attack(attack_name=attack_name)
         return attack['hp']
 
-    # TODO Make this follow Toon's `do_attack`, add atk_indx
+    # TODO #41, Make this follow Toon's `do_attack`, add atk_indx
     def do_attack(self, target, amount: int):
         """Perform an attack on a Toon, given an attack damage
 
@@ -98,13 +98,15 @@ class Cog(Entity):
         attack_hit = Entity.do_attack(self, target=target, amount=amount)
         return attack_hit
 
-    # TODO Create overloaded method to get attack from attack_idx?
-    def get_attack(self, attack_name: str) -> dict:
+    # TODO #41, return a CogAttack object instead of dict?
+    def get_attack(self, attack_name: str = '', attack_idx: int = -1) -> dict:
         """Return dictionary containing Cog attack information, given an index#
 
         Args:
             attack_name (str, optional): Attack name as seen in COG_ATTACKS or
                 the `get_cog_attacks_all_levels` function
+            attack_idx (int, optional): Attack index for attacksseen in
+                COG_ATTACKS or the `get_cog_attacks_all_levels` function
 
             Example of valid input ::
                 <'PoundKey'|'Shred'|'ClipOnTie'>
@@ -123,6 +125,7 @@ class Cog(Entity):
                     'target': 2  # ATK_TGT_SINGLE=1, ATK_TGT_GROUP=2
                 }
         """
+        assert (attack_name != '') or (attack_idx != -1)
         valid_name = [attack_name == attack['name'] for attack in self.attacks]
         assert valid_name.count(True) == 1
         attack_idx = valid_name.index(True)

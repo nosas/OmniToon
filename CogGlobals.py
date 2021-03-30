@@ -6,6 +6,8 @@
 
 from random import randint
 
+from .Exceptions import InvalidCogKey, InvalidRelativeLevel
+
 ATK_IDX_NAME,  ATK_IDX_TGT, ATK_IDX_DMG, \
     ATK_IDX_ACC, ATK_IDX_FREQ = (0, 1, 2,
                                  3, 4)
@@ -14,6 +16,9 @@ COG_HP = (6, 12, 20, 30, 42, 56, 72, 90, 110, 132, 156, 200)
 # ! Correct the strange formatting from SuitBattleGlobals with following regex
 # \((\d{1,3},)\n\s+(\d{1,3},)\n\s+(\d{1,3},)\n\s+(\d{1,3},)\n\s+(\d{1,3})\)
 # ($1 $2 $3 $4 $5)
+# ! TODO #8,  Add 1 to all Cog's minimum levels (Done for BossBots)
+# ! TODO #8, Add ATK_TGT_ to every Cog's attack
+# ! NOTE : Minimum Cog Level is 1, not 0
 COG_ATTRIBUTES = {
     'f': {
         'name': 'Flunky',
@@ -22,9 +27,7 @@ COG_ATTRIBUTES = {
         # 'name': TTLocalizer.SuitFlunky
         # 'singularname': TTLocalizer.SuitFlunkyS,
         # 'pluralname': TTLocalizer.SuitFlunkyP,
-        # ! TODO: Add 1 to all Cog's minimum levels (Done for BossBots)
-        # ! TODO: Add ATK_TGT_ to every cog's attack
-        # ! NOTE : Minimum Cog Level is 1
+
         'level': 1,  # minimum Cog level, max level = min_level+4
         'hp': COG_HP[0:5],  # Cog HP range from 'level' to 'level'+5
         'def': (2, 5, 10, 12, 15),
@@ -307,7 +310,7 @@ def get_actual_from_relative_level(cog_key: str, relative_level: int) -> int:
     return actual_level
 
 
-def get_cog_attack(cog_key: str, relative_level: int, attack_index: int=-1) -> dict:   # noqa
+def get_cog_attack(cog_key: str, relative_level: int, attack_index: int = -1) -> dict:   # noqa
     """Return dictionary of Cog's attack given COG_ATTR key and relative_level,
         returns a pseudo-random Cog attack if attack_index argument
 
@@ -390,7 +393,7 @@ def get_cog_attacks_all_levels(cog_key: str) -> tuple:
     return COG_ATTRIBUTES[cog_key]['attacks']
 
 
-def get_cog_vitals(cog_key: str, relative_level: int=-1) -> dict:
+def get_cog_vitals(cog_key: str, relative_level: int = -1) -> dict:
     """Return dictionary of Cog's vital info, given cog_key and relative_level
 
     Args:
@@ -437,7 +440,12 @@ def get_cog_vitals(cog_key: str, relative_level: int=-1) -> dict:
                 ]
             }
     """
-    # TODO Assert `key` and `relative_level` are valid inputs
+    if cog_key not in COG_ATTRIBUTES:
+        raise InvalidCogKey
+
+    if relative_level not in range(5):
+        raise InvalidRelativeLevel
+
     cog_data = COG_ATTRIBUTES[cog_key]
     # Pick pseudo-random Cog level if no relative_level is provided
     if relative_level == -1:
@@ -445,7 +453,7 @@ def get_cog_vitals(cog_key: str, relative_level: int=-1) -> dict:
     vitals_dict = {}
     vitals_dict['level'] = get_actual_from_relative_level(cog_key,
                                                           relative_level)
-    if vitals_dict['level'] == 12:  # ? why?? for level 12 cogs, ex: Skelecogs
+    if vitals_dict['level'] == 12:  # for level 12 cogs, ex: Skelecogs
         relative_level = 0
     vitals_dict['hp'] = cog_data['hp'][relative_level]
     vitals_dict['def'] = cog_data['def'][relative_level]
@@ -474,6 +482,7 @@ def get_cog_vitals(cog_key: str, relative_level: int=-1) -> dict:
 def pick_cog_attack(attack_choices: tuple, relative_level, attack_name='') -> int:  # noqa
     # ! This does not support `cog.attacks` dictionary as input
     # ! That is a lie, but do we want to support it?
+    # ? What the hell am I saying? ^^^^^^^^^^^^^
     """Return a pseudo-random attack index obtained from
     `get_cog_attacks_all_levels`, unless `attack_name` argument is provided.
 

@@ -17,6 +17,6 @@ class TestBattleToonWins:
         while not cog_flunky.is_defeated():
             first_battle.update()
         print(first_battle.calculate_rewards())
-        # ! TODO Create tests for adding toon,cog, calculating rewards
-        # ! TODO Create functionality for removing cog/toon if their hp <= 0
-        # ! TODO Create functionality for removing all gags if toon.hp <= 0
+        # ! TODO #37, Create tests for adding toon,cog, calculating rewards
+        # ! TODO #43, Create functionality for removing cog/toon if hp <= 0
+        # ! TODO #9, Create functionality for removing all gags if toon.hp <= 0

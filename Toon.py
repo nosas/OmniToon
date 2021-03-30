@@ -139,7 +139,7 @@ class Toon(Entity):
 
     def _get_gag(self, track: int, level: int) -> Gag:
         count = self._count_gag(track=track, level=level)
-        # count_max =  # ! TODO
+        # count_max =  # ! TODO #42
         exp = self.get_gag_exp(track=track)
         return Gag(track=track, exp=exp, level=level, count=count)
 
@@ -157,7 +157,7 @@ class Toon(Entity):
         # Not in [0, -1]
         return self._count_gag(track=track, level=level) > 0
 
-    # ! This should, and all attack-related stuff, should go into Strategy
+    # ! TODO #38, this & all attack-related stuff should go into Strategy
     def _pick_random_gag(self, target=None, attack=False) -> Gag:
         if self._count_all_gags() == 0:
             # TODO Need another error, this one is for individual Gags
@@ -184,7 +184,11 @@ class Toon(Entity):
         viable_gags = []
         for track_index, gag_track in enumerate(gags):
             for gag_level, gag_count in enumerate(gag_track):
-                # TODO Add rules to debug output
+                # TODO #38, add different rules for different Strategies
+                # TODO #38, Create Rules for valid Gags using numpy masks,
+                # validate against those Rules. We can make more custom
+                # exceptions for this when we make strategies.
+
                 rules = [gag_count not in [0, -1],
                          # Toons cannot use Heal as an attack
                          track_index != HEAL_TRACK if attack is True else 1
@@ -347,8 +351,8 @@ class Toon(Entity):
                                   current_exps=self.get_gag_exp(track)
                                   )
 
-    # TODO #38 : We should move this to Strategy, when we make Strategies.
-    # TODO #38 : Make sure to check against the highest level Cog in the battle
+    # TODO #38, We should move this to Strategy, when we make Strategies.
+    # TODO #38, Make sure to check against the highest level Cog in the battle
     # However, if the Cog being attacked is at a lower level than the gag,
     # then the toon will receive no skill points.
     # https://toontown.fandom.com/wiki/Skill_points#Earning_skill_points
@@ -424,7 +428,7 @@ class Toon(Entity):
                 [-1,  9,  5, -1, -1, -1, -1]
             ]
         """
-        # TODO : Add attributes to Gags to determine if valid/invalid/locked
+        # TODO  #11, Add Gag attributes to determine if valid/invalid/locked
 
         # Return Gags with index ranging from (0, target.level) aka (0,6)
         assert 7 > target.level >= 0, (

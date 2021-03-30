@@ -183,7 +183,7 @@ class WinState(WinLoseState):
 
 
 class LoseState(WinLoseState):
-    # TODO #9
+    # TODO #9, implement functionality & create tests for Toon losing to Cog
 
     # Need an __init__ function, otherwise it'll initialize as an WinLoseState
     def __init__(self):
