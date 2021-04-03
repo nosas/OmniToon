@@ -72,7 +72,7 @@ class BattleContext:
         elif issubclass(self.state.__class__, WinLoseState):
             self.state.handle_win_lose()
         elif type(self.state) == EndState:
-            pass
+            pass  # ? Do we want to do anything in EndSate?
         else:
             raise TypeError(self.state)
         print(f"    [-] BattleContext `update` post-update state : {self.state}")
@@ -111,7 +111,7 @@ class WinLoseState(BattleState):
     def __init__(self):
         raise Exception("[!] ERROR: Entering state: WinLoseState")
 
-    # TODO : Implement methods to calculate rewards, add rewards, level up Toon
+    # TODO #37, #45: Implement methods to add rewards, level up Toon
 
 
 # Do we need a ToonChooseAttack state and ToonDoAttack state? Likely yes, will
@@ -120,8 +120,8 @@ class WinLoseState(BattleState):
 class ToonAttackState(AttackState):
 
     def __init__(self):
-        self.attacks = {}
-        self.rewards = {}
+        self.attacks = {}  # {Toon: Gag}
+        self.rewards = {}  # {Toon: int}
         # ! ToonAtkState : If all Cogs defeated -> WinState else CogAtkState
 
     def handle_attacks(self):
@@ -132,6 +132,7 @@ class ToonAttackState(AttackState):
                   f"attacking Cog {target_cog}")
 
             gag_atk = toon.choose_attack(target=target_cog)
+            # TODO #44, Group and order attacks by Gag.track
             atk_hit = toon.do_attack(target=target_cog, gag_atk=gag_atk)
             # Attack doesn't miss and Gag is eligible for reward
             if atk_hit and gag_atk.level < target_cog.level:
@@ -175,7 +176,7 @@ class WinState(WinLoseState):
         super()
 
     def handle_win_lose(self):
-        """ # TODO #9, #37
+        """ # TODO #9, #37, #46
         * 1. If attack hits and all Cogs are defeated, calculate EXP and add to
         *    gag track EXP (AI reward)
 
@@ -194,7 +195,7 @@ class WinState(WinLoseState):
 
 
 class LoseState(WinLoseState):
-    # TODO : Implement methods to calculate rewards, remove all of Toon's Gags
+    # TODO $44, 37 Implement methods to calculate rewards, remove all of Toon's Gags
     # TODO #9, implement functionality & create tests for Toon losing to Cog
 
     # Need an __init__ function, otherwise it'll initialize as an WinLoseState

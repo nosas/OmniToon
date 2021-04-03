@@ -1,5 +1,4 @@
-from typing import DefaultDict
-from .BattleState import BattleContext, EndState, ToonAttackState, WinState
+from .BattleState import BattleContext, EndState, ToonAttackState
 from .Cog import Cog
 from .Toon import Toon
 
@@ -48,17 +47,21 @@ class Battle:
         self._rewards[new_toon] = [0]*7
 
     def calculate_rewards(self) -> list:
-        import pprint
+        import pprint  # To make rewards output readable
         pp = pprint.PrettyPrinter(indent=1)
 
         toon_attack_states = [
             state for state in self.context._completed_states if
             type(state) == ToonAttackState
         ]
+
+        # Sum rewards for all Toons
         for toon in self.toons:
+            # If Toon is defeat, no rewards are given
             if toon.is_defeated():
                 self._rewards[toon] = [0]*7
                 continue
+
             print(f"    [+] `calculate_rewards` for Toon {toon}")
             for attack_state in toon_attack_states:
                 if toon in attack_state.attacks:

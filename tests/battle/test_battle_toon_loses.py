@@ -25,9 +25,8 @@ class TestBattleToonLoses:
                                                         amount=amount)
             first_battle.update()
 
-
         first_battle.calculate_rewards()
-        # print(f"`test_battle_toon_loses : {first_battle.calculate_rewards()}")
+        # print(f"`test_battle_toon_loses: {first_battle.calculate_rewards()}")
         # ! TODO #37, Create tests for adding toon,cog, calculating rewards
         # ! TODO #43, Create functionality for removing cog/toon if hp <= 0
         # ! TODO #9, Create functionality for removing all gags if toon.hp <= 0
