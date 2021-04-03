@@ -93,6 +93,9 @@ class Toon(Entity):
     def __str__(self):
         return f'"{self.name}" ({self.hp}/{self.hp_max}hp)'
 
+    def __repr__(self):
+        return self.__str__()
+
     def _count_all_gags(self) -> int:
         """Return the Toon's total number of usable Gags
 
@@ -205,18 +208,20 @@ class Toon(Entity):
             raise NotEnoughGagsError
 
         gag_track, gag_level = rand_choice(viable_gags)
-        random_gag = self.choose_gag(track=gag_track, level=gag_level)
+        random_gag = self.choose_gag(track=gag_track, level=gag_level,
+                                     attack=attack)
         return random_gag
 
     def _pick_random_attack(self, target) -> Gag:
         return self._pick_random_gag(target=target, attack=True)
 
-    def choose_gag(self, track: int, level: int) -> Gag:
+    def choose_gag(self, track: int, level: int, attack=False) -> Gag:
         """Return Gag object containing Gag's vital info, iff Toon has the Gag
 
         Args:
             track (int): Index number of the Gag Track <0-6>
             level (int): Level of the Gag <0-6>
+            attack (bool, optional) : True if
 
         Returns:
             Gag: Vital information about the Toon's Gag
@@ -230,16 +235,17 @@ class Toon(Entity):
         if gag.count == -1:
             raise LockedGagError(level=level)
 
-        print(f"        [>] `choose_gag` chosen Gag    : {gag}")
+        gag_or_atk = 'gag' if not attack else 'attack'
+        print(f"        [>] Toon `choose_{gag_or_atk}` chosen Gag : {gag}")
         return gag
 
     def choose_attack(self, target: Cog = None, track: int = -1, level: int = -1) -> Gag:  # noqa
         # If no arguments were provided, pick a random attack
         if track == -1 or level == -1:
             gag = self._pick_random_attack(target=target)
-            print(f"        [>] `choose_attack` random Gag : {gag}")
+            # print(f"            [>] Toon `choose_attack` random Gag : {gag}")
         else:
-            gag = self.choose_gag(track=track, level=level)
+            gag = self.choose_gag(track=track, level=level, attack=True)
         return gag
 
     # TODO #11, Replace all gag_track,gag_level args to Gag objects

@@ -1,24 +1,27 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from random import choice as rand_choice
 
 from .Cog import Cog
+from .Exceptions import Error
 from .Toon import Toon
 
 
 class BattleContext:
 
-    _state = None
-    _completed_states = []
-
     def __init__(self, state: BattleState, cogs: list[Cog], toons: list[Toon],
-                 reward: int) -> None:
+                 rewards: dict[Toon:int]) -> None:
         # ! Battle should always begin at ToonAttackState
         print("[^] Initializing BattleContext...")
-        self._cogs = cogs
-        self._toons = toons
-        self.reward = reward
-        self.transition_to(state)
+        self.cogs = cogs
+        self.toons = toons
+        self.rewards = rewards
+
+        self._completed_states = []
+
+        self.state = state
+        self.state.context = self
 
     @property
     def state(self) -> BattleState:
@@ -26,9 +29,7 @@ class BattleContext:
 
     @state.setter
     def state(self, new_state: BattleState) -> None:
-        print(f"        [>] Setting new state: {new_state}")
-        if self.state:  # Don't append initial None value
-            self._completed_states.append(self.state)
+        # print(f"        [>] Setting new state: {new_state}")
         self._state = new_state
 
     @property
@@ -59,19 +60,22 @@ class BattleContext:
 
     def transition_to(self, new_state: BattleState):
         print(f"    [+] `transition_to` transition : {self.state} -> {new_state}")  # noqa
+        self._completed_states.append(self.state)
         self.state = new_state
-        print(f"        [-] `transition_to` states : {[str(state) for state in self._completed_states]}")  # noqa
+        print(f"        [-] `transition_to` completed states : {[str(state) for state in self._completed_states]}")  # noqa
         self.state.context = self
 
     def update(self):
-        print(f"[+] `update` pre-update state : {self.state}")
+        print(f"[+] BattleContext `update` pre-update state : {self.state}")
         if issubclass(self.state.__class__, AttackState):
             self.state.handle_attacks()
         elif issubclass(self.state.__class__, WinLoseState):
             self.state.handle_win_lose()
+        elif type(self.state) == EndState:
+            pass
         else:
             raise TypeError(self.state)
-        print(f"    [-] `update` post-update state : {self.state}")
+        print(f"    [-] BattleContext `update` post-update state : {self.state}")
 
 
 class BattleState(ABC):
@@ -92,7 +96,7 @@ class AttackState(BattleState):
 
     @abstractmethod
     def handle_attacks():
-        pass
+        raise NotImplementedError
 
     def __init__(self):
         raise Exception("[!] ERROR: Entering state: AttackState")
@@ -102,10 +106,12 @@ class WinLoseState(BattleState):
 
     @abstractmethod
     def handle_win_lose():
-        pass
+        raise NotImplementedError
 
     def __init__(self):
         raise Exception("[!] ERROR: Entering state: WinLoseState")
+
+    # TODO : Implement methods to calculate rewards, add rewards, level up Toon
 
 
 # Do we need a ToonChooseAttack state and ToonDoAttack state? Likely yes, will
@@ -114,23 +120,25 @@ class WinLoseState(BattleState):
 class ToonAttackState(AttackState):
 
     def __init__(self):
-        self.gag_atk = None
-        self.reward = 0
+        self.attacks = {}
+        self.rewards = {}
         # ! ToonAtkState : If all Cogs defeated -> WinState else CogAtkState
 
     def handle_attacks(self):
-        my_toon = self.context.toons[0]
-        target_cog = self.context.cogs[0]
-        print(f"    [+] ToonAttackState 'handle_attacks' : Toon {my_toon} is "
-              f"attacking Cog {target_cog}")
+        # TODO #44, Group and order attacks by Gag.track rather than sequntial
+        for toon in self.context.toons:
+            target_cog = rand_choice(self.context.cogs)
+            print(f"    [+] ToonAttackState 'handle_attacks' : Toon {toon} is "
+                  f"attacking Cog {target_cog}")
 
-        self.gag_atk = my_toon.choose_attack(target=target_cog)
-        atk_hit = my_toon.do_attack(target=target_cog, gag_atk=self.gag_atk)
-        # Attack doesn't miss and Gag is eligible for reward
-        if atk_hit and self.gag_atk.level < target_cog.level:
-            self.reward = self.gag_atk.level + 1
+            gag_atk = toon.choose_attack(target=target_cog)
+            atk_hit = toon.do_attack(target=target_cog, gag_atk=gag_atk)
+            # Attack doesn't miss and Gag is eligible for reward
+            if atk_hit and gag_atk.level < target_cog.level:
+                self.attacks[toon] = gag_atk
+                self.rewards[toon] = gag_atk.level + 1
 
-        if target_cog.is_defeated():
+        if all([cog.is_defeated() for cog in self.context.cogs]):
             # ! First need to check if all cogs defeated, then battle is Won
             transition_state = WinState
         else:
@@ -145,16 +153,15 @@ class CogAttackState(AttackState):
         super()
 
     def handle_attacks(self):
-        my_toon = self.context.toons[0]
-        target_cog = self.context.cogs[0]
-        print(f"    [+] CogAttackState 'handle_attacks' : Cog {target_cog} is "
-              f"attacking Toon {my_toon}")
-
-        cog_atk = target_cog.choose_attack()
-        atk_hit = target_cog.do_attack(target=my_toon, amount=cog_atk)
+        for cog in self.context.cogs:
+            target_toon = rand_choice(self.context.toons)
+            print(f"    [+] CogAttackState 'handle_attacks' : Cog {cog} is "
+                  f"attacking Toon {target_toon}")
+            cog_atk = cog.choose_attack()
+            atk_hit = cog.do_attack(target=target_toon, amount=cog_atk)
 
         # ! CogAtkState : If all Toons defeated -> LoseState else ToonAtkState
-        if my_toon.is_defeated():
+        if all([toon.is_defeated() for toon in self.context.toons]):
             transition_state = LoseState
         else:
             transition_state = ToonAttackState
@@ -174,23 +181,42 @@ class WinState(WinLoseState):
 
         * 2. Add EXP multiplier (cog building, invasions)
         """
-        reward_states = [state for state in self.context._completed_states
-                         if type(state) == ToonAttackState]
-        reward = sum(state.reward for state in reward_states)
-        print(f"[$] Reward = {reward}")
-        return reward
-        # return super().handle_win_lose()
+
+        # self.reward = self.calculate_rewards()
+        # total_reward = sum(state.reward for state in self.reward)
+        # print(f"[$] Total Reward = {total_reward}")
+
+        if all([cog.is_defeated() for cog in self.context.cogs]):
+            transition_state = EndState
+        else:
+            raise Error("We should be in EndState")
+        self.context.transition_to(new_state=transition_state())
 
 
 class LoseState(WinLoseState):
+    # TODO : Implement methods to calculate rewards, remove all of Toon's Gags
     # TODO #9, implement functionality & create tests for Toon losing to Cog
 
     # Need an __init__ function, otherwise it'll initialize as an WinLoseState
     def __init__(self):
         super()
 
-    def handle_win_lose():
-        return super().handle_win_lose()
+    def handle_win_lose(self):
+        # TODO #11, replace this double for-loop with Gag objects
+        # TODO Alternatively, make Toon.is_defeated() a property, strip all the
+        # Gags in the setter method if Toon.is_defeated is True
+        defeated_toons = [
+            toon for toon in self.context._toons if toon.is_defeated()]
+
+        for toon in defeated_toons:
+            for track_idx, gag_track in enumerate(toon.gags):
+                for gag_idx, gag in enumerate(toon.gags[track_idx]):
+                    # Set the Gag count to 0 if the Gag is unlocked, or leave
+                    # the Gag locked
+                    toon.gags[track_idx][gag_idx] = 0 if gag != -1 else -1
+
+        self.context.reward = [0]*7
+        self.context.transition_to(new_state=EndState())
 
 
 class EndState(BattleState):

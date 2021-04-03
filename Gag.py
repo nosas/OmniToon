@@ -46,8 +46,8 @@ class Gag(GagTrack):
 
     def __str__(self):
         # print(gag_throw) == 'Lvl 3 Throw, "Whole Fruit Pie" (2million dmg)'
-        return f'lvl {self.level} {self.track_name} ({self.track}) '\
-               f'"{self.name}" ({self.damage}dmg)'
+        return f'lvl {self.level} {self.track_name} '\
+               f'"{self.name}" ({self.track, self.level}, {self.damage}dmg)'
 
     def __repr__(self):
         # repr(gag_throw) == (track_idx, level, exp, damage_min, damage_max,

@@ -33,8 +33,10 @@ class Entity:
         hit_miss = 'hits' if attack_hit else 'misses'
         target._get_attacked(amount=amount)
 
-        print(f"        [-] `do_attack` {hit_miss} : {target_hp_before}hp-"
-              f"{amount if attack_hit else 0}dmg -> {target}")
+        class_name = self.__class__.__name__
+        print(f"        [-] {class_name} `do_attack` {hit_miss} : "
+              f"{target_hp_before}hp-{amount if attack_hit else 0}dmg -> "
+              f"{target}")
         return attack_hit
 
     def is_defeated(self):

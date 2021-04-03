@@ -1,4 +1,5 @@
-from .BattleState import BattleContext, ToonAttackState, WinState
+from typing import DefaultDict
+from .BattleState import BattleContext, EndState, ToonAttackState, WinState
 from .Cog import Cog
 from .Toon import Toon
 
@@ -18,12 +19,14 @@ class Battle:
     countdown_timer = 99
 
     def __init__(self, first_cog: Cog, first_toon: Toon):
-        self._reward = [0]*7
+        # self._reward = [0]*7
+        self._rewards = {first_toon: [0]*7}
         self._states = []
         self._context = BattleContext(state=ToonAttackState(),
                                       cogs=[first_cog],
                                       toons=[first_toon],
-                                      reward=self._reward)
+                                      rewards=self._rewards)
+        self.is_battling = True
 
     @property
     def context(self):
@@ -42,25 +45,38 @@ class Battle:
 
     def add_toon(self, new_toon: Toon):
         self.context.add_toon(new_toon)
+        self._rewards[new_toon] = [0]*7
 
     def calculate_rewards(self) -> list:
-        if type(self.context.state) == WinState:
-            reward_states = [
-                (state.gag_atk, state.reward) for state in
-                self.context._completed_states if
-                type(state) == ToonAttackState
-            ]
+        import pprint
+        pp = pprint.PrettyPrinter(indent=1)
 
-            for gag, reward in reward_states:
-                self._reward[gag.track] += reward
+        toon_attack_states = [
+            state for state in self.context._completed_states if
+            type(state) == ToonAttackState
+        ]
+        for toon in self.toons:
+            if toon.is_defeated():
+                self._rewards[toon] = [0]*7
+                continue
+            print(f"    [+] `calculate_rewards` for Toon {toon}")
+            for attack_state in toon_attack_states:
+                if toon in attack_state.attacks:
+                    gag = attack_state.attacks[toon]
+                    reward = attack_state.rewards[toon]
+                    self._rewards[toon][gag.track] += reward
+                    print(f"        [>] +{reward} {gag.track_name} exp ({gag})")  # noqa
+            print(f"        [-] Total rewards for Toon {toon} : "
+                  f"{self._rewards[toon]}")
 
-            import pprint
-            pp = pprint.PrettyPrinter(indent=1)
-            print(f"[$] `calculate_rewards` attack states : ")
-            pp.pprint(reward_states)
+        print(f"[$] `calculate_rewards` total rewards all Toons : "
+              f"{self._rewards}")
+        pp.pprint(self._rewards)
 
-        print(f"[$] `calculate_rewards` total rewards : {self._reward}")
-        return self._reward
+        return self._rewards
 
     def update(self):
         self.context.update()
+        if type(self.context.state) == EndState:
+            print(f"[+] Battle `update` : Calculating rewards")
+            self.is_battling = False
