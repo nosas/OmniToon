@@ -54,3 +54,4 @@ class TestBattleToonWins1Cog:
 
 
 class TestBattleToonWins2Cogs:
+    pass

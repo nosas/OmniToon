@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .Exceptions import InvalidTargetError, TargetDefeatedError
+from .Exceptions import InvalidTargetError
 
 
 class Entity:
@@ -16,15 +16,11 @@ class Entity:
         raise NotImplementedError
 
     def do_attack(self, target: Entity, amount: int) -> int:
-
         if not isinstance(target, Entity):
             raise InvalidTargetError("Target must be a subclass of Entity")
 
         if type(target) == type(self):
             raise InvalidTargetError("Target must not be of the same type")
-
-        if target.is_defeated():
-            raise TargetDefeatedError("Target is defeated")
 
         target_hp_before = target.hp
 
@@ -34,9 +30,10 @@ class Entity:
         target._get_attacked(amount=amount)
 
         class_name = self.__class__.__name__
-        print(f"        [-] {class_name} `do_attack` {hit_miss} : "
-              f"{target_hp_before}hp-{amount if attack_hit else 0}dmg -> "
-              f"{target}")
+        # TODO Add attack name and object name
+        print(f"            [-] {class_name} `do_attack()` {self} {hit_miss}"
+              f" {target} -> {target_hp_before}hp-"
+              f"{amount if attack_hit else 0}dmg")
         return attack_hit
 
     def is_defeated(self):

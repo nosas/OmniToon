@@ -1,5 +1,6 @@
 from .BattleState import BattleContext, EndState, ToonAttackState
 from .Cog import Cog
+from .Exceptions import TooManyGagsError, TooManyToonsError
 from .Toon import Toon
 
 # TODO Create BattleCogBuilding w/ constructor accepting multi-toon&cogs
@@ -33,23 +34,31 @@ class Battle:
 
     @property
     def cogs(self):
-        return self._context.cogs
+        return self.context.cogs
 
     @property
     def toons(self):
-        return self._context.toons
+        return self.context.toons
 
+    # TODO #49, Create negative test for adding new Toon/Cog
     def add_cog(self, new_cog: Cog):
-        self.context.add_cog(new_cog)
+        try:
+            self.context.add_cog(new_cog)
+        except TooManyGagsError:
+            print(f"[!] ERROR : Cannot add Cog {new_cog}, too many Cogs")
 
     def add_toon(self, new_toon: Toon):
-        self.context.add_toon(new_toon)
-        self._rewards[new_toon] = [0]*7
+        try:
+            self.context.add_toon(new_toon)
+            self._rewards[new_toon] = [0]*7
+        except TooManyToonsError as e:
+            print(f"    [!] ERROR : Too many Toons battling, can't add Toon "
+                  f"{new_toon}")
 
     def calculate_rewards(self) -> list:
         import pprint  # To make rewards output readable
         pp = pprint.PrettyPrinter(indent=1)
-
+        print(f"[$] `calculate_rewards()` for all Toons")
         toon_attack_states = [
             state for state in self.context._completed_states if
             type(state) == ToonAttackState
@@ -62,18 +71,16 @@ class Battle:
                 self._rewards[toon] = [0]*7
                 continue
 
-            print(f"    [+] `calculate_rewards` for Toon {toon}")
+            print(f"    [+] `calculate_rewards()` for Toon {toon}")
             for attack_state in toon_attack_states:
-                if toon in attack_state.attacks:
+                if toon in attack_state.rewards:
                     gag = attack_state.attacks[toon]
                     reward = attack_state.rewards[toon]
                     self._rewards[toon][gag.track] += reward
                     print(f"        [>] +{reward} {gag.track_name} exp ({gag})")  # noqa
             print(f"        [-] Total rewards for Toon {toon} : "
                   f"{self._rewards[toon]}")
-
-        print(f"[$] `calculate_rewards` total rewards all Toons : "
-              f"{self._rewards}")
+        print("    [-] `calculate_rewards()` all rewards ... ")
         pp.pprint(self._rewards)
 
         return self._rewards
@@ -81,5 +88,4 @@ class Battle:
     def update(self):
         self.context.update()
         if type(self.context.state) == EndState:
-            print(f"[+] Battle `update` : Calculating rewards")
             self.is_battling = False

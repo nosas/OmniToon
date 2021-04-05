@@ -2,7 +2,8 @@ from random import randint
 
 from .CogGlobals import get_cog_vitals
 from .Entity import Entity
-from .Exceptions import InvalidCogAttackTarget, InvalidRelativeLevel
+from .Exceptions import (InvalidCogAttackTarget, InvalidRelativeLevel,
+                         TargetDefeatedError)
 
 
 class Cog(Entity):
@@ -92,7 +93,7 @@ class Cog(Entity):
             raise InvalidCogAttackTarget("Target is not a Toon")
 
         if target.is_defeated():
-            raise InvalidCogAttackTarget("Cannot attack defeated Toon")
+            raise TargetDefeatedError("Cannot attack defeated Toon")
 
         # TODO #10, add chance_to_hit
         attack_hit = Entity.do_attack(self, target=target, amount=amount)

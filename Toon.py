@@ -236,7 +236,7 @@ class Toon(Entity):
             raise LockedGagError(level=level)
 
         gag_or_atk = 'gag' if not attack else 'attack'
-        print(f"        [>] Toon `choose_{gag_or_atk}` chosen Gag : {gag}")
+        print(f"            [-] `choose_{gag_or_atk}()` : {gag}")
         return gag
 
     def choose_attack(self, target: Cog = None, track: int = -1, level: int = -1) -> Gag:  # noqa
@@ -249,7 +249,7 @@ class Toon(Entity):
         return gag
 
     # TODO #11, Replace all gag_track,gag_level args to Gag objects
-    def do_attack(self, target: Cog, gag_atk: Gag) -> int:
+    def do_attack(self, target: Cog, gag_atk: Gag, overdefeat=False) -> int:
         """Perform an attack on a Cog, given track# and level#
 
         Args:
@@ -275,6 +275,9 @@ class Toon(Entity):
                 target.is_lured = False
 
         except TargetDefeatedError:
+            # Multiple Toons attack the same Cog with the same Gag track
+            if overdefeat is True:
+                pass
             # Target is already defeated. Return 0, do not decrease Gag count
             print(f"    [!] WARNING `do_attack` : {self} tried to attack a "
                   f"defeated Cog {target}")
@@ -282,7 +285,7 @@ class Toon(Entity):
                   "already defeated")
             return 0
 
-        # TODO #37, Implement : Add Gag EXP (reward), so we can track rewards
+        # TODO #37, Add Gag EXP (reward), so we can track rewards
         self.gags[gag_atk.track][gag_atk.level] -= 1
         return attack_hit
 

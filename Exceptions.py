@@ -9,7 +9,19 @@ class Error(Exception):
     pass
 
 
-class GagCountError(Error):
+class CountError(Error):
+    pass
+
+
+class TooManyCogsError(CountError):
+    pass
+
+
+class TooManyToonsError(CountError):
+    pass
+
+
+class GagCountError(CountError):
     pass
 
 
