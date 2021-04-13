@@ -44,8 +44,9 @@ class Battle:
     def add_cog(self, new_cog: Cog):
         try:
             self.context.add_cog(new_cog)
-        except TooManyGagsError:
+        except TooManyGagsError as e:
             print(f"[!] ERROR : Cannot add Cog {new_cog}, too many Cogs")
+            raise e
 
     def add_toon(self, new_toon: Toon):
         try:
@@ -54,6 +55,7 @@ class Battle:
         except TooManyToonsError as e:
             print(f"    [!] ERROR : Too many Toons battling, can't add Toon "
                   f"{new_toon}")
+            raise e
 
     def calculate_rewards(self) -> list:
         import pprint  # To make rewards output readable

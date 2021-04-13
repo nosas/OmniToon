@@ -1,5 +1,6 @@
 import pytest
 from ...Battle import Battle
+from ...Exceptions import TooManyToonsError
 from ..fixtures.cog_fixtures import cog_flunky
 from ..fixtures.toon_fixtures import (toon_astro, toon_default, toon_newbi,
                                       toon_ostra, toon_sport)
@@ -61,7 +62,8 @@ class TestBattleSetupMultipleToons:
         first_battle.add_toon(toon_sport)
 
         # There can only be a max of 4 Toons battling at once
-        first_battle.add_toon(toon_default)
+        with pytest.raises(TooManyToonsError):
+            first_battle.add_toon(toon_default)
 
         first_battle.update()
         first_battle.calculate_rewards()
