@@ -1,10 +1,15 @@
 import pytest
-from ...BattleState import CogAttackState
 
 from ...Battle import Battle
+from ...BattleState import CogAttackState, LoseState
 from ...GagGlobals import count_all_gags
 from ..fixtures.cog_fixtures import cog_flunky
 from ..fixtures.toon_fixtures import toon_astro
+
+
+def verify_lose_state(won_battle: Battle):
+    assert any([type(state) == LoseState for state in
+                won_battle.context._completed_states])
 
 
 class TestBattleToonLoses:
@@ -14,17 +19,12 @@ class TestBattleToonLoses:
         print("*********************************")
         first_battle = Battle(first_cog=cog_flunky, first_toon=toon_astro)
 
-        attack_toon_once = 0
         cog_flunky.hp = 1000
+        toon_astro.hp -= (toon_astro.hp - 1)
 
         while first_battle.is_battling:
-            while not attack_toon_once:
-                # Leave toon_astro with 1hp
-                amount = toon_astro.hp - 1
-                attack_toon_once = cog_flunky.do_attack(target=toon_astro,
-                                                        amount=amount)
             first_battle.update()
-
+        verify_lose_state(first_battle)
         first_battle.calculate_rewards()
         # print(f"`test_battle_toon_loses: {first_battle.calculate_rewards()}")
         # ! TODO #37, Create tests for adding toon,cog, calculating rewards

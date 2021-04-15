@@ -1,6 +1,7 @@
 from random import randint
+from random import choice as rand_choice
 
-from .CogGlobals import get_cog_vitals
+from .CogGlobals import COG_ATTRIBUTES, get_cog_vitals
 from .Entity import Entity
 from .Exceptions import (InvalidCogAttackTarget, InvalidRelativeLevel,
                          TargetDefeatedError)
@@ -22,6 +23,9 @@ class Cog(Entity):
         self.level = self.vitals['level']
         # TODO (??) Create CogStates
         self.is_lured = False
+
+    def __repr__(self):
+        return self.__str__()
 
     def __str__(self):
         return f'lvl {self.level} "{self.name}" ({self.hp}/{self.hp_max}hp)'
@@ -53,26 +57,18 @@ class Cog(Entity):
         Returns:
             int: Index of the Cog attack
         """
-        if attack_name:
-            assert attack_name in self.attacks
-            return self.attacks.index(attack_name)
+        if attack_name == '':
+            rand_num = randint(0, 99)
+            count = 0
+            for attack_dict in self.attacks:
+                attack_name = attack_dict['name']
+                attack_freq = attack_dict['freq']
+                count = count + attack_freq
+                if rand_num < count:
+                    break
+        return self.get_attack(attack_name=attack_name)
 
-        attack_index = None
-        rand_num = randint(0, 99)
-        count = 0
-        cur_index = 0
-
-        for attack_dict in self.attacks:
-            attack_name = attack_dict['name']
-            attack_freq = attack_dict['freq']
-            count = count + attack_freq
-            if rand_num < count:
-                attack_index = cur_index
-                break
-            cur_index = cur_index + 1
-
-        attack = self.get_attack(attack_name=attack_name)
-        return attack['hp']
+        # return attack['id']
 
     # TODO #41, Make this follow Toon's `do_attack`, add atk_indx
     def do_attack(self, target, amount: int):
@@ -100,7 +96,7 @@ class Cog(Entity):
         return attack_hit
 
     # TODO #41, return a CogAttack object instead of dict?
-    def get_attack(self, attack_name: str = '', attack_idx: int = -1) -> dict:
+    def get_attack(self, attack_name: str = '') -> dict:
         """Return dictionary containing Cog attack information, given an index#
 
         Args:
@@ -118,7 +114,6 @@ class Cog(Entity):
             Example output for attack_name='PoundKey' ::
                 {
                     'acc': 80,
-                    'animName': 'phone',
                     'freq': 40,
                     'hp': 3,
                     'id': 0,
@@ -126,8 +121,16 @@ class Cog(Entity):
                     'target': 2  # ATK_TGT_SINGLE=1, ATK_TGT_GROUP=2
                 }
         """
-        assert (attack_name != '') or (attack_idx != -1)
+        assert (attack_name != '')
         valid_name = [attack_name == attack['name'] for attack in self.attacks]
         assert valid_name.count(True) == 1
         attack_idx = valid_name.index(True)
         return self.attacks[attack_idx]
+
+
+def get_random_cog() -> Cog:
+
+    cog_key = rand_choice(list(COG_ATTRIBUTES.keys()))
+    cog_name = COG_ATTRIBUTES[cog_key]['name']
+    relative_level = randint(0, 4)
+    return Cog(key=cog_key, name=cog_name, relative_level=relative_level)

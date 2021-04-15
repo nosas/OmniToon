@@ -1,8 +1,15 @@
 import pytest
+
 from ...Battle import Battle
+from ...BattleState import WinState
 from ..fixtures.cog_fixtures import cog_flunky
 from ..fixtures.toon_fixtures import (toon_astro, toon_newbi, toon_ostra,
                                       toon_sport)
+
+
+def verify_win_state(won_battle: Battle):
+    assert any([type(state) == WinState for state in
+                won_battle.context._completed_states])
 
 
 class TestBattleToonWins1Cog:
@@ -13,6 +20,7 @@ class TestBattleToonWins1Cog:
 
         while first_battle.is_battling:
             first_battle.update()
+        verify_win_state(won_battle=first_battle)
         first_battle.calculate_rewards()
 
     @pytest.mark.parametrize('cog_flunky', [4], indirect=True)
@@ -23,6 +31,7 @@ class TestBattleToonWins1Cog:
 
         while first_battle.is_battling:
             first_battle.update()
+        verify_win_state(won_battle=first_battle)
         first_battle.calculate_rewards()
 
     @pytest.mark.parametrize('cog_flunky', [4], indirect=True)
@@ -34,6 +43,7 @@ class TestBattleToonWins1Cog:
 
         while first_battle.is_battling:
             first_battle.update()
+        verify_win_state(won_battle=first_battle)
         first_battle.calculate_rewards()
 
     @pytest.mark.parametrize('cog_flunky', [4], indirect=True)
@@ -46,6 +56,7 @@ class TestBattleToonWins1Cog:
 
         while first_battle.is_battling:
             first_battle.update()
+        verify_win_state(won_battle=first_battle)
         first_battle.calculate_rewards()
 
         # ! TODO #37, Create tests for adding toon,cog, calculating rewards
@@ -54,4 +65,12 @@ class TestBattleToonWins1Cog:
 
 
 class TestBattleToonWins2Cogs:
-    pass
+
+    @pytest.mark.parametrize('cog_flunky', [1], indirect=True)
+    def test_battle_toon_wins_1toon_2cogs(self, toon_astro, cog_flunky):
+        first_battle = Battle(first_cog=cog_flunky, first_toon=toon_astro)
+        first_battle.add_cog(new_cog=cog_flunky)
+        while first_battle.is_battling:
+            first_battle.update()
+        verify_win_state(won_battle=first_battle)
+        first_battle.calculate_rewards()

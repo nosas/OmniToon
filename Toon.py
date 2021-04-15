@@ -438,11 +438,6 @@ class Toon(Entity):
             ]
         """
         # TODO  #11, Add Gag attributes to determine if valid/invalid/locked
-
-        # Return Gags with index ranging from (0, target.level) aka (0,6)
-        assert 7 > target.level >= 0, (
-            f"[!] What the heck is the Cog's level? level={target.level}")
-
         all_viable_gags = []
 
         for track_index, gag_track in enumerate(self.gags):

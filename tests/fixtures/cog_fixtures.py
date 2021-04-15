@@ -1,4 +1,5 @@
 import pytest
+
 from ...Cog import Cog
 from ...CogGlobals import COG_ATTRIBUTES
 
@@ -31,7 +32,7 @@ def cog_flunky(request):
               f"default level of 0, in test {request.function}")
         cog_flunky = Cog(key=cog_key, name=cog_name)
 
-    yield cog_flunky
+    return cog_flunky
 
 
 def cog_yesman(request):
@@ -44,19 +45,19 @@ def cog_yesman(request):
         'freq': (50, 30, 10, 5, 5),
         'acc': (65, 70, 75, 80, 85),
         'attacks': (
-            ('RubberStamp',
+            ('RubberStamp', ATK_TGT_SINGLE,
                 (2, 2, 3, 3, 4),
                 (75, 75, 75, 75, 75),
                 (35, 35, 35, 35, 35)),
-            ('RazzleDazzle',
+            ('RazzleDazzle', ATK_TGT_SINGLE,
                 (1, 1, 1, 1, 1),
                 (50, 50, 50, 50, 50),
                 (25, 20, 15, 10, 5)),
-            ('Synergy',
+            ('Synergy', ATK_TGT_GROUP,
                 (4, 5, 6, 7, 8),
                 (50, 60, 70, 80, 90),
                 (5, 10, 15, 20, 25)),
-            ('TeeOff',
+            ('TeeOff', ATK_TGT_SINGLE,
                 (3, 3, 4, 4, 5),
                 (50, 60, 70, 80, 90),
                 (35, 35, 35, 35, 35))
@@ -73,4 +74,4 @@ def cog_yesman(request):
               f"default level of 0, in test {request.function}")
         cog_yesman = Cog(key=cog_key, name=cog_name)
 
-    yield cog_yesman
+    return cog_yesman

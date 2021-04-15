@@ -42,6 +42,8 @@ class BattleContext:
 
     @cogs.setter
     def cogs(self, cogs: list[Cog]) -> None:
+        if len(cogs) > 4:
+            raise TooManyCogsError
         assert all([type(x) == Cog for x in cogs])
         self._cogs = cogs
 
@@ -51,6 +53,8 @@ class BattleContext:
 
     @toons.setter
     def toons(self, toons: list[Toon]) -> list:
+        if len(toons) > 4:
+            raise TooManyToonsError
         assert all([type(x) == Toon for x in toons])
         self._toons = toons
 
@@ -65,6 +69,11 @@ class BattleContext:
         if len(self._toons) == 4:
             raise TooManyToonsError(new_toon)
         self._toons.append(new_toon)
+
+    def remove_cog(self, defeated_cog: Cog) -> None:
+        assert type(defeated_cog) == Cog
+        print(f"            [-] Cog {defeated_cog} is defeated")
+        self.cogs.remove(defeated_cog)
 
     def transition_to(self, new_state: BattleState):
         print(f"    [+] `transition_to()` transition : {self.state} -> {new_state}")  # noqa
@@ -166,16 +175,16 @@ class ToonAttackState(AttackState):
                 # TODO #10, Add chance_to_hit
                 atk_hit = toon.do_attack(target=target_cog, gag_atk=gag_atk,
                                          overdefeat=True)
-
+                self.attacks[toon] = (target_cog, gag_atk, atk_hit)
                 # Attack doesn't miss and Gag is eligible for reward
                 if atk_hit:
-                    for toon, gag_atk in potential_attacks[gag_track]:
-                        self.attacks[toon] = gag_atk
-                        if gag_atk.level < target_cog.level:
-                            self.rewards[toon] = gag_atk.level + 1
+                    if gag_atk.level < target_cog.level:
+                        self.rewards[toon] = gag_atk.level + 1
+                else:
+                    self.rewards[toon] = -1
 
             if target_cog.is_defeated():
-                print(f"            [-] Cog {target_cog} is defeated")
+                self.context.remove_cog(defeated_cog=target_cog)
                 break
 
         if all([cog.is_defeated() for cog in self.context.cogs]):
@@ -188,22 +197,28 @@ class ToonAttackState(AttackState):
 
 class CogAttackState(AttackState):
 
-    # Need an __init__ function, otherwise it'll initialize as an AttackState
     def __init__(self):
-        super()
+        self.attacks = {}  # {Cog: (Toon, Damage)}
 
     def handle_attacks(self):
         for cog in self.context.cogs:
-            target_toon = rand_choice(self.context.toons)
+            viable_toons = [
+                toon for toon in self.context.toons if not toon.is_defeated()]
+            target_toon = rand_choice(viable_toons)
             print(f"        [+] {self} Cog {cog} targets Toon {target_toon}")
             cog_atk = cog.choose_attack()
-            atk_hit = cog.do_attack(target=target_toon, amount=cog_atk)
+            atk_hit = cog.do_attack(target=target_toon, amount=cog_atk['hp'])
+            self.attacks[cog] = (target_toon, cog_atk, atk_hit)
 
-        # ! CogAtkState : If all Toons defeated -> LoseState else ToonAtkState
-        if all([toon.is_defeated() for toon in self.context.toons]):
-            transition_state = LoseState
-        else:
-            transition_state = ToonAttackState
+            if target_toon.is_defeated():
+                print(f"            [-] Toon {target_toon} is defeated")
+                # ! If all Toons defeated -> LoseState else ToonAtkState
+                if all([toon.is_defeated() for toon in self.context.toons]):
+                    transition_state = LoseState
+                    break
+            else:
+                transition_state = ToonAttackState
+
         self.context.transition_to(new_state=transition_state())
 
 
@@ -248,6 +263,7 @@ class LoseState(WinLoseState):
             toon for toon in self.context._toons if toon.is_defeated()]
 
         for toon in defeated_toons:
+            print(f"        [-] Removing all Gags from Toon {toon}")
             for track_idx, gag_track in enumerate(toon.gags):
                 for gag_idx, gag in enumerate(toon.gags[track_idx]):
                     # Set the Gag count to 0 if the Gag is unlocked, or leave

@@ -76,10 +76,10 @@ class Battle:
             print(f"    [+] `calculate_rewards()` for Toon {toon}")
             for attack_state in toon_attack_states:
                 if toon in attack_state.rewards:
-                    gag = attack_state.attacks[toon]
+                    cog, gag, hit = attack_state.attacks[toon]
                     reward = attack_state.rewards[toon]
                     self._rewards[toon][gag.track] += reward
-                    print(f"        [>] +{reward} {gag.track_name} exp ({gag})")  # noqa
+                    print(f"        [>] {'+' if hit else ''}{reward} {gag.track_name} exp ({gag}) against {cog}")  # noqa
             print(f"        [-] Total rewards for Toon {toon} : "
                   f"{self._rewards[toon]}")
         print("    [-] `calculate_rewards()` all rewards ... ")
