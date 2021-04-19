@@ -44,9 +44,3 @@ class TestToonViableAttacks:
                         f"expected Gag count of {gag_count} against lvl "
                         f"{cog_flunky.level} Cog"
                     )
-
-        # TODO Create Rules for valid Gags using numpy masks, validate against
-        # those Rules. We can make more custom exceptions for this when we make
-        # strategies.
-
-    # TODO Create Toon method to pick random Gag from viable_gags

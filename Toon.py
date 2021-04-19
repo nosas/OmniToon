@@ -1,22 +1,23 @@
 # %% Import functions and classes
 from random import choice as rand_choice
-from random import randrange
 
 from .Cog import Cog
 from .Entity import Entity
 from .Exceptions import (GagCountError, InvalidToonAttackTarget,
                          LockedGagError, LockedGagTrackError,
-                         NotEnoughGagsError, TooManyGagsError)
+                         NotEnoughGagsError, TargetDefeatedError,
+                         TooManyGagsError)
 from .Gag import Gag
-from .GagGlobals import (HEAL_TRACK, LEVELS, LURE_TRACK, count_all_gags,
-                         get_gag_accuracy, get_gag_exp, get_gag_exp_needed)
+from .GagGlobals import (DROP_TRACK, HEAL_TRACK, LEVELS, LURE_TRACK,
+                         count_all_gags, get_gag_accuracy, get_gag_exp,
+                         get_gag_exp_needed)
 
 DEFAULT_HP = 15
 # -1 means the gag_track is locked,0 means lvl 1 Gag is unlocked
 DEFAULT_LEVELS = [-1, -1, -1, -1, 0, 0, -1]
-# DEFAULT_EXPS = [0, 0, 0, 0, 10, 10, 0]
 # Populate DEFAULT_EXP from Gag track levels in DEFAULT_LEVELS
 DEFAULT_EXPS = [LEVELS[idx][level] for idx, level in enumerate(DEFAULT_LEVELS)]
+# DEFAULT_EXPS = [0, 0, 0, 0, 10, 10, 0]
 DEFAULT_GAGS = [[-1, -1, -1, -1, -1, -1, -1],  # Toon-Up
                 [-1, -1, -1, -1, -1, -1, -1],  # Trap
                 [-1, -1, -1, -1, -1, -1, -1],  # Lure
@@ -79,6 +80,7 @@ class Toon(Entity):
                 Defaults to DEFAULT_GAG_LIMIT.
         """
         super().__init__(name=name, hp=hp)
+        self.hp_max = hp
         self.gag_limit = gag_limit
         self.gags = gags
         # Verify total Gag count in `gags` doesn't exceed `gag_limit`
@@ -87,6 +89,12 @@ class Toon(Entity):
 
         self.gag_levels = gag_levels
         self.gag_exps = gag_exps
+
+    def __str__(self):
+        return f'"{self.name}" ({self.hp}/{self.hp_max}hp)'
+
+    def __repr__(self):
+        return self.__str__()
 
     def _count_all_gags(self) -> int:
         """Return the Toon's total number of usable Gags
@@ -134,8 +142,9 @@ class Toon(Entity):
 
     def _get_gag(self, track: int, level: int) -> Gag:
         count = self._count_gag(track=track, level=level)
+        # count_max =  # ! TODO #42
         exp = self.get_gag_exp(track=track)
-        return Gag(track=track, exp=exp, level=level)
+        return Gag(track=track, exp=exp, level=level, count=count)
 
     def _has_gag(self, track: int, level: int) -> bool:
         """True if Toon has the Gag, False if Toon doesn't have, or hasn't yet
@@ -151,7 +160,7 @@ class Toon(Entity):
         # Not in [0, -1]
         return self._count_gag(track=track, level=level) > 0
 
-    # ! This should, and all attack-related stuff, should go into Strategy
+    # ! TODO #38, this & all attack-related stuff should go into Strategy
     def _pick_random_gag(self, target=None, attack=False) -> Gag:
         if self._count_all_gags() == 0:
             # TODO Need another error, this one is for individual Gags
@@ -159,28 +168,39 @@ class Toon(Entity):
 
         gags = self.gags if target is None else self.get_viable_attacks(target)
 
+        # Verify there's at least 1 viable Gag, given the Cog's level
         if target:
             # If no Gags are viable (e.g. gag.unlocked & gag.count>0), expand
             # the random Gag selection to all of the Toon's Gags
             if count_all_gags(gags=gags) == 0:
-                print(f"Toon \"{self.name}\" does not have any viable attacks "
-                      f"against lvl {target.level} {target.name}.")
-                print("    [!] Expanding random Gag selection to all Gags")
+                print(f"        [!] WARNING `_pick_random_gag` : Toon {self} "
+                      f"does not have any viable attacks against Cog {target}")
+                print("            [-] Expanding random Gag selection to all "
+                      "Gags")
                 gags = self.gags
-            else:
-                raise GagCountError
+
+        # If there are no viable Gags at all, raise GagCountError and restock
+        if count_all_gags(gags=gags) == 0:
+            raise GagCountError
 
         # Example `viable_gags` = [(track, level), (track, level), ... ]
         viable_gags = []
         for track_index, gag_track in enumerate(gags):
             for gag_level, gag_count in enumerate(gag_track):
-                # TODO Add rules to debug output
+                # TODO #38, add different rules for different Strategies
+                # TODO #38, Create Rules for valid Gags using numpy masks,
+                # validate against those Rules. We can make more custom
+                # exceptions for this when we make strategies.
+
                 rules = [gag_count not in [0, -1],
                          # Toons cannot use Heal as an attack
                          track_index != HEAL_TRACK if attack is True else 1
                          ]
+                if target:
+                    rules.append(
+                        track_index != LURE_TRACK if target.is_lured else 1)
 
-                # If all rules pass (== True), this Gag is viable
+                # If all rules pass, this Gag is viable
                 if all(rules):
                     viable_gags.append((track_index, gag_level))
 
@@ -188,58 +208,53 @@ class Toon(Entity):
             raise NotEnoughGagsError
 
         gag_track, gag_level = rand_choice(viable_gags)
-        random_gag = self.choose_gag(track=gag_track, level=gag_level)
+        random_gag = self.choose_gag(track=gag_track, level=gag_level,
+                                     attack=attack)
         return random_gag
 
-    def _pick_random_attack(self, target=None) -> Gag:
+    def _pick_random_attack(self, target) -> Gag:
         return self._pick_random_gag(target=target, attack=True)
 
-    def choose_gag(self, track: int, level: int) -> Gag:
+    def choose_gag(self, track: int, level: int, attack=False) -> Gag:
         """Return Gag object containing Gag's vital info, iff Toon has the Gag
 
         Args:
             track (int): Index number of the Gag Track <0-6>
             level (int): Level of the Gag <0-6>
+            attack (bool, optional) : True if
 
         Returns:
             Gag: Vital information about the Toon's Gag
         """
 
-        count = self._count_gag(track, level)
-        if count == 0:
-            raise NotEnoughGagsError
+        gag = self._get_gag(track=track, level=level)
+        if gag.count == 0:
+            raise NotEnoughGagsError(gag)
         if self.gags[track] == [-1]*7:
             raise LockedGagTrackError(track=track)
-        if count == -1:
+        if gag.count == -1:
             raise LockedGagError(level=level)
 
-        return self._get_gag(track=track, level=level)
-
-    def choose_attack(self, target: Cog, track: int, level: int) -> Gag:  # noqa
-        # If no arguments were provided, pick a random attack
-        # ! A random
-        if track == -1 or level == -1:
-            try:
-                gag = self._pick_random_attack(target=target)
-            except GagCountError:
-                print(f"[!] WARNING : Unable to find viable attack, expanding "
-                      "search to all Gags")
-                gag = self._pick_random_attack(target=None)
-            print(f"Random Gag == {gag.track}, {gag.level}, {gag.name}")
-        else:
-            gag = self.choose_gag(track=track, level=level)
+        gag_or_atk = 'gag' if not attack else 'attack'
+        print(f"            [-] `choose_{gag_or_atk}()` : {gag}")
         return gag
 
-    # TODO Replace all gag_track,gag_level args to Gag objects
-    def do_attack(self, target: Cog, track: int=-1, level: int=-1) -> int:  # noqa
+    def choose_attack(self, target: Cog = None, track: int = -1, level: int = -1) -> Gag:  # noqa
+        # If no arguments were provided, pick a random attack
+        if track == -1 or level == -1:
+            gag = self._pick_random_attack(target=target)
+            # print(f"            [>] Toon `choose_attack` random Gag : {gag}")
+        else:
+            gag = self.choose_gag(track=track, level=level, attack=True)
+        return gag
+
+    # TODO #11, Replace all gag_track,gag_level args to Gag objects
+    def do_attack(self, target: Cog, gag_atk: Gag, overdefeat=False) -> int:
         """Perform an attack on a Cog, given track# and level#
 
         Args:
             target (Cog): Cog object that is going to be attacked
-            track (int, optional): Index number of the Gag Track <0-6>.
-                Defaults to -1.
-            level (int, optional): Level of the Gag <0-6>.
-                Defaults to -1.
+            # ! TODO : Update docstrings
 
         Returns:
             int: 0 if the attack misses, 1 if it hits
@@ -247,21 +262,34 @@ class Toon(Entity):
         if type(target) != Cog:
             raise InvalidToonAttackTarget
 
-        gag = self.choose_attack(target=target, track=track, level=level)
+        gag_atk = self._get_gag(track=gag_atk.track, level=gag_atk.level)
 
-        # TODO: Pass in attack_accuracy
-        attack_hit = super().do_attack(target=target, amount=gag.damage)
-        if attack_hit:
-            # ! Maybe return tuple containing all attack info when creating
-            # ! the Observer: gag track, level, exp, damage, reward, target,
-            # ! target_hp, current_hp
-            self.gag_exps[gag.track] += gag.level
+        try:
+            # TODO #10, Pass in attack_accuracy
+            attack_hit = Entity.do_attack(self, target=target,
+                                          amount=gag_atk.damage)
+            if attack_hit and gag_atk.track == LURE_TRACK:
+                target.is_lured = True
+            elif attack_hit and target.is_lured:
+                # TODO #20, add bonus damage for attacking lured Cog
+                target.is_lured = False
 
-        # TODO Create func: Add Gag EXP (reward), so we can track model rewards
-        self.gags[gag.track][gag.level] -= 1
+        except TargetDefeatedError:
+            # Multiple Toons attack the same Cog with the same Gag track
+            if overdefeat is True:
+                pass
+            # Target is already defeated. Return 0, do not decrease Gag count
+            print(f"    [!] WARNING `do_attack` : {self} tried to attack a "
+                  f"defeated Cog {target}")
+            print(f"        [-] Skipping {gag_atk} attack, Cog {target} is "
+                  "already defeated")
+            return 0
+
+        # TODO #37, Add Gag EXP (reward), so we can track rewards
+        self.gags[gag_atk.track][gag_atk.level] -= 1
         return attack_hit
 
-    def get_attack_accuracy(self, gag: Gag, target: Cog, bonus: int=0) -> int:
+    def get_attack_accuracy(self, gag: Gag, target: Cog, bonus: int = 0) -> int:  # noqa
         """Calculate Gag Attack accuracy, given a gag and Cog target
 
         attack_accuracy = gag_accuracy + gag_exp + target_defense + bonus
@@ -332,14 +360,16 @@ class Toon(Entity):
                                   current_exps=self.get_gag_exp(track)
                                   )
 
-    # TODO : We should probably move this to Strategy, when we make Strategies.
-    # TODO : Make sure to check against the highest level Cog in the battle
+    # TODO #38, We should move this to Strategy, when we make Strategies.
+    # TODO #38, Make sure to check against the highest level Cog in the battle
     # However, if the Cog being attacked is at a lower level than the gag,
     # then the toon will receive no skill points.
     # https://toontown.fandom.com/wiki/Skill_points#Earning_skill_points
     def get_viable_attacks(self, target: Cog) -> list:
         """Return 2-D list of Gags that can be used and gain Gag EXP (reward)
-            A Gag is viable if its level below the Cog's level.
+            A Gag is viable if its level is below the Cog's level.
+
+            NOTE: We're using 0-indexing for Gag levels, but 1-indexing for Cog
 
         Args:
             target (Cog): Cog object that is going to be attacked
@@ -407,19 +437,18 @@ class Toon(Entity):
                 [-1,  9,  5, -1, -1, -1, -1]
             ]
         """
-        # TODO : Add attributes to Gags to determine if valid/invalid/locked
-
-        # Return Gags with index ranging from (0, target.level) aka (0,6)
-        assert 7 > target.level >= 0, (
-            f"[!] What the heck is the Cog's level? level={target.level}")
-
+        # TODO  #11, Add Gag attributes to determine if valid/invalid/locked
         all_viable_gags = []
 
         for track_index, gag_track in enumerate(self.gags):
             viable_gags = gag_track.copy()
 
             # Can't use Lure against a lured Cog
-            if target.is_lured and track_index == LURE_TRACK:
+            # Drop could be viable if a Cog is lured, because another Toon can
+            # attack the Cog when it's lured, and then we use Drop. But we'll
+            # assume it's unviable until we develop Strategies
+            # TODO #38
+            if target.is_lured and track_index in [LURE_TRACK, DROP_TRACK]:
                 all_viable_gags.append([-1]*7)
                 continue
 

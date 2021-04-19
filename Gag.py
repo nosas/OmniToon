@@ -31,12 +31,7 @@ class Gag(GagTrack):
     def __init__(self, track, exp, level, count=0):
         """
         # TODO Review and fix docstring pls
-        # TODO Create observer to monitor battles and determine viable gags
-        :param int gag_track: Index of the gag_track (0-6)
-        :param int level: Level of the current gag (0-6)
-        :param int highest_level: Level of highest unlocked gag of same gtrack
-        :param int/bool aoe: 0 if gag hits single targets, 1 for all targets
-        :param int capacity_current: Current number of gags available
+        # TODO #25, Create observer to monitor battles & determine viable Gags
         """
         super().__init__(track=track, exp=exp)
         # ! Damage, quantity, capacity need to be dynamically updated after atk
@@ -45,7 +40,18 @@ class Gag(GagTrack):
         self.damage = get_gag_damage(track=track, level=level, exp=exp)
         self.level = level
         self.name = get_gag_name(track=track, level=level)
-        # self.highest_level = gag_track.highest_level
-        # self.capacity_current = capacity_current
+        # TODO Create function to get max count
         # Maximum number of carryable gags of this level
         # self.capacity_maximum = 5 + (5*(highest_level-level))
+
+    def __str__(self):
+        # print(gag_throw) == 'Lvl 3 Throw, "Whole Fruit Pie" (2million dmg)'
+        return f'lvl {self.level} {self.track_name} '\
+               f'"{self.name}" ({self.track, self.level}, {self.damage}dmg)'
+
+    def __repr__(self):
+        # repr(gag_throw) == (track_idx, level, exp, damage_min, damage_max,
+        #                     damage, accuracy, count_current, count_max)
+        return f'Gag(track_name="{self.track_name}", track={self.track}, '\
+               f'level={self.level}, name="{self.name}", count={self.count}, '\
+               f'damage={self.damage}, exp={self.exp})'

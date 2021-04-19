@@ -4,29 +4,37 @@ from .Exceptions import InvalidTargetError
 
 
 class Entity:
-    def __init__(self, name, hp):
+    def __init__(self, name: str, hp: int):
         self.name = name
         self.hp = hp
-        # TODO Create Publisher object to push notifications
+        # TODO #25, Create Publisher object to push notifications
 
     def _get_attacked(self, amount: int):
         self.hp -= amount
 
-    def do_attack(self, target: Entity, amount: int):
-        type_self = type(self)
-        type_target = type(target)
+    def choose_attack():
+        raise NotImplementedError
 
-        # ! Raise InvalidTargetError if type(target) != Entity
+    def do_attack(self, target: Entity, amount: int) -> int:
         if not isinstance(target, Entity):
-            raise InvalidTargetError
+            raise InvalidTargetError("Target must be a subclass of Entity")
 
-        # ! Raise InvalidTargetError if type(target) == type(self)
         if type(target) == type(self):
-            raise InvalidTargetError
+            raise InvalidTargetError("Target must not be of the same type")
 
-        # TODO Add chance_to_hit
+        target_hp_before = target.hp
+
+        # TODO #10, Add chance_to_hit
+        attack_hit = True
+        hit_miss = 'hits' if attack_hit else 'misses'
         target._get_attacked(amount=amount)
-        return 1
+
+        class_name = self.__class__.__name__
+        # TODO Add attack name and object name
+        print(f"            [-] {class_name} `do_attack()` {self} {hit_miss}"
+              f" {target} -> {target_hp_before}hp-"
+              f"{amount if attack_hit else 0}dmg")
+        return attack_hit
 
     def is_defeated(self):
         return self.hp <= 0

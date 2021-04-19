@@ -1,82 +1,48 @@
 from random import randint
+from random import choice as rand_choice
 
-from .CogGlobals import get_cog_vitals
+from .CogGlobals import COG_ATTRIBUTES, get_cog_vitals
 from .Entity import Entity
-from .Exceptions import InvalidCogAttackTarget
+from .Exceptions import (InvalidCogAttackTarget, InvalidRelativeLevel,
+                         TargetDefeatedError)
 
 
 class Cog(Entity):
-    def __init__(self, key, name, relative_level=0):
+    def __init__(self, key, name, relative_level=0, hp=-1):
         # ! Relative level should be in range [0,4]
-        # TODO Raise IncorrectRelativeLevel
-        # ! Turn relative level into a property or raise the exception here
         self.relative_level = relative_level
         self.vitals = get_cog_vitals(
             cog_key=key, relative_level=relative_level
             )
-        super().__init__(name=name, hp=self.vitals['hp'])
+        super().__init__(name=name, hp=hp if (hp != -1) else self.vitals['hp'])
 
         self.key = key
         self.attacks = self.vitals['attacks']
         self.defense = self.vitals['def']
+        self.hp_max = self.vitals['hp']
         self.level = self.vitals['level']
-        # TODO Create CogStates
+        # TODO (??) Create CogStates
         self.is_lured = False
 
-    # TODO Make this follow Toon's `do_attack`, add  atk_indx
-    def do_attack(self, target, amount: int):
-        """Perform an attack on a Toon, given an attack damage
+    def __repr__(self):
+        return self.__str__()
 
-        Args:
-            target (Toon): Toon object that is going to be attacked
-            amount (int): Attack's damage amount
+    def __str__(self):
+        return f'lvl {self.level} "{self.name}" ({self.hp}/{self.hp_max}hp)'
 
-        Returns:
-            int: 0 if the attack misses, 1 if it hits
-        """
-        from .Toon import Toon
+    @property
+    def relative_level(self):
+        return self._relative_level
 
-        if type(target) != Toon:
-            raise InvalidCogAttackTarget
+    @relative_level.setter
+    def relative_level(self, new_rel_lvl):
+        if new_rel_lvl not in range(5):
+            raise InvalidRelativeLevel
+        self._relative_level = new_rel_lvl
 
-        if target.is_defeated():
-            raise InvalidCogAttackTarget
-
-        # TODO Add chance_to_hit
-        attack_hit = super().do_attack(target=target, amount=amount)
-        return attack_hit
-
-    # TODO Create overloaded method to get attack from attack_idx?
-    def get_attack(self, attack_name: str) -> dict:
-        """Return dictionary containing Cog attack information, given an index#
-
-        Args:
-            attack_name (str, optional): Attack name as seen in COG_ATTACKS or
-                the `get_cog_attacks_all_levels` function
-
-            Example of valid input ::
-                <'PoundKey'|'Shred'|'ClipOnTie'>
-
-        Returns:
-            dict: Dictionary containing all attributes of a single Cog's attack
-
-            Example output for attack_name='PoundKey' ::
-                {
-                    'acc': 80,
-                    'animName': 'phone',
-                    'freq': 40,
-                    'hp': 3,
-                    'id': 0,
-                    'name': 'PoundKey',
-                    'target': 2  # ATK_TGT_SINGLE=1, ATK_TGT_GROUP=2
-                }
-        """
-        assert attack_name in self.attacks
-        return self.attacks[attack_name]
-
-    # TODO: Create `pick_target` function to choose a target when vs 2+ toons
-    # ! Need to write tests for this method
-    def pick_attack(self, attack_name: str='') -> int:
+    # TODO #40, `choose_target` method to choose a target when vs 2+ toons
+    # TODO #39, Need to write tests for this method
+    def choose_attack(self, attack_name: str = '') -> int:
         """Return attack_index of cog attack from cog.attacks, a pseudo-random
             attack index is returned by default unless the `attack_name`
             argument is provided
@@ -91,21 +57,80 @@ class Cog(Entity):
         Returns:
             int: Index of the Cog attack
         """
-        if attack_name:
-            assert attack_name in self.attacks
-            return self.attacks.index(attack_name)
+        if attack_name == '':
+            rand_num = randint(0, 99)
+            count = 0
+            for attack_dict in self.attacks:
+                attack_name = attack_dict['name']
+                attack_freq = attack_dict['freq']
+                count = count + attack_freq
+                if rand_num < count:
+                    break
+        return self.get_attack(attack_name=attack_name)
 
-        attack_index = None
-        rand_num = randint(0, 99)
-        count = 0
-        cur_index = 0
+        # return attack['id']
 
-        for name in self.attacks:
-            attack = self.attacks[name]
-            atk_frequency = attack['freq']
-            count = count + atk_frequency
-            if rand_num < count:
-                attack_index = cur_index
-                break
-            cur_index = cur_index + 1
-        return attack_index
+    # TODO #41, Make this follow Toon's `do_attack`, add atk_indx
+    def do_attack(self, target, amount: int):
+        """Perform an attack on a Toon, given an attack damage
+
+        Args:
+            target (Toon): Toon object that is going to be attacked
+            amount (int): Attack's damage amount
+
+        Returns:
+            int: 0 if the attack misses, 1 if it hits
+        """
+        # Have to import Toon here due to circular import issue when importing
+        # Toon at the top of the file
+        from .Toon import Toon
+
+        if type(target) != Toon:
+            raise InvalidCogAttackTarget("Target is not a Toon")
+
+        if target.is_defeated():
+            raise TargetDefeatedError("Cannot attack defeated Toon")
+
+        # TODO #10, add chance_to_hit
+        attack_hit = Entity.do_attack(self, target=target, amount=amount)
+        return attack_hit
+
+    # TODO #41, return a CogAttack object instead of dict?
+    def get_attack(self, attack_name: str = '') -> dict:
+        """Return dictionary containing Cog attack information, given an index#
+
+        Args:
+            attack_name (str, optional): Attack name as seen in COG_ATTACKS or
+                the `get_cog_attacks_all_levels` function
+            attack_idx (int, optional): Attack index for attacksseen in
+                COG_ATTACKS or the `get_cog_attacks_all_levels` function
+
+            Example of valid input ::
+                <'PoundKey'|'Shred'|'ClipOnTie'>
+
+        Returns:
+            dict: Dictionary containing all attributes of a single Cog's attack
+
+            Example output for attack_name='PoundKey' ::
+                {
+                    'acc': 80,
+                    'freq': 40,
+                    'hp': 3,
+                    'id': 0,
+                    'name': 'PoundKey',
+                    'target': 2  # ATK_TGT_SINGLE=1, ATK_TGT_GROUP=2
+                }
+        """
+        assert (attack_name != '')
+        valid_name = [attack_name == attack['name'] for attack in self.attacks]
+        assert valid_name.count(True) == 1
+        attack_idx = valid_name.index(True)
+        return self.attacks[attack_idx]
+
+
+def get_random_cog() -> Cog:
+
+    cog_key = rand_choice(list(COG_ATTRIBUTES.keys()))
+    cog_name = COG_ATTRIBUTES[cog_key]['name']
+    relative_level = randint(0, 4)
+    return Cog(key=cog_key, name=cog_name, relative_level=relative_level)

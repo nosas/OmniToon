@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from builtins import Exception
+
 from .Gag import Gag
 
 
@@ -6,14 +9,26 @@ class Error(Exception):
     pass
 
 
-class GagCountError(Error):
+class CountError(Error):
+    pass
+
+
+class TooManyCogsError(CountError):
+    pass
+
+
+class TooManyToonsError(CountError):
+    pass
+
+
+class GagCountError(CountError):
     pass
 
 
 class LockedGagError(GagCountError):
     """ Toon has not unlocked this Gag"""
 
-    # TODO Add Gag names to the Error messages
+    # TODO #29, Add Gag names to the Error messages
     def __init__(self, level, message="Gag is not unlocked yet"):
         self.level = level
         self.message = message
@@ -76,4 +91,15 @@ class InvalidToonHealTarget(InvalidTargetError):
 
 class InvalidRelativeLevel(Error):
     """ Must be in range [0-4]"""
+    pass
+
+
+class InvalidCogKey(Error):
+    """ Cog key must be in `COG_ATTRIBUTES` dictionary"""
+    pass
+
+
+# TODO #9, Create test for this exception
+class TargetDefeatedError(InvalidTargetError):
+    """ Entity tries to attack a defeated Entity """
     pass

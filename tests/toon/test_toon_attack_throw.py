@@ -22,9 +22,10 @@ class TestToonAttackThrow:
             toon_astro (Toon): Toon fixture of my TTR character
         """
         with pytest.raises(InvalidToonAttackTarget):
+            gag_throw = toon_astro.choose_gag(track=self.gag_track,
+                                              level=self.gag_level)
             toon_attack = toon_astro.do_attack(target=toon_astro,
-                                               track=self.gag_track,
-                                               level=self.gag_level)
+                                               gag_atk=gag_throw)
             assert not toon_attack
 
     def test_choose_throw_ok(self, toon_astro):
@@ -59,9 +60,7 @@ class TestToonAttackThrow:
         gag_quantity_before = toon_astro._count_gag(track=gag_throw.track,
                                                     level=gag_throw.level)
 
-        toon_astro.do_attack(target=cog_flunky,
-                             track=gag_throw.track,
-                             level=gag_throw.level)
+        toon_astro.do_attack(target=cog_flunky, gag_atk=gag_throw)
 
         gag_quantity_after = toon_astro._count_gag(track=gag_throw.track,
                                                    level=gag_throw.level)
@@ -83,9 +82,7 @@ class TestToonAttackThrow:
         gag_throw = toon_astro.choose_gag(track=self.gag_track,
                                           level=self.gag_level)
         cog_hp_before = cog_flunky.hp
-        toon_astro.do_attack(target=cog_flunky,
-                             track=gag_throw.track,
-                             level=gag_throw.level)
+        toon_astro.do_attack(target=cog_flunky, gag_atk=gag_throw)
 
         assert cog_flunky.hp == cog_hp_before - gag_throw.damage
 
@@ -105,8 +102,6 @@ class TestToonAttackThrow:
         """
         gag_throw = toon_astro.choose_gag(track=self.gag_track,
                                           level=self.gag_level)
-        toon_astro.do_attack(target=cog_flunky,
-                             track=gag_throw.track,
-                             level=gag_throw.level)
+        toon_astro.do_attack(target=cog_flunky, gag_atk=gag_throw)
 
         assert cog_flunky.is_defeated() == is_defeated

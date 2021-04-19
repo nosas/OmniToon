@@ -6,7 +6,7 @@ from ..fixtures.toon_fixtures import toon_astro, toon_default
 
 class TestDefault:
     """Baseline testing for Toon with Default values"""
-    # TODO: Add battle scenarios (losing, winning) in `test_toon_battle.py`
+    # TODO #9, Add battle scenarios (losing, winning) in `test_toon_battle.py`
 
     def test_hp(self, toon_default):
         assert toon_default.hp == DEFAULT_HP
@@ -33,10 +33,10 @@ class TestDefault:
 class TestAstro:
     """Specific testing against my Toon, Astro"""
     # ? Verify structures of the constructor's args, gag[s|[exps|levels|etc.]
-    # TODO: Add battle scenarios (losing, winning) in `test_toon_battle.py`
+    # TODO #9, Add battle scenarios (losing, winning) in `test_toon_battle.py`
     # ? Are we neglecting any negative tests?
     # ? Yes. But we're only focusing on toon_astro for now, until we can create
-    # ? random toons and have multi-toon battle support
+    # ? random Toons and have multi-Toon battle support
 
     def test_hp(self, toon_astro):
         assert toon_astro.hp == 65
