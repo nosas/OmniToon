@@ -84,6 +84,10 @@ class InvalidToonAttackTarget(InvalidTargetError):
     pass
 
 
+class CogLuredError(InvalidToonAttackTarget):
+    pass
+
+
 class InvalidToonHealTarget(InvalidTargetError):
     """ Toon targets a Cog or defeated Toon"""
     pass

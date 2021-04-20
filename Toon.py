@@ -3,14 +3,14 @@ from random import choice as rand_choice
 
 from .Cog import Cog
 from .Entity import Entity
-from .Exceptions import (GagCountError, InvalidToonAttackTarget,
+from .Exceptions import (CogLuredError, GagCountError, InvalidToonAttackTarget,
                          LockedGagError, LockedGagTrackError,
                          NotEnoughGagsError, TargetDefeatedError,
                          TooManyGagsError)
 from .Gag import Gag
 from .GagGlobals import (DROP_TRACK, HEAL_TRACK, LEVELS, LURE_TRACK,
-                         count_all_gags, get_gag_accuracy, get_gag_exp,
-                         get_gag_exp_needed)
+                         TRAP_TRACK, count_all_gags, get_gag_accuracy,
+                         get_gag_exp, get_gag_exp_needed)
 
 DEFAULT_HP = 15
 # -1 means the gag_track is locked,0 means lvl 1 Gag is unlocked
@@ -263,6 +263,12 @@ class Toon(Entity):
             raise InvalidToonAttackTarget
 
         gag_atk = self._get_gag(track=gag_atk.track, level=gag_atk.level)
+        if gag_atk.track == TRAP_TRACK:
+            if target.is_lured:
+                raise CogLuredError("Can't use Trap on a lured Cog")
+            if target.is_trapped:
+                target.is_trapped = False
+                target.clear_trap()
 
         try:
             # TODO #10, Pass in attack_accuracy

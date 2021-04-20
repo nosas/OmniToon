@@ -23,12 +23,36 @@ class Cog(Entity):
         self.level = self.vitals['level']
         # TODO (??) Create CogStates
         self.is_lured = False
+        self.is_trapped = False
+        self.trap = (Toon, Gag)
 
     def __repr__(self):
         return self.__str__()
 
     def __str__(self):
         return f'lvl {self.level} "{self.name}" ({self.hp}/{self.hp_max}hp)'
+
+    @property
+    def is_lured(self) -> bool:
+        return self._is_lured
+
+    @is_lured.setter
+    def is_lured(self, new_is_lured: bool) -> None:
+        assert type(new_is_lured) == bool
+        self._is_lured = new_is_lured
+
+    @property
+    def is_trapped(self) -> bool:
+        return self._is_trapped
+
+    @is_trapped.setter
+    def is_trapped(self, new_is_trapped: bool) -> None:
+        # If two or more Trap gags are deployed in front of the same cog,
+        # the gags will "cancel" each other out and will render a waste.
+        # ! Trap gags increase the accuracy of Lure gags used while trap is out
+        # ! Trap gags cannot be placed if a Cog is already lured.
+        assert type(new_is_trapped) == bool
+        self._is_trapped = new_is_trapped
 
     @property
     def relative_level(self):

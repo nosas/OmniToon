@@ -58,8 +58,8 @@ class Battle:
             raise e
 
     def calculate_rewards(self) -> list:
-        import pprint  # To make rewards output readable
-        pp = pprint.PrettyPrinter(indent=1)
+        # import pprint  # To make rewards output readable
+        # pp = pprint.PrettyPrinter(indent=1)
         print(f"[$] `calculate_rewards()` for all Toons")
         toon_attack_states = [
             state for state in self.context._completed_states if
