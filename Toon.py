@@ -3,7 +3,7 @@ from random import choice as rand_choice
 
 from .Cog import Cog
 from .Entity import Entity
-from .Exceptions import (CogLuredError, GagCountError, InvalidToonAttackTarget,
+from .Exceptions import (CogAlreadyTrappedError, CogLuredError, GagCountError, InvalidToonAttackTarget,
                          LockedGagError, LockedGagTrackError,
                          NotEnoughGagsError, TargetDefeatedError,
                          TooManyGagsError)
@@ -259,41 +259,73 @@ class Toon(Entity):
         Returns:
             int: 0 if the attack misses, 1 if it hits
         """
+        attack_hit = False
         if type(target) != Cog:
-            raise InvalidToonAttackTarget
-
+            raise InvalidToonAttackTarget(f"{self}'s attack target ({target}) "
+                                          "must be a Cog")
         gag_atk = self._get_gag(track=gag_atk.track, level=gag_atk.level)
-        if gag_atk.track == TRAP_TRACK:
-            if target.is_lured:
-                raise CogLuredError("Can't use Trap on a lured Cog")
-            if target.is_trapped:
-                target.is_trapped = False
-                target.clear_trap()
 
         try:
+            if gag_atk.track == TRAP_TRACK and target.is_lured is False:
+                # No damage is done to a Cog until the Cog is Lured onto
+                # the Trap
+                amount = 0
+            else:
+                amount = gag_atk.damage
             # TODO #10, Pass in attack_accuracy
-            attack_hit = Entity.do_attack(self, target=target,
-                                          amount=gag_atk.damage)
-            if attack_hit and gag_atk.track == LURE_TRACK:
-                target.is_lured = True
-            elif attack_hit and target.is_lured:
-                # TODO #20, add bonus damage for attacking lured Cog
-                target.is_lured = False
+            # ! If any(target==Trapped), acc of Lure gags increase by 20-30%
+            # Raises TargetDefeatedError if Cog is defeated,
+            attack_hit = Entity.do_attack(self, target=target, amount=amount)
+            if attack_hit:
+                if gag_atk.track == LURE_TRACK:
+                    # Raises CogLuredError if Cog is Lured
+                    target.is_lured = True
+                elif gag_atk.track == TRAP_TRACK:
+                    if target.is_lured is True and target.is_trapped is True:
+                        target.is_lured = False
+                        target.is_trapped = False
+                        # ! Don't decrease Gag count bc we're activating the
+                        # ! Trap, not setting it up
+                        self.gags[gag_atk.track][gag_atk.level] += 1
+                    else:
+                        # Raises CogLuredError is Cog Lured
+                        # Raises CogTrappedError is Cog already trapped
+                        target.is_trapped = True
+                        target.trap = (self, gag_atk)
+                elif target.is_lured:
+                    # TODO #20, add bonus damage for attacking lured Cog
+                    target.is_lured = False
 
         except TargetDefeatedError:
             # Multiple Toons attack the same Cog with the same Gag track
             if overdefeat is True:
                 pass
             # Target is already defeated. Return 0, do not decrease Gag count
-            print(f"    [!] WARNING `do_attack` : {self} tried to attack a "
+            print(f"    [!] WARNING `do_attack()` : {self} tried to attack a "
                   f"defeated Cog {target}")
             print(f"        [-] Skipping {gag_atk} attack, Cog {target} is "
                   "already defeated")
-            return 0
+            self.gags[gag_atk.track][gag_atk.level] += 1
+            return False
+        except CogLuredError:
+            lure_or_trap = "lure" if gag_atk.track == LURE_TRACK else "trap"
+            print(f"    [!] WARNING `do_attack()` : {self} tried to "
+                  f"{lure_or_trap} a lured Cog {target}")
+            return False
+        except CogAlreadyTrappedError:
+            print(f"    [!] WARNING `do_attack()` : {self} tried to "
+                  f"trap a trapped Cog {target}")
+            print(f"        [-] Cancelling existing traps ({target.trap}) on "
+                  f" Cog {target}")
+            target.is_trapped = False
+            return False
+        except Exception as e:
+            raise e
 
-        # TODO #37, Add Gag EXP (reward), so we can track rewards
-        self.gags[gag_atk.track][gag_atk.level] -= 1
-        return attack_hit
+        finally:
+            self.gags[gag_atk.track][gag_atk.level] -= 1
+            # TODO #37, Add Gag EXP (reward), so we can track rewards
+            return attack_hit
 
     def get_attack_accuracy(self, gag: Gag, target: Cog, bonus: int = 0) -> int:  # noqa
         """Calculate Gag Attack accuracy, given a gag and Cog target

@@ -1,6 +1,7 @@
 from .BattleState import BattleContext, EndState, ToonAttackState
 from .Cog import Cog
 from .Exceptions import TooManyGagsError, TooManyToonsError
+from .GagGlobals import TRAP_TRACK
 from .Toon import Toon
 
 # TODO Create BattleCogBuilding w/ constructor accepting multi-toon&cogs
@@ -69,17 +70,21 @@ class Battle:
         # Sum rewards for all Toons
         for toon in self.toons:
             # If Toon is defeat, no rewards are given
-            if toon.is_defeated():
+            if toon.is_defeated:
                 self._rewards[toon] = [0]*7
                 continue
 
             print(f"    [+] `calculate_rewards()` for Toon {toon}")
+            # self.attacks = []  # [(Toon, Cog, Gag, atk_hit_or_miss: int [0|1])]
             for attack_state in toon_attack_states:
-                if toon in attack_state.rewards:
-                    cog, gag, hit = attack_state.attacks[toon]
-                    reward = attack_state.rewards[toon]
-                    self._rewards[toon][gag.track] += reward
-                    print(f"        [>] {'+' if hit else ''}{reward} {gag.track_name} exp ({gag}) against {cog}")  # noqa
+                for atk_toon, cog, gag, atk_hit in attack_state.attacks:
+                    if gag.track == TRAP_TRACK:
+                        import pdb;pdb.set_trace()
+                    # TODO #51, Multiply reward by EXP multiplier
+                    if toon == atk_toon:
+                        reward = gag.level + 1 if gag.level < cog.level else -1
+                        self._rewards[toon][gag.track] += reward
+                        print(f"        [>] {'+' if atk_hit else ''}{reward} {gag.track_name} exp ({gag}) against {cog}")  # noqa
             print(f"        [-] Total rewards for Toon {toon} : "
                   f"{self._rewards[toon]}")
         print("    [-] `calculate_rewards()` all rewards ... ")

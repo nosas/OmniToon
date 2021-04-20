@@ -85,6 +85,12 @@ class InvalidToonAttackTarget(InvalidTargetError):
 
 
 class CogLuredError(InvalidToonAttackTarget):
+    '''Toon uses a Lure or Trap on a lured Cog'''
+    pass
+
+
+class CogAlreadyTrappedError(InvalidCogAttackTarget):
+    ''' Toon uses a Trap Gag on a trapped Cog'''
     pass
 
 

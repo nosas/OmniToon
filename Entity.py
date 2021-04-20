@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .Exceptions import InvalidTargetError
+from .Exceptions import InvalidTargetError, TargetDefeatedError
 
 
 class Entity:
@@ -9,18 +9,26 @@ class Entity:
         self.hp = hp
         # TODO #25, Create Publisher object to push notifications
 
+    @property
+    def is_defeated(self):
+        return self.hp <= 0
+
     def _get_attacked(self, amount: int):
         self.hp -= amount
 
     def choose_attack():
         raise NotImplementedError
 
-    def do_attack(self, target: Entity, amount: int) -> int:
+    def do_attack(self, target: Entity, amount: int, overdefeat=False) -> int:
         if not isinstance(target, Entity):
             raise InvalidTargetError("Target must be a subclass of Entity")
-
         if type(target) == type(self):
             raise InvalidTargetError("Target must not be of the same type")
+        if target.is_defeated:
+            # Multiple Toons attack the same Cog with the same Gag track
+            if overdefeat is True:
+                pass
+            raise TargetDefeatedError(f"Cannot attack defeated {type(target)}")
 
         target_hp_before = target.hp
 
@@ -35,6 +43,3 @@ class Entity:
               f" {target} -> {target_hp_before}hp-"
               f"{amount if attack_hit else 0}dmg")
         return attack_hit
-
-    def is_defeated(self):
-        return self.hp <= 0

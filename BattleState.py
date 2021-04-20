@@ -5,14 +5,14 @@ from random import choice as rand_choice
 
 from .Cog import Cog
 from .Exceptions import Error, TooManyCogsError, TooManyToonsError
-from .GagGlobals import get_gag_track_name
+from .GagGlobals import LURE_TRACK, get_gag_track_name
 from .Toon import Toon
 
 
 class BattleContext:
 
     def __init__(self, state: BattleState, cogs: list[Cog], toons: list[Toon],
-                 rewards: dict[Toon:int]) -> None:
+                 rewards: dict[Toon:dict[int:int]]) -> None:
         # ! Battle should always begin at ToonAttackState
         print("\n[^] Initializing BattleContext...")
         self.cogs = cogs
@@ -142,9 +142,9 @@ class WinLoseState(BattleState):
 class ToonAttackState(AttackState):
 
     def __init__(self):
-        self.attacks = {}  # {Toon: Gag}
-        self.rewards = {}  # {Toon: int}
+        self.attacks = []  # [(Toon, Cog, Gag, atk_hit_or_miss: int [0|1])]
         # ! ToonAtkState : If all Cogs defeated -> WinState else CogAtkState
+        # TODO #51, Add bonus EXP multipliers as a ToonAttackState property
 
     def handle_attacks(self):
         potential_attacks = {}
@@ -161,33 +161,32 @@ class ToonAttackState(AttackState):
                 potential_attacks[gag_atk.track] = []
             potential_attacks[gag_atk.track].append((toon, gag_atk))
 
-        # Do attack in order
+        # Do attack in order, sorted from lowest GagTrack index to highest
         for gag_track in sorted(potential_attacks):
             # TODO #20, Calculate bonus damage
-            highest_accuracy = max(
-                gag.accuracy for _, gag in potential_attacks[gag_track])
-            total_damage = sum(
-                gag.damage for _, gag in potential_attacks[gag_track]
-                )
+            highest_accuracy = max(gag.accuracy for _, gag in potential_attacks[gag_track])
+            total_damage = sum(gag.damage for _, gag in potential_attacks[gag_track])
 
             print(f"        [>] Gag Track : {get_gag_track_name(gag_track)}")
             for toon, gag_atk in potential_attacks[gag_track]:
                 # TODO #10, Add chance_to_hit
                 atk_hit = toon.do_attack(target=target_cog, gag_atk=gag_atk,
                                          overdefeat=True)
-                self.attacks[toon] = (target_cog, gag_atk, atk_hit)
+                self.attacks.append((toon, target_cog, gag_atk, atk_hit))
                 # Attack doesn't miss and Gag is eligible for reward
                 if atk_hit:
-                    if gag_atk.level < target_cog.level:
-                        self.rewards[toon] = gag_atk.level + 1
-                else:
-                    self.rewards[toon] = -1
+                    # Execute the Trap gag if the Toon lures a trapped Cog
+                    if gag_atk.track == LURE_TRACK and target_cog.is_trapped:
+                        trap_toon, trap_gag = target_cog.trap
+                        # TODO #10, Add chance to hit == 100
+                        trap_toon.do_attack(target=target_cog, gag_atk=trap_gag)  # noqa
+                        self.attacks.append((trap_toon, target_cog, gag_atk, atk_hit))  # noqa
 
-            if target_cog.is_defeated():
+            if target_cog.is_defeated:
                 self.context.remove_cog(defeated_cog=target_cog)
                 break
 
-        if all([cog.is_defeated() for cog in self.context.cogs]):
+        if all([cog.is_defeated for cog in self.context.cogs]):
             # ! First need to check if all cogs defeated, then battle is Won
             transition_state = WinState
         else:
@@ -203,17 +202,17 @@ class CogAttackState(AttackState):
     def handle_attacks(self):
         for cog in self.context.cogs:
             viable_toons = [
-                toon for toon in self.context.toons if not toon.is_defeated()]
+                toon for toon in self.context.toons if not toon.is_defeated]
             target_toon = rand_choice(viable_toons)
             print(f"        [+] {self} Cog {cog} targets Toon {target_toon}")
             cog_atk = cog.choose_attack()
             atk_hit = cog.do_attack(target=target_toon, amount=cog_atk['hp'])
             self.attacks[cog] = (target_toon, cog_atk, atk_hit)
 
-            if target_toon.is_defeated():
+            if target_toon.is_defeated:
                 print(f"            [-] Toon {target_toon} is defeated")
                 # ! If all Toons defeated -> LoseState else ToonAtkState
-                if all([toon.is_defeated() for toon in self.context.toons]):
+                if all([toon.is_defeated for toon in self.context.toons]):
                     transition_state = LoseState
                     break
             else:
@@ -240,7 +239,7 @@ class WinState(WinLoseState):
         # total_reward = sum(state.reward for state in self.reward)
         # print(f"[$] Total Reward = {total_reward}")
 
-        if all([cog.is_defeated() for cog in self.context.cogs]):
+        if all([cog.is_defeated for cog in self.context.cogs]):
             transition_state = EndState
         else:
             raise Error("We should be in EndState")
@@ -257,10 +256,10 @@ class LoseState(WinLoseState):
 
     def handle_win_lose(self):
         # TODO #11, replace this double for-loop with Gag objects
-        # TODO Alternatively, make Toon.is_defeated() a property, strip all the
+        # TODO Alternatively, make Toon.is_defeated a property, strip all the
         # Gags in the setter method if Toon.is_defeated is True
         defeated_toons = [
-            toon for toon in self.context._toons if toon.is_defeated()]
+            toon for toon in self.context._toons if toon.is_defeated]
 
         for toon in defeated_toons:
             print(f"        [-] Removing all Gags from Toon {toon}")

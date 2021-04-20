@@ -104,4 +104,4 @@ class TestToonAttackThrow:
                                           level=self.gag_level)
         toon_astro.do_attack(target=cog_flunky, gag_atk=gag_throw)
 
-        assert cog_flunky.is_defeated() == is_defeated
+        assert cog_flunky.is_defeated == is_defeated
