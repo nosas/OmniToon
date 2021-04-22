@@ -26,15 +26,15 @@ def toon_astro():
 def toon_ostra():
     name = "Ostra"
     hp = 69
-    levels = [5, -1, 6, 5, 5, 5, 2]
-    exps = [7421, 0, 10101, 9443, 8690, 6862, 191]
+    levels = [5, 2, 6, 5, 5, 5, -1]
+    exps = [7421, 191, 10101, 9443, 8690, 6862, 0]
     gags = [[0,   0,  0,  5,  5,  3, -1],  # 0 Toon-up
-            [-1, -1, -1, -1, -1, -1, -1],  # 1 Trap (locked)
-            [0,   0,  0,  0,  5,  3,  1],  # 2 Lure
-            [0,   0,  0,  0,  5,  3, -1],  # 3 Sound
+            [0,   1,  1, -1, -1, -1, -1],  # 1 Trap
+            [0,   2,  2,  2,  2,  3,  1],  # 2 Lure
+            [0,   0,  0,  0,  3,  3, -1],  # 3 Sound
             [0,   2,  1,  4,  4,  2, -1],  # 4 Throw
             [0,   0,  0,  5,  5,  3, -1],  # 5 Squirt
-            [0,   9,  5, -1, -1, -1, -1]]  # 6 Drop
+            [-1, -1, -1, -1, -1, -1, -1]]  # 6 Drop (locked)
     gag_limit = 70
 
     return Toon(name=name, hp=hp, gags=gags, gag_limit=gag_limit,
