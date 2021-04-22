@@ -40,6 +40,32 @@ class Gag(GagTrack):
         self.damage = get_gag_damage(track=track, level=level, exp=exp)
         self.level = level
         self.name = get_gag_name(track=track, level=level)
+
+        # Trap-specific attributes used for tracking EXP rewards
+        self._is_attack = False
+        self._is_setup = False
+
+    @property
+    def is_attack(self) -> bool:
+        return self._is_attack
+
+    @is_attack.setter
+    def is_attack(self, new_is_attack: bool) -> None:
+        assert type(new_is_attack) == bool
+
+        print(f"                [>] is_attack : {self.is_attack} -> {new_is_attack} on {self}")  # noqa
+        self._is_attack = new_is_attack
+
+    @property
+    def is_setup(self) -> bool:
+        return self._is_setup
+
+    @is_setup.setter
+    def is_setup(self, new_is_setup: bool) -> None:
+        assert type(new_is_setup) == bool
+        print(f"                [>] is_setup : {self.is_setup} -> {new_is_setup} on {self}")  # noqa
+        self._is_setup = new_is_setup
+
         # TODO Create function to get max count
         # Maximum number of carryable gags of this level
         # self.capacity_maximum = 5 + (5*(highest_level-level))
@@ -54,4 +80,5 @@ class Gag(GagTrack):
         #                     damage, accuracy, count_current, count_max)
         return f'Gag(track_name="{self.track_name}", track={self.track}, '\
                f'level={self.level}, name="{self.name}", count={self.count}, '\
-               f'damage={self.damage}, exp={self.exp})'
+               f'damage={self.damage}, exp={self.exp}, setup={self.is_setup},'\
+               f' attack={self.is_attack})'

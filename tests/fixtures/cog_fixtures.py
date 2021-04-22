@@ -32,7 +32,7 @@ def cog_flunky(request):
               f"default level of 0, in test {request.function}")
         cog_flunky = Cog(key=cog_key, name=cog_name)
 
-    return cog_flunky
+    yield cog_flunky
 
 
 def cog_yesman(request):
@@ -74,4 +74,4 @@ def cog_yesman(request):
               f"default level of 0, in test {request.function}")
         cog_yesman = Cog(key=cog_key, name=cog_name)
 
-    return cog_yesman
+    yield cog_yesman

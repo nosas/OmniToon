@@ -1,10 +1,10 @@
-from random import randint
 from random import choice as rand_choice
+from random import randint
 
 from .CogGlobals import COG_ATTRIBUTES, get_cog_vitals
 from .Entity import Entity
-from .Exceptions import (InvalidCogAttackTarget, InvalidRelativeLevel,
-                         TargetDefeatedError)
+from .Exceptions import (CogAlreadyTrappedError, CogLuredError,
+                         InvalidCogAttackTarget, InvalidRelativeLevel)
 
 
 class Cog(Entity):
@@ -22,13 +22,72 @@ class Cog(Entity):
         self.hp_max = self.vitals['hp']
         self.level = self.vitals['level']
         # TODO (??) Create CogStates
-        self.is_lured = False
+        self._is_lured = False
+        self._is_trapped = False
+        self._trap = None
 
     def __repr__(self):
         return self.__str__()
 
     def __str__(self):
         return f'lvl {self.level} "{self.name}" ({self.hp}/{self.hp_max}hp)'
+
+    @property
+    def is_lured(self) -> bool:
+        return self._is_lured
+
+    @is_lured.setter
+    def is_lured(self, new_is_lured: bool) -> None:
+        assert type(new_is_lured) == bool
+        print(f"                [>] is_lured : {self.is_lured} -> "
+              f"{new_is_lured} on {self}")
+        if new_is_lured and self.is_lured:
+            raise CogLuredError("Can't Lure a Cog that's already Lured")
+        self._is_lured = new_is_lured
+
+    @property
+    def is_trapped(self) -> bool:
+        return self._is_trapped
+
+    @is_trapped.setter
+    def is_trapped(self, new_is_trapped: bool) -> None:
+        assert type(new_is_trapped) == bool
+        print(f"                [>] is_trapped : {self.is_trapped} -> "
+              f"{new_is_trapped} on {self}")
+        if new_is_trapped:
+            # If two or more Trap gags are deployed in front of the same cog,
+            # the gags will "cancel" each other out and will render a waste.
+            if self.is_trapped:
+                raise CogAlreadyTrappedError
+            # ! Trap gags cannot be placed if a Cog is already lured
+            if self.is_lured:
+                raise CogLuredError
+            self._is_trapped = True
+        else:
+            self._is_trapped = False
+            print(f"                [>] self.trap : {(self.trap)} -> None on {self}")  # noqa
+            self._trap = None
+
+    @property
+    # def trap(self) -> tuple[Toon, Gag]:
+    def trap(self) -> tuple:
+        return self._trap
+
+    @trap.setter
+    def trap(self, toon_and_gag_trap) -> None:
+        assert type(toon_and_gag_trap) == tuple
+        assert len(toon_and_gag_trap) == 2
+
+        from .Gag import Gag
+        from .Toon import Toon
+
+        toon = toon_and_gag_trap[0]
+        gag_trap = toon_and_gag_trap[1]
+        assert type(toon) == Toon
+        assert type(gag_trap) == Gag
+        print(f"                [>] self.trap : {(self.trap)} -> ({toon}, "
+              f"{gag_trap}) on {self}")
+        self._trap = (toon, gag_trap)
 
     @property
     def relative_level(self):
@@ -86,10 +145,12 @@ class Cog(Entity):
         from .Toon import Toon
 
         if type(target) != Toon:
-            raise InvalidCogAttackTarget("Target is not a Toon")
-
-        if target.is_defeated():
-            raise TargetDefeatedError("Cannot attack defeated Toon")
+            raise InvalidCogAttackTarget(f"{self}'s attack target ({target}) "
+                                         "must be a Toon")
+        # #52, skip Cog attack if lured
+        if self.is_lured:
+            print(f"            [-] Cog `do_attack()` Skip lured {self}")
+            return False
 
         # TODO #10, add chance_to_hit
         attack_hit = Entity.do_attack(self, target=target, amount=amount)

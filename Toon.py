@@ -3,14 +3,14 @@ from random import choice as rand_choice
 
 from .Cog import Cog
 from .Entity import Entity
-from .Exceptions import (GagCountError, InvalidToonAttackTarget,
-                         LockedGagError, LockedGagTrackError,
-                         NotEnoughGagsError, TargetDefeatedError,
-                         TooManyGagsError)
+from .Exceptions import (CogAlreadyTrappedError, CogLuredError, GagCountError,
+                         InvalidToonAttackTarget, LockedGagError,
+                         LockedGagTrackError, NotEnoughGagsError,
+                         TargetDefeatedError, TooManyGagsError)
 from .Gag import Gag
 from .GagGlobals import (DROP_TRACK, HEAL_TRACK, LEVELS, LURE_TRACK,
-                         count_all_gags, get_gag_accuracy, get_gag_exp,
-                         get_gag_exp_needed)
+                         TRAP_TRACK, count_all_gags, get_gag_accuracy,
+                         get_gag_exp, get_gag_exp_needed)
 
 DEFAULT_HP = 15
 # -1 means the gag_track is locked,0 means lvl 1 Gag is unlocked
@@ -28,8 +28,6 @@ DEFAULT_GAGS = [[-1, -1, -1, -1, -1, -1, -1],  # Toon-Up
 DEFAULT_GAG_LIMIT = 20
 
 
-# ? AssertionErrors when? During initialization of attributes or separate func?
-# ? Should I use @property decorators again?
 class Toon(Entity):
     def __init__(self, name, hp=DEFAULT_HP, gags=DEFAULT_GAGS,
                  gag_exps=DEFAULT_EXPS, gag_levels=DEFAULT_LEVELS,
@@ -39,10 +37,6 @@ class Toon(Entity):
         Args:
             name (str): Name of the Toon
             hp (int, optional): Laff-o-Meter (health points) of a Toon
-            # ? Gags = 2-D list : [type?][type?].. 2D array of type Gag or int?
-            # ! Create Gags object, remove 2-D list and replace with Gags obj
-            # ! Toon.gags = Gags(toons_gags=2-D list)
-            # ! Toon.gags.get_gag(gtype="throw", level=<1-7|0-6>)
             gags (list, optional): 2-D list, ex: `gags[GAG_TRACK][GAG]`.
                 Defaults to DEFAULT_GAGS.
                 Example `gags` ::
@@ -221,12 +215,12 @@ class Toon(Entity):
         Args:
             track (int): Index number of the Gag Track <0-6>
             level (int): Level of the Gag <0-6>
-            attack (bool, optional) : True if
+            attack (bool, optional) : True if called by `choose_attack()`.
+                                      Defaults to False
 
         Returns:
             Gag: Vital information about the Toon's Gag
         """
-
         gag = self._get_gag(track=track, level=level)
         if gag.count == 0:
             raise NotEnoughGagsError(gag)
@@ -240,63 +234,172 @@ class Toon(Entity):
         return gag
 
     def choose_attack(self, target: Cog = None, track: int = -1, level: int = -1) -> Gag:  # noqa
+        """Return Gag object containing Gag's vital info, iff Toon has the Gag
+
+        Args:
+            target (Cog, optional): Target Cog, for choosing viable Gags
+            track (int, optional): Index number of the Gag Track <0-6>
+            level (int, optional): Level of the Gag <0-6>
+
+        Returns:
+            Gag: Vital information about the Toon's Gag
+        """
         # If no arguments were provided, pick a random attack
         if track == -1 or level == -1:
             gag = self._pick_random_attack(target=target)
             # print(f"            [>] Toon `choose_attack` random Gag : {gag}")
         else:
             gag = self.choose_gag(track=track, level=level, attack=True)
+
+        # Trap-specific attack logic:
+        #   If the Cog is NOT Lured, set the Trap's setup attr to True so
+        #   the Toon sets up the Trap rather than damages the Cog with the Trap
+        if gag.track == TRAP_TRACK and target is not None:
+            if target.is_lured is False:
+                # No damage is done to Cog until the Cog is Lured onto the Trap
+                # We're only setting up the Trap Gag here
+                gag.is_setup = True
+
         return gag
 
     # TODO #11, Replace all gag_track,gag_level args to Gag objects
-    def do_attack(self, target: Cog, gag_atk: Gag, overdefeat=False) -> int:
-        """Perform an attack on a Cog, given track# and level#
+    def do_attack(self, target: Cog, gag_atk: Gag, overdefeat=False) -> bool:
+        """Perform an attack on a Cog, given a Gag
 
         Args:
             target (Cog): Cog object that is going to be attacked
-            # ! TODO : Update docstrings
+            gag_atk (Gag): Gag object to be used for attacking
+                * NOTE : There's specific attack logic for Lure/Trap/Drop
+            overdefeat (bool, optional): Should be True if multiple Toons
+                                         attack the same Cog with Gags of the
+                                         same GagTrack. Defaults to False
 
+        # TODO #53, Implement specific returns, e.g. Missed/Skipped/Hit
         Returns:
-            int: 0 if the attack misses, 1 if it hits
+            bool: False if the attack misses, True if it hits
         """
         if type(target) != Cog:
-            raise InvalidToonAttackTarget
-
-        gag_atk = self._get_gag(track=gag_atk.track, level=gag_atk.level)
+            raise InvalidToonAttackTarget(f"{self}'s attack target ({target}) "
+                                          "must be a Cog")
+        attack_hit = False
+        force_miss = False
+        amount = gag_atk.damage
 
         try:
             # TODO #10, Pass in attack_accuracy
-            attack_hit = Entity.do_attack(self, target=target,
-                                          amount=gag_atk.damage)
-            if attack_hit and gag_atk.track == LURE_TRACK:
-                target.is_lured = True
-            elif attack_hit and target.is_lured:
-                # TODO #20, add bonus damage for attacking lured Cog
-                target.is_lured = False
+            # ! If any(target==Trapped), acc of Lure gags increase by 20-30%
+
+            # Trap-specific attack logic:
+            #   If setting up Trap, don't do any damage to Cog
+            #   If not setting up or attacking, we're attacking a Lured Cog
+            #       and we should force a miss
+            if gag_atk.track == TRAP_TRACK:
+                if gag_atk.is_setup:
+                    # No damage is done to Cog until the Cog is Lured onto Trap
+                    amount = 0
+                elif not gag_atk.is_setup and not gag_atk.is_attack:
+                    # ! This should only happen when using Trap on a Lured Cog
+                    force_miss = True
+                    if target.is_trapped:
+                        target.is_trapped = False
+
+            # Drop-specific attack logic:
+            #   Force the Drop attack to miss if a Cog is Lured
+            elif gag_atk.track == DROP_TRACK and target.is_lured:
+                # Can't use Drop on a Lured Cog
+                force_miss = True
+
+            # ! Raises TargetDefeatedError if Cog is defeated
+            attack_hit = Entity.do_attack(self, target=target, amount=amount,
+                                          overdefeat=overdefeat,
+                                          force_miss=force_miss)
+            if attack_hit:
+
+                # Lure-specific attack logic:
+                #   Set Cog's is_lured attrs
+                #   Activate Trap is a Cog.is_trapped
+                if gag_atk.track == LURE_TRACK:
+                    # ! Raises CogLuredError if Cog is already Lured
+                    target.is_lured = True
+                    # Activate the Trap & damage Cog if cog.is_trapped is True
+                    if target.is_trapped:
+                        trap_toon, trap_gag = target.trap
+                        trap_gag.is_attack = True
+                        # TODO #10, Add chance to hit == 100
+                        trap_toon.do_attack(target=target, gag_atk=trap_gag)
+
+                # Trap-specific attack logic:
+                #   Set Cog's is_lured/trapped/trap attrs
+                elif gag_atk.track == TRAP_TRACK:
+                    # Trap should never be both is_attack and is_setup
+                    assert not (gag_atk.is_attack and gag_atk.is_setup)
+
+                    # if target.is_lured is True and target.is_trapped is True:
+                    if gag_atk.is_attack is True:
+                        target.is_lured = False
+                        target.is_trapped = False
+                        # ! Don't decrease Gag count bc we're activating the
+                        # ! Trap, not setting it up
+                        self.gags[gag_atk.track][gag_atk.level] += 1
+
+                    # Set up the Trap Gag. Cog must be Lured to activate Trap
+                    elif gag_atk.is_setup is True:
+                        # ! Raises CogLuredError is Cog is already Lured
+                        # ! Raises CogTrappedError is Cog already Trapped
+                        target.is_trapped = True
+                        gag_atk.is_setup = False
+                        target.trap = (self, gag_atk)
+
+                # Remove Cog's lured state when attacked by any Gag
+                elif target.is_lured:
+                    # TODO #20, add bonus damage for attacking lured Cog
+                    target.is_lured = False
 
         except TargetDefeatedError:
-            # Multiple Toons attack the same Cog with the same Gag track
-            if overdefeat is True:
-                pass
-            # Target is already defeated. Return 0, do not decrease Gag count
-            print(f"    [!] WARNING `do_attack` : {self} tried to attack a "
+            # Target is already defeated:
+            #   Skip attack
+            #   Increase Gag quantity by 1 to negate the -1 in `finally` block
+            #   Return missed atk
+            print(f"    [!] WARNING `do_attack()` : {self} tried to attack a "
                   f"defeated Cog {target}")
             print(f"        [-] Skipping {gag_atk} attack, Cog {target} is "
                   "already defeated")
-            return 0
+            self.gags[gag_atk.track][gag_atk.level] += 1
+            return False
+        except CogLuredError:
+            # Multiple Toons attack the same Cog with the same Gag track
+            #   Overdefeat in case Lure activates a Trap and defeats the Cog
+            #   so we still reward all Toons who Lured
+            if gag_atk.track == LURE_TRACK and overdefeat is True:
+                return True
+            lure_or_trap = "lure" if gag_atk.track == LURE_TRACK else "trap"
+            print(f"    [!] WARNING `do_attack()` : {self} tried to "
+                  f"{lure_or_trap} a lured Cog {target}")
+            return False
+        except CogAlreadyTrappedError:
+            print(f"    [!] WARNING `do_attack()` : {self} tried to "
+                  f"trap a trapped Cog {target}")
+            print(f"        [-] Cancel existing Trap on Cog {target}: "
+                  f"({target.trap})")
+            target.is_trapped = False
+            return False
+        except Exception as e:
+            raise e
 
-        # TODO #37, Add Gag EXP (reward), so we can track rewards
-        self.gags[gag_atk.track][gag_atk.level] -= 1
-        return attack_hit
+        finally:
+            self.gags[gag_atk.track][gag_atk.level] -= 1
+            # TODO #37, Add Gag EXP (reward), so we can track rewards
+            return attack_hit
 
     def get_attack_accuracy(self, gag: Gag, target: Cog, bonus: int = 0) -> int:  # noqa
-        """Calculate Gag Attack accuracy, given a gag and Cog target
+        """Calculate Gag Attack accuracy, given a Gag, Cog target, and
+            optional bonus accuracy from Lures/Traps
 
         attack_accuracy = gag_accuracy + gag_exp + target_defense + bonus
             Source: https://toontownrewritten.fandom.com/wiki/Accuracy#propAcc
 
         Args:
-            gag (Gag): Gag object obtained from `self.choose_gag()`
+            gag (Gag): Gag object obtained from `self.choose_attack()`
             target (Cog): Cog object that is going to be attacked
             bonus (int, optional): Bonus added when near a prop bonus during
                                    Battle. Defaults to 0.
