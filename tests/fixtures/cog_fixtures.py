@@ -35,6 +35,7 @@ def cog_flunky(request):
     yield cog_flunky
 
 
+@pytest.fixture
 def cog_yesman(request):
     '''
     'ym': {

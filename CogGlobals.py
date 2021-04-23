@@ -1,4 +1,3 @@
-# %%
 # Originals:
 # * https://github.com/forest2001/Toontown-Rewritten/blob/master/toontown/toonbase/TTLocalizerEnglish.py  # noqa
 # * https://github.com/forest2001/Toontown-Rewritten/blob/master/toontown/toonbase/ToontownBattleGlobals.py  # noqa
@@ -246,38 +245,6 @@ COG_ATTRIBUTES = {
 }
 
 
-def pick_from_freq_list(freq_list: tuple or list) -> int:
-    """Return a pseudo-random relative level of a Cog, given a 5-member tuple
-        or list, can be obtained from COG_ATTRIBUTES[cog_key]['freq'].
-
-        The higher the frequency value <0-99>, the higher chance that relative
-        level (index of the frequency value) is returned.
-
-    Args:
-        freq_list (<tuple|list>): List containing the 5 frequency values
-
-        Example of freq_list bias towards relative_level=0 ::
-            freq_list = (50, 30, 10, 5, 5)
-            returns =   (0,   1,  2, 3, 4)
-
-    Returns:
-        int: Relative level of the Cog
-    """
-    rand_num = randint(0, 99)
-    count = 0
-    index = 0
-    level = None
-
-    for f in freq_list:
-        count = count + f
-        if rand_num < count:
-            level = index
-            break
-        index = index + 1
-
-    return level
-
-
 def get_actual_from_relative_level(cog_key: str, relative_level: int) -> int:
     """Get a Cog's actual level from its cog key and relative level
 
@@ -307,8 +274,9 @@ def get_cog_attack(cog_key: str, relative_level: int, attack_index: int = -1) ->
         cog_key (str): Key value for COG_ATTRIBUTES of the Cog's name.
             Example input :: 'f' for Flunky, 'p' for PencilPusher
         relative_level (int): Relative level of the Cog, <0-4>
-        attack_index (int, optional): Defaults to -1, selects random attack.
-            Should be within the range of (0, len(Cog.attacks))
+        attack_index (int, optional): Should be within the range of
+            (0, len(Cog.attacks)).
+            Defaults to -1, selects random attack.
 
     Returns:
         dict: Dictionary containing cog key, atk name/id/hp(dmg)/acc/freq etc.
@@ -521,3 +489,35 @@ def pick_cog_attack(attack_choices: tuple, relative_level, attack_name='') -> in
         cur_index = cur_index + 1
 
     return attack_index
+
+
+def pick_from_freq_list(freq_list: tuple or list) -> int:
+    """Return a pseudo-random relative level of a Cog, given a 5-member tuple
+        or list, can be obtained from COG_ATTRIBUTES[cog_key]['freq'].
+
+        The higher the frequency value <0-99>, the higher chance that relative
+        level (index of the frequency value) is returned.
+
+    Args:
+        freq_list (<tuple|list>): List containing the 5 frequency values
+
+        Example of freq_list bias towards relative_level=0 ::
+            freq_list = (50, 30, 10, 5, 5)
+            returns =   (0,   1,  2, 3, 4)
+
+    Returns:
+        int: Relative level of the Cog
+    """
+    rand_num = randint(0, 99)
+    count = 0
+    index = 0
+    level = None
+
+    for f in freq_list:
+        count = count + f
+        if rand_num < count:
+            level = index
+            break
+        index = index + 1
+
+    return level

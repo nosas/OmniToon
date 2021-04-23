@@ -1,4 +1,3 @@
-# %% Import functions and classes
 from random import choice as rand_choice
 
 from .Cog import Cog

@@ -9,7 +9,9 @@ from .Exceptions import (CogAlreadyTrappedError, CogLuredError,
 
 
 class CogAttack(Attack):
-    pass
+
+    def __repr__(self) -> str:
+        return str(self.__dict__)
 
 
 class Cog(Entity):
