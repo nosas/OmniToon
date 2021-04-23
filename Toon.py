@@ -288,7 +288,6 @@ class Toon(Entity):
         try:
             # TODO #10, Pass in attack_accuracy
             # ! If any(target==Trapped), acc of Lure gags increase by 20-30%
-
             # Trap-specific attack logic:
             #   If setting up Trap, don't do any damage to Cog
             #   If not setting up or attacking, we're attacking a Lured Cog
@@ -296,7 +295,9 @@ class Toon(Entity):
             if gag_atk.track == TRAP_TRACK:
                 if gag_atk.is_setup:
                     # No damage is done to Cog until the Cog is Lured onto Trap
-                    amount = 0
+                    gag_setup = Gag(track=gag_atk.track, exp=gag_atk.exp,
+                                    level=gag_atk.level, count=gag_atk.count)
+                    gag_setup.damage = 0
                 elif not gag_atk.is_setup and not gag_atk.is_attack:
                     # ! This should only happen when using Trap on a Lured Cog
                     force_miss = True
@@ -310,9 +311,10 @@ class Toon(Entity):
                 force_miss = True
 
             # ! Raises TargetDefeatedError if Cog is defeated
-            attack_hit = Entity.do_attack(self, target=target, amount=amount,
-                                          overdefeat=overdefeat,
-                                          force_miss=force_miss)
+            attack = gag_atk if not gag_atk.is_setup else gag_setup
+            attack_hit = Entity.do_attack(
+                self, target=target, attack=attack, overdefeat=overdefeat,
+                force_miss=force_miss)
             if attack_hit:
 
                 # Lure-specific attack logic:

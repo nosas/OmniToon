@@ -3,6 +3,8 @@
 
 from math import floor as math_floor
 
+from .Attack import ATK_TGT_MULTI, ATK_TGT_SINGLE
+
 # Gag track indexes
 HEAL_TRACK = 0
 TRAP_TRACK = 1
@@ -81,7 +83,7 @@ GAG_DAMAGE = (
         ((36, 40), (LEVELS[THROW_TRACK][4], LEVELS[THROW_TRACK][5])),
         ((48, 100), (LEVELS[THROW_TRACK][5], LEVELS[THROW_TRACK][6])),
         ((120, 120), (LEVELS[THROW_TRACK][6], MAX_SKILL))),
-    (((3, 4), (LEVELS[SQUIRT_TRACK][0], LEVELS[SQUIRT_TRACK][1])),       # Squirt
+    (((3, 4), (LEVELS[SQUIRT_TRACK][0], LEVELS[SQUIRT_TRACK][1])),     # Squirt
         ((6, 8), (LEVELS[SQUIRT_TRACK][1], LEVELS[SQUIRT_TRACK][2])),
         ((10, 12), (LEVELS[SQUIRT_TRACK][2], LEVELS[SQUIRT_TRACK][3])),
         ((18, 21), (LEVELS[SQUIRT_TRACK][3], LEVELS[SQUIRT_TRACK][4])),
@@ -147,6 +149,13 @@ GAG_CARRY_LIMITS = (((10, 0, 0, 0, 0, 0, 0),      # Toon-up
                      (30, 25, 20, 15, 7, 3, 0),
                      (30, 25, 20, 15, 7, 3, 1)))
 
+MULTI_TARGET_GAGS = [
+    'Megaphone', 'Bamboo Cane', 'Juggling Balls', 'High Dive', 'Railroad',
+    'Small Magnet', 'Big Magnet', 'Hypno-goggles', 'Presentation',
+    'Bike Horn', 'Whistle', 'Bugle', 'Aoogah', 'Elephant Trunk', 'Foghorn',
+    'Opera Singer', 'Wedding Cake', 'Geyser', 'Toontanic'
+    ]
+
 
 def count_all_gags(gags: list) -> int:
     """Return the total number of Gags, given a 2-D list of Gags
@@ -190,37 +199,21 @@ def get_gag_accuracy(track: int, level: int) -> int:
     return -1  # ! TODO #10 <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
-def get_gag_name(track: int, level: int) -> str:
-    """Return name of the Gag, given a track# and level#
+def get_gag_carry_limits(track: int, level: int) -> tuple:
+    """Return list of Gag carry limits based on Gag level
 
     Args:
         track (int): Index number of the Gag Track <0-6>
         level (int): Level of the Gag <0-6>
 
     Returns:
-        str: Name of the Gag, typically used for logging messages
+        tuple: 7-member tuple of Gag carry limits
+
+        Example output for level 2 Drop track carry limits (track=6, lvl=1) ::
+            GAG_CARRY_LIMITS[6][1] = (10, 5, 0, 0, 0, 0, 0)
     """
-    return GAG_LABELS[track][level]
 
-
-def get_gag_track_name(track: int) -> str:
-    """Return name of the Gag Track, given a track#
-
-    Args:
-        track (int): Index number of the Gag Track <0-6>
-
-    Returns:
-        str: Name of the Gag Track, typically used for logging messages
-    """
-    return GAG_TRACK_LABELS[track]
-
-
-def get_gag_min_max_damage(track: int, level: int) -> tuple[int, int]:
-    return GAG_DAMAGE[track][level][0]
-
-
-def get_gag_min_max_exp(track: int, level: int) -> tuple[int, int]:
-    return GAG_DAMAGE[track][level][1]
+    return GAG_CARRY_LIMITS[track][level]
 
 
 def get_gag_damage(track: int, level: int, exp: int) -> int:
@@ -313,18 +306,46 @@ def get_gag_exp_needed(track: int, level: int, current_exps: list = None,
     return next_gag_exp - current_exp
 
 
-def get_gag_carry_limits(track: int, level: int) -> tuple:
-    """Return list of Gag carry limits based on Gag level
+def get_gag_min_max_exp(track: int, level: int) -> tuple[int, int]:
+    return GAG_DAMAGE[track][level][1]
+
+
+def get_gag_min_max_damage(track: int, level: int) -> tuple[int, int]:
+    return GAG_DAMAGE[track][level][0]
+
+
+def get_gag_name(track: int, level: int) -> str:
+    """Return name of the Gag, given a track# and level#
 
     Args:
         track (int): Index number of the Gag Track <0-6>
         level (int): Level of the Gag <0-6>
 
     Returns:
-        tuple: 7-member tuple of Gag carry limits
-
-        Example output for level 2 Drop track carry limits (track=6, lvl=1) ::
-            GAG_CARRY_LIMITS[6][1] = (10, 5, 0, 0, 0, 0, 0)
+        str: Name of the Gag, typically used for logging messages
     """
+    return GAG_LABELS[track][level]
 
-    return GAG_CARRY_LIMITS[track][level]
+
+def get_gag_target(name: str):
+    """Return whether a Gag attacks is single-target or multi-target
+
+    Args:
+        name (str): Name of the Gag
+
+    Returns:
+        int: Single-target (1) or multi-target (2)
+    """
+    return ATK_TGT_MULTI if name in MULTI_TARGET_GAGS else ATK_TGT_SINGLE
+
+
+def get_gag_track_name(track: int) -> str:
+    """Return name of the Gag Track, given a track#
+
+    Args:
+        track (int): Index number of the Gag Track <0-6>
+
+    Returns:
+        str: Name of the Gag Track, typically used for logging messages
+    """
+    return GAG_TRACK_LABELS[track]
