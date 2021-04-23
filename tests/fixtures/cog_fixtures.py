@@ -17,10 +17,10 @@ def cog_flunky(request):
         class TestCogAttack:
 
     Args:
-        request ([type]): [description]
+        request (int): Relative level of the Cog, in range [0, 4]
 
     Yields:
-        Cog: [description]
+        Cog: Yields "Flunky" Cog object
     """
     cog_key = 'f'
     cog_name = COG_ATTRIBUTES[cog_key]['name']
@@ -37,34 +37,48 @@ def cog_flunky(request):
 
 @pytest.fixture
 def cog_yesman(request):
-    '''
-    'ym': {
-        'name': 'Yesman',
-        'level': 3,
-        'hp': COG_HP[2:7],
-        'def': (10, 15, 20, 25, 30),
-        'freq': (50, 30, 10, 5, 5),
-        'acc': (65, 70, 75, 80, 85),
-        'attacks': (
-            ('RubberStamp', ATK_TGT_SINGLE,
-                (2, 2, 3, 3, 4),
-                (75, 75, 75, 75, 75),
-                (35, 35, 35, 35, 35)),
-            ('RazzleDazzle', ATK_TGT_SINGLE,
-                (1, 1, 1, 1, 1),
-                (50, 50, 50, 50, 50),
-                (25, 20, 15, 10, 5)),
-            ('Synergy', ATK_TGT_MULTI,
-                (4, 5, 6, 7, 8),
-                (50, 60, 70, 80, 90),
-                (5, 10, 15, 20, 25)),
-            ('TeeOff', ATK_TGT_SINGLE,
-                (3, 3, 4, 4, 5),
-                (50, 60, 70, 80, 90),
-                (35, 35, 35, 35, 35))
-        )
-    },
-    '''
+    """Yields a YesMan Cog object when passed a relative_level [0-4] argument.
+        NOTE: This function was created so I could test multi-targeted attacks.
+
+    Example Usage from `test_cog_attack.py`:
+        from ..fixtures.cog_fixtures import cog_flunky as cogf
+        @pytest.mark.parametrize('cogy', [0, 1, 2, 3, 4], indirect=True)
+        class TestCogAttack:
+
+    Args:
+        request (int): Relative level of the Cog, in range [0, 4]
+
+    Yields:
+        Cog: Yields "YesMan" Cog object
+
+        Raw output from COG_ATTRIBUTES
+            'ym': {
+                'name': 'Yesman',
+                'level': 3,
+                'hp': COG_HP[2:7],
+                'def': (10, 15, 20, 25, 30),
+                'freq': (50, 30, 10, 5, 5),
+                'acc': (65, 70, 75, 80, 85),
+                'attacks': (
+                    ('RubberStamp', ATK_TGT_SINGLE,
+                        (2, 2, 3, 3, 4),
+                        (75, 75, 75, 75, 75),
+                        (35, 35, 35, 35, 35)),
+                    ('RazzleDazzle', ATK_TGT_SINGLE,
+                        (1, 1, 1, 1, 1),
+                        (50, 50, 50, 50, 50),
+                        (25, 20, 15, 10, 5)),
+                    ('Synergy', ATK_TGT_MULTI,
+                        (4, 5, 6, 7, 8),
+                        (50, 60, 70, 80, 90),
+                        (5, 10, 15, 20, 25)),
+                    ('TeeOff', ATK_TGT_SINGLE,
+                        (3, 3, 4, 4, 5),
+                        (50, 60, 70, 80, 90),
+                        (35, 35, 35, 35, 35))
+                )
+            }
+    """
     cog_key = 'ym'
     cog_name = COG_ATTRIBUTES[cog_key]['name']
     try:
