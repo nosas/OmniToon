@@ -95,7 +95,7 @@ class TestCogGlobalAttack:
                                     relative_level=cogf.relative_level,
                                     attack_index=attack_index)
 
-        attack_dmg = cog_attack['hp']
+        attack_dmg = cog_attack['damage']
 
         print(f"\nBEFORE: hp {toon_astro.hp}")
         print(f"Cog \"{cogf.name}\" (lvl {cogf.level}) attacks {toon_astro.hp}"
@@ -103,7 +103,7 @@ class TestCogGlobalAttack:
               f"\"{cog_attack['name']}\"")
         cogf.do_attack(target=toon_astro, attack=self.dummy_atk)
         print(f"AFTER: {toon_astro.hp}")
-        print(cog_attack['name'], cog_attack['id'], cog_attack['hp'])
+        print(cog_attack['name'], cog_attack['id'], cog_attack['damage'])
 
     # TODO #5, Create test for cog attack damaging multiple toons
     # NOTE: Must be done with Yesman fixture, attack_name='Synergy'

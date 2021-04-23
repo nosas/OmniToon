@@ -286,7 +286,7 @@ def get_cog_attack(cog_key: str, relative_level: int, attack_index: int = -1) ->
                 'cog_key': 'f',
                 'name': 'PoundKey',
                 'id': 0,
-                'hp': 3,
+                'damage': 3,
                 'acc': 80,
                 'freq': 40,
                 'target': 2  # ATK_TGT_SINGLE=1, ATK_TGT_MULTI=2
@@ -313,7 +313,7 @@ def get_cog_attack(cog_key: str, relative_level: int, attack_index: int = -1) ->
     attack_dict['id'] = attack_index
     # attack_dict['id'] = list(COG_ATTACKS.keys()).index(attack_name)
     # attack_dict['animName'] = COG_ATTACKS[attack_name][0]
-    attack_dict['hp'] = attack_tuple[ATK_IDX_DMG][relative_level]
+    attack_dict['damage'] = attack_tuple[ATK_IDX_DMG][relative_level]
     attack_dict['acc'] = attack_tuple[ATK_IDX_ACC][relative_level]
     attack_dict['freq'] = attack_tuple[ATK_IDX_FREQ][relative_level]
     attack_dict['target'] = attack_tuple[ATK_IDX_TGT]  # previously group
@@ -369,7 +369,7 @@ def get_cog_vitals(cog_key: str, relative_level: int = -1) -> dict:
                     {
                         'acc': 80,
                         'freq': 40,
-                        'hp': 3,
+                        'damage': 3,
                         'id': 0,
                         'name': 'PoundKey',
                         'target': 1  # <0-2> ATK_TGT_SINGLE=1, ATK_TGT_MULTI=2
@@ -377,7 +377,7 @@ def get_cog_vitals(cog_key: str, relative_level: int = -1) -> dict:
                     {
                         'acc': 70,
                         'freq': 30,
-                        'hp': 7,
+                        'damage': 7,
                         'id': 1,
                         'name': 'Shred',
                         'target': 1
@@ -385,7 +385,7 @@ def get_cog_vitals(cog_key: str, relative_level: int = -1) -> dict:
                     {
                         'acc': 95,
                         'freq': 20,
-                        'hp': 3,
+                        'damage': 3,
                         'id': 2,
                         'name': 'ClipOnTie',
                         'target': 1
@@ -413,20 +413,20 @@ def get_cog_vitals(cog_key: str, relative_level: int = -1) -> dict:
 
     attacks = cog_data['attacks']
     all_attacks_list = []
-    cur_index = 0
-    for attack in attacks:
-        attacks_dict = {}
-        attack_name = attack[0]
-        attacks_dict['acc'] = attack[ATK_IDX_ACC][relative_level]
-        # attacks_dict['animName'] = COG_ATTACKS[attack_name][0]
-        attacks_dict['freq'] = attack[ATK_IDX_FREQ][relative_level]
-        attacks_dict['hp'] = attack[ATK_IDX_DMG][relative_level]
-        attacks_dict['id'] = cur_index
-        attacks_dict['name'] = attack_name
-        attacks_dict['target'] = attack[ATK_IDX_TGT]  # Previously 'group'
-        # attacks_dict['group'] = COG_ATTACKS[attack_name][1]
-        all_attacks_list.append(attacks_dict)
-        cur_index += 1
+    for attack_index, attack_tuple in enumerate(attacks):
+        attack_dict = {}
+        attack_dict['cog_key'] = cog_key
+        attack_name = attack_tuple[ATK_IDX_NAME]
+        attack_dict['name'] = attack_name
+        attack_dict['id'] = attack_index
+        # attack_dict['id'] = list(COG_ATTACKS.keys()).index(attack_name)
+        # attack_dict['animName'] = COG_ATTACKS[attack_name][0]
+        attack_dict['damage'] = attack_tuple[ATK_IDX_DMG][relative_level]
+        attack_dict['acc'] = attack_tuple[ATK_IDX_ACC][relative_level]
+        attack_dict['freq'] = attack_tuple[ATK_IDX_FREQ][relative_level]
+        attack_dict['target'] = attack_tuple[ATK_IDX_TGT]  # previously group
+        # attack_dict['group'] = COG_ATTACKS[attack_name][1]
+        all_attacks_list.append(attack_dict)
 
     vitals_dict['attacks'] = all_attacks_list
     return vitals_dict

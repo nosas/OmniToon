@@ -181,8 +181,7 @@ class Cog(Entity):
                 {
                     'acc': 80,
                     'freq': 40,
-                    'hp': 3,
-                    'id': 0,
+                    'damage': 3,
                     'name': 'PoundKey',
                     'target': 2  # ATK_TGT_SINGLE=1, ATK_TGT_MULTI=2
                 }
@@ -192,7 +191,7 @@ class Cog(Entity):
         assert valid_name.count(True) == 1
         attack_idx = valid_name.index(True)
         attack = self.attacks[attack_idx]
-        return CogAttack(name=attack['name'], damage=attack['hp'],
+        return CogAttack(name=attack['name'], damage=attack['damage'],
                          accuracy=attack['acc'], target=attack['target'])
 
 
