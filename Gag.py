@@ -22,9 +22,14 @@ from .GagGlobals import (get_gag_accuracy, get_gag_damage, get_gag_name,
 
 class Gag(Attack):
     def __init__(self, track: int, exp: int, level: int, count: int = 0):
-        """
-        # TODO Review and fix docstring pls
         # TODO #25, Create observer to monitor battles & determine viable Gags
+        """Attack/Heal used by a Toon during Battle
+
+        Args:
+            track (int): Index of the Gag Track <0-6>
+            exp (int): EXP of the Gag Track
+            level (int): Level of the Gag <0-6>
+            count (int, optional): Current quantity of the Gag. Defaults to 0.
         """
         self.track = track
         self.level = level
