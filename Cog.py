@@ -1,10 +1,15 @@
 from random import choice as rand_choice
 from random import randint
 
+from .Attack import Attack
 from .CogGlobals import COG_ATTRIBUTES, get_cog_vitals
 from .Entity import Entity
 from .Exceptions import (CogAlreadyTrappedError, CogLuredError,
                          InvalidCogAttackTarget, InvalidRelativeLevel)
+
+
+class CogAttack(Attack):
+    pass
 
 
 class Cog(Entity):
@@ -129,16 +134,15 @@ class Cog(Entity):
 
         # return attack['id']
 
-    # TODO #41, Make this follow Toon's `do_attack`, add atk_indx
-    def do_attack(self, target, amount: int):
+    def do_attack(self, target, attack: CogAttack) -> bool:
         """Perform an attack on a Toon, given an attack damage
 
         Args:
             target (Toon): Toon object that is going to be attacked
-            amount (int): Attack's damage amount
+            attack (CogAttack): Attack's damage attack
 
         Returns:
-            int: 0 if the attack misses, 1 if it hits
+            bool: False if the attack misses, True if it hits
         """
         # Have to import Toon here due to circular import issue when importing
         # Toon at the top of the file
@@ -153,11 +157,10 @@ class Cog(Entity):
             return False
 
         # TODO #10, add chance_to_hit
-        attack_hit = Entity.do_attack(self, target=target, amount=amount)
+        attack_hit = Entity.do_attack(self, target=target, attack=attack)
         return attack_hit
 
-    # TODO #41, return a CogAttack object instead of dict?
-    def get_attack(self, attack_name: str = '') -> dict:
+    def get_attack(self, attack_name: str = '') -> CogAttack:
         """Return dictionary containing Cog attack information, given an index#
 
         Args:
@@ -170,7 +173,7 @@ class Cog(Entity):
                 <'PoundKey'|'Shred'|'ClipOnTie'>
 
         Returns:
-            dict: Dictionary containing all attributes of a single Cog's attack
+            CogAttack: All attributes of the Cog's attack
 
             Example output for attack_name='PoundKey' ::
                 {
@@ -179,14 +182,16 @@ class Cog(Entity):
                     'hp': 3,
                     'id': 0,
                     'name': 'PoundKey',
-                    'target': 2  # ATK_TGT_SINGLE=1, ATK_TGT_GROUP=2
+                    'target': 2  # ATK_TGT_SINGLE=1, ATK_TGT_MULTI=2
                 }
         """
         assert (attack_name != '')
         valid_name = [attack_name == attack['name'] for attack in self.attacks]
         assert valid_name.count(True) == 1
         attack_idx = valid_name.index(True)
-        return self.attacks[attack_idx]
+        attack = self.attacks[attack_idx]
+        return CogAttack(name=attack['name'], damage=attack['hp'],
+                         accuracy=attack['acc'], target=attack['target'])
 
 
 def get_random_cog() -> Cog:

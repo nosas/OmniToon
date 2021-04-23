@@ -21,7 +21,7 @@ class Entity:
         raise NotImplementedError
 
     def do_attack(self, target: Entity, attack: Attack,
-                  overdefeat: bool = False, force_miss: bool = False) -> int:
+                  overdefeat: bool = False, force_miss: bool = False) -> bool:
         if not isinstance(target, Entity):
             raise InvalidTargetError("Target must be a subclass of Entity")
         if type(target) == type(self):
