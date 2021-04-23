@@ -6,12 +6,12 @@
 
 from random import randint
 
+from .Attack import ATK_TGT_MULTI, ATK_TGT_SINGLE
 from .Exceptions import InvalidCogKey, InvalidRelativeLevel
 
 ATK_IDX_NAME, ATK_IDX_TGT, ATK_IDX_DMG, \
     ATK_IDX_ACC, ATK_IDX_FREQ = (0, 1, 2,
                                  3, 4)
-ATK_TGT_UNKNOWN, ATK_TGT_SINGLE, ATK_TGT_GROUP = (0, 1, 2)  # previously 1,2,3
 COG_HP = (6, 12, 20, 30, 42, 56, 72, 90, 110, 132, 156, 200)
 # ! Correct the strange formatting from SuitBattleGlobals with following regex
 # \((\d{1,3},)\n\s+(\d{1,3},)\n\s+(\d{1,3},)\n\s+(\d{1,3},)\n\s+(\d{1,3})\)
@@ -95,7 +95,7 @@ COG_ATTRIBUTES = {
                 (1, 1, 1, 1, 1),
                 (50, 50, 50, 50, 50),
                 (25, 20, 15, 10, 5)),
-            ('Synergy', ATK_TGT_GROUP,
+            ('Synergy', ATK_TGT_MULTI,
                 (4, 5, 6, 7, 8),
                 (50, 60, 70, 80, 90),
                 (5, 10, 15, 20, 25)),
@@ -321,7 +321,7 @@ def get_cog_attack(cog_key: str, relative_level: int, attack_index: int = -1) ->
                 'hp': 3,
                 'acc': 80,
                 'freq': 40,
-                'target': 2  # ATK_TGT_SINGLE=1, ATK_TGT_GROUP=2
+                'target': 2  # ATK_TGT_SINGLE=1, ATK_TGT_MULTI=2
             }
     """
     # * attack_choices == COG_ATTRIBUTES[cog_key]['attacks']
@@ -404,7 +404,7 @@ def get_cog_vitals(cog_key: str, relative_level: int = -1) -> dict:
                         'hp': 3,
                         'id': 0,
                         'name': 'PoundKey',
-                        'target': 1  # <0-2> ATK_TGT_SINGLE=1, ATK_TGT_GROUP=2
+                        'target': 1  # <0-2> ATK_TGT_SINGLE=1, ATK_TGT_MULTI=2
                     }
                     {
                         'acc': 70,

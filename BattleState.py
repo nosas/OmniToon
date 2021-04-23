@@ -226,8 +226,8 @@ class CogAttackState(AttackState):
             target_toon = rand_choice(viable_toons)
             print(f"        [+] {self} Cog {cog} targets Toon {target_toon}")
             cog_atk = cog.choose_attack()
-            atk_hit = cog.do_attack(target=target_toon, amount=cog_atk['hp'])
-            self.attacks[cog] = (target_toon, cog_atk, atk_hit)
+            atk_hit = cog.do_attack(target=target_toon, attack=cog_atk)
+            self.attacks[cog] = (target_toon, cog_atk.damage, atk_hit)
 
             if target_toon.is_defeated:
                 print(f"            [-] Toon {target_toon} is defeated")

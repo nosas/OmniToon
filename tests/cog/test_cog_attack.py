@@ -1,5 +1,6 @@
 import pytest
 
+from ...Attack import ATK_TGT_SINGLE, Attack
 from ...CogGlobals import (get_cog_attack, get_cog_attacks_all_levels,
                            pick_cog_attack)
 from ...Exceptions import InvalidCogAttackTarget
@@ -12,6 +13,9 @@ from ..fixtures.toon_fixtures import toon_astro
 @pytest.mark.parametrize('cogf', [0, 1, 2, 3, 4], indirect=True)
 class TestCogGlobalAttack:
 
+    dummy_atk = Attack(name='dummy', damage=10, accuracy=100,
+                       target=ATK_TGT_SINGLE)
+
     # TODO Move to TestCogAttack when its created...
     def test_attack_target_cog_fail(self, cogf):
         """Verify Cog's `do_attack` raises InvalidCogAttackTarget when
@@ -21,7 +25,7 @@ class TestCogGlobalAttack:
             cogf (Cog): Flunky Cog fixture
         """
         with pytest.raises(InvalidCogAttackTarget):
-            attack_hit = cogf.do_attack(target=cogf, amount=10)
+            attack_hit = cogf.do_attack(target=cogf, attack=self.dummy_atk)
             assert not attack_hit
 
     # TODO Move to TestCogAttack when its created...
@@ -34,7 +38,7 @@ class TestCogGlobalAttack:
         """
         with pytest.raises(InvalidCogAttackTarget):
             cogf.hp = 0
-            attack_hit = cogf.do_attack(target=cogf, amount=10)
+            attack_hit = cogf.do_attack(target=cogf, attack=self.dummy_atk)
             assert not attack_hit
 
     @pytest.mark.parametrize('exp_attack_index,exp_attack_name', [
@@ -97,7 +101,7 @@ class TestCogGlobalAttack:
         print(f"Cog \"{cogf.name}\" (lvl {cogf.level}) attacks {toon_astro.hp}"
               f"hp Toon \"Astro\" with {attack_dmg} damage attack "
               f"\"{cog_attack['name']}\"")
-        cogf.do_attack(target=toon_astro, amount=attack_dmg)
+        cogf.do_attack(target=toon_astro, attack=self.dummy_atk)
         print(f"AFTER: {toon_astro.hp}")
         print(cog_attack['name'], cog_attack['id'], cog_attack['hp'])
 

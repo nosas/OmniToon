@@ -15,31 +15,30 @@ BattleGlobalAvPropStrings = (
 
 """  # noqa
 
-
-from .GagGlobals import (GAG_TRACK_LABELS, get_gag_accuracy, get_gag_damage,
-                         get_gag_name)
-
-
-class GagTrack:
-    def __init__(self, track, exp):
-        self.track = track
-        self.track_name = GAG_TRACK_LABELS[track]
-        self.exp = exp
+from .Attack import Attack
+from .GagGlobals import (get_gag_accuracy, get_gag_damage, get_gag_name,
+                         get_gag_target, get_gag_track_name)
 
 
-class Gag(GagTrack):
-    def __init__(self, track, exp, level, count=0):
+class Gag(Attack):
+    def __init__(self, track: int, exp: int, level: int, count: int = 0):
         """
         # TODO Review and fix docstring pls
         # TODO #25, Create observer to monitor battles & determine viable Gags
         """
-        super().__init__(track=track, exp=exp)
-        # ! Damage, quantity, capacity need to be dynamically updated after atk
-        self.accuracy = get_gag_accuracy(track=track, level=level)
-        self.count = count
-        self.damage = get_gag_damage(track=track, level=level, exp=exp)
+        self.track = track
         self.level = level
-        self.name = get_gag_name(track=track, level=level)
+        name = get_gag_name(track=track, level=level)
+        # ! Damage, quantity, capacity need to be dynamically updated after atk
+        super().__init__(
+            name=name,
+            damage=get_gag_damage(track=track, level=level, exp=exp),
+            accuracy=get_gag_accuracy(track=track, level=level),
+            target=get_gag_target(name=name))
+
+        self.track_name = get_gag_track_name(track=track)
+        self.exp = exp
+        self.count = count
 
         # Trap-specific attributes used for tracking EXP rewards
         self._is_attack = False

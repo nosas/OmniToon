@@ -53,7 +53,7 @@ def cog_yesman(request):
                 (1, 1, 1, 1, 1),
                 (50, 50, 50, 50, 50),
                 (25, 20, 15, 10, 5)),
-            ('Synergy', ATK_TGT_GROUP,
+            ('Synergy', ATK_TGT_MULTI,
                 (4, 5, 6, 7, 8),
                 (50, 60, 70, 80, 90),
                 (5, 10, 15, 20, 25)),
