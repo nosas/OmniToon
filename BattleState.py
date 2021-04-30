@@ -232,7 +232,7 @@ class CogAttackState(AttackState):
         transition_state = ToonAttackState
 
         for cog in self.context.cogs:
-            cog_atk = cog.choose_attack()
+            cog_atk = cog.manual_atk if cog.manual_atk is not None else cog.choose_attack()  # noqa
 
             viable_toons = [toon for toon in self.context.toons
                             if not toon.is_defeated]
