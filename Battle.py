@@ -68,17 +68,17 @@ class Battle:
         ]
 
         for attack_state in toon_attack_states:
-            for toon, cog, gag, atk_hit in attack_state.attacks:
+            for toon, cogs, gag, atk_hit in attack_state.attacks:
                 # TODO #51, Multiply reward by EXP multiplier
                 if atk_hit:
-                    reward = gag.level + 1 if gag.level < cog.level else 0
+                    eligible = any([cog for cog in cogs if cog.level >= gag.level])
+                    reward = gag.level + 1 if eligible else 0
                     if gag.track == TRAP_TRACK:  # Don't reward for Trap setup
-                        if gag.is_setup and not gag.is_attack:
-                            reward = 0
+                        reward = reward if gag.is_attack else 0
                 else:  # Attack missed
                     reward = 0
                 self._rewards[toon][gag.track] += reward
-                print(f"    [>] {toon} {'+' if atk_hit else ''}{reward} {gag.track_name} exp ({gag}) against {cog}")  # noqa
+                print(f"    [>] {toon} {'+' if atk_hit else ''}{reward} {gag.track_name} exp ({gag}) against {cogs}")  # noqa
 
         # Sum rewards for all Toons
         for toon in self.toons:

@@ -1,5 +1,6 @@
 from random import choice as rand_choice
 
+from .Attack import ATK_TGT_MULTI
 from .Cog import Cog
 from .Entity import Entity
 from .Exceptions import (CogAlreadyTrappedError, CogLuredError, GagCountError,
@@ -282,7 +283,6 @@ class Toon(Entity):
                                           "must be a Cog")
         attack_hit = False
         force_miss = False
-        amount = gag_atk.damage
 
         try:
             # TODO #10, Pass in attack_accuracy
@@ -311,11 +311,12 @@ class Toon(Entity):
 
             # ! Raises TargetDefeatedError if Cog is defeated
             attack = gag_atk if not gag_atk.is_setup else gag_setup
+
             attack_hit = Entity.do_attack(
                 self, target=target, attack=attack, overdefeat=overdefeat,
                 force_miss=force_miss)
-            if attack_hit:
 
+            if attack_hit:
                 # Lure-specific attack logic:
                 #   Set Cog's is_lured attrs
                 #   Activate Trap is a Cog.is_trapped
@@ -371,8 +372,9 @@ class Toon(Entity):
             # Multiple Toons attack the same Cog with the same Gag track
             #   Overdefeat in case Lure activates a Trap and defeats the Cog
             #   so we still reward all Toons who Lured
-            if gag_atk.track == LURE_TRACK and overdefeat is True:
-                return True
+            if gag_atk.track == LURE_TRACK:
+                if overdefeat is True or gag_atk.target == ATK_TGT_MULTI:
+                    return True
             lure_or_trap = "lure" if gag_atk.track == LURE_TRACK else "trap"
             print(f"    [!] WARNING `do_attack()` : {self} tried to "
                   f"{lure_or_trap} a lured Cog {target}")
@@ -388,6 +390,7 @@ class Toon(Entity):
             raise e
 
         finally:
+            # ! Only reduce one if gag_atk.target == Multi
             self.gags[gag_atk.track][gag_atk.level] -= 1
             # TODO #37, Add Gag EXP (reward), so we can track rewards
             return attack_hit

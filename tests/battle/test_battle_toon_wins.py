@@ -76,13 +76,49 @@ class TestBattleToonWins2Cogs:
         first_battle = Battle(first_cog=cog_flunky, first_toon=toon_ostra)
         first_battle.add_cog(new_cog=get_random_cog())
 
-        print([cog for cog in first_battle.cogs])
+        print(len(first_battle.toons), [toon for toon in first_battle.toons])
+        print(len(first_battle.cogs), [cog for cog in first_battle.cogs])
 
         while first_battle.is_battling:
             first_battle.update()
             heal_toons(first_battle)
         verify_win_state(won_battle=first_battle)
         first_battle.calculate_rewards()
+
+
+    @pytest.mark.parametrize('cog_flunky', [1], indirect=True)
+    def test_battle_toon_wins_1toon_3cogs(self, toon_ostra, cog_flunky):
+        first_battle = Battle(first_cog=cog_flunky, first_toon=toon_ostra)
+        first_battle.add_cog(new_cog=get_random_cog())
+        first_battle.add_cog(new_cog=get_random_cog())
+
+        print(len(first_battle.toons), [toon for toon in first_battle.toons])
+        print(len(first_battle.cogs), [cog for cog in first_battle.cogs])
+
+        while first_battle.is_battling:
+            first_battle.update()
+            heal_toons(first_battle)
+        verify_win_state(won_battle=first_battle)
+        first_battle.calculate_rewards()
+
+
+    @pytest.mark.parametrize('cog_flunky', [1], indirect=True)
+    def test_battle_toon_wins_1toon_4cogs(self, toon_ostra, cog_flunky):
+        first_battle = Battle(first_cog=cog_flunky, first_toon=toon_ostra)
+        first_battle.add_cog(new_cog=get_random_cog())
+        first_battle.add_cog(new_cog=get_random_cog())
+        first_battle.add_cog(new_cog=get_random_cog())
+
+        print(len(first_battle.toons), [toon for toon in first_battle.toons])
+        print(len(first_battle.cogs), [cog for cog in first_battle.cogs])
+
+        while first_battle.is_battling:
+            first_battle.update()
+            heal_toons(first_battle)
+        verify_win_state(won_battle=first_battle)
+        first_battle.calculate_rewards()
+
+
 
     @pytest.mark.parametrize('cog_flunky', [1], indirect=True)
     def test_battle_toon_wins_2toons_2cogs(self, toon_astro, toon_ostra,
@@ -91,7 +127,8 @@ class TestBattleToonWins2Cogs:
         first_battle.add_toon(new_toon=toon_ostra)
         first_battle.add_cog(new_cog=get_random_cog())
 
-        print([cog for cog in first_battle.cogs])
+        print(len(first_battle.toons), [toon for toon in first_battle.toons])
+        print(len(first_battle.cogs), [cog for cog in first_battle.cogs])
 
         while first_battle.is_battling:
             first_battle.update()
@@ -110,7 +147,8 @@ class TestBattleToonWins2Cogs:
         first_battle.add_cog(new_cog=get_random_cog())
         first_battle.add_cog(new_cog=get_random_cog())
 
-        print([cog for cog in first_battle.cogs])
+        print(len(first_battle.toons), [toon for toon in first_battle.toons])
+        print(len(first_battle.cogs), [cog for cog in first_battle.cogs])
 
         while first_battle.is_battling:
             first_battle.update()
@@ -131,7 +169,8 @@ class TestBattleToonWins2Cogs:
         first_battle.add_cog(new_cog=get_random_cog())
         first_battle.add_cog(new_cog=get_random_cog())
 
-        print([cog for cog in first_battle.cogs])
+        print(len(first_battle.toons), [toon for toon in first_battle.toons])
+        print(len(first_battle.cogs), [cog for cog in first_battle.cogs])
 
         while first_battle.is_battling:
             first_battle.update()

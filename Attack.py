@@ -8,4 +8,4 @@ class Attack():
         self.name = name
         self.damage = damage
         self.accuracy = accuracy
-        self.target = target
+        self.target = target  # Multi-target or single-target

@@ -35,8 +35,11 @@ class Entity:
 
         # TODO #10, Add chance_to_hit
         attack_hit = False if force_miss else True
-        hit_miss = 'hits' if attack_hit else 'misses'
-        damage = attack.damage if attack_hit else 0
+        hit_miss = 'misses'
+        damage = 0
+        if attack_hit:
+            hit_miss = 'hits'
+            damage = attack.damage
         target._get_attacked(amount=damage)
 
         class_name = self.__class__.__name__
