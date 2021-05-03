@@ -6,7 +6,7 @@
 from random import randint
 
 from .Attack import ATK_TGT_MULTI, ATK_TGT_SINGLE
-from .Exceptions import InvalidCogKey, InvalidRelativeLevel
+from .Exceptions import InvalidAttackIndex, InvalidCogKey, InvalidRelativeLevel
 
 ATK_IDX_NAME, ATK_IDX_TGT, ATK_IDX_DMG, \
     ATK_IDX_ACC, ATK_IDX_FREQ = (0, 1, 2,
@@ -256,11 +256,10 @@ def get_actual_from_relative_level(cog_key: str, relative_level: int) -> int:
     Returns:
         int: Cog's actual level (cog_min_level + relative_level)
     """
-    assert relative_level in range(5), (
-            "ERROR: Variable `relative_level` must be in the values "
-            "[0, 1, 2, 3, 4], where 0 is the mininmum Cog level and 4 is the "
-            "maximum Cog level."
-    )
+    if cog_key not in COG_ATTRIBUTES:
+        raise InvalidCogKey
+    if relative_level not in range(5):
+        raise InvalidRelativeLevel(rel_lvl=relative_level)
     cog_data = COG_ATTRIBUTES[cog_key]
     actual_level = cog_data['level'] + relative_level
     return actual_level
@@ -292,11 +291,20 @@ def get_cog_attack(cog_key: str, relative_level: int, attack_index: int = -1) ->
                 'target': 2  # ATK_TGT_SINGLE=1, ATK_TGT_MULTI=2
             }
     """
+    if cog_key not in COG_ATTRIBUTES:
+        raise InvalidCogKey
+    if relative_level not in range(5):
+        raise InvalidRelativeLevel(rel_lvl=relative_level)
+
     # * attack_choices == COG_ATTRIBUTES[cog_key]['attacks']
     attack_choices = get_cog_attacks_all_levels(cog_key=cog_key)
     if attack_index == -1:  # Select random attack_index
         # notify.debug('get_cog_attack: picking attacking for %s' % cog_key)
         attack_index = pick_cog_attack(attack_choices, relative_level)
+
+    if attack_index not in range(len(attack_choices)):
+        raise InvalidAttackIndex
+
     attack_tuple = attack_choices[attack_index]
     """ Example attack tuple ::
             (

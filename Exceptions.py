@@ -89,8 +89,13 @@ class CogLuredError(InvalidToonAttackTarget):
     pass
 
 
-class CogAlreadyTrappedError(InvalidCogAttackTarget):
+class CogAlreadyTrappedError(InvalidToonAttackTarget):
     ''' Toon uses a Trap Gag on a trapped Cog'''
+    pass
+
+
+class InvalidAttackIndex(Error):
+    '''Attack index is out of range, for either Toon/Cog'''
     pass
 
 
@@ -101,7 +106,17 @@ class InvalidToonHealTarget(InvalidTargetError):
 
 class InvalidRelativeLevel(Error):
     """ Must be in range [0-4]"""
-    pass
+    def __init__(self, rel_lvl: int,
+                 message="Relative level out of range: [0, 1, 2, 3, 4]"):
+        self.rel_lvl = rel_lvl
+        self.message = message
+        super().__init__(self.message)
+
+    def __str__(self):
+        err_msg = f"Relative level ({self.rel_lvl}) must be in the values " \
+                  "[0, 1, 2, 3, 4], where 0 is the minimum Cog level and 4 " \
+                  "is the maximum."
+        return err_msg
 
 
 class InvalidCogKey(Error):
