@@ -346,6 +346,8 @@ def get_cog_attacks_all_levels(cog_key: str) -> tuple:
                     (60, 50, 40, 30, 20))
             )
     """
+    if cog_key not in COG_ATTRIBUTES:
+        raise InvalidCogKey
     return COG_ATTRIBUTES[cog_key]['attacks']
 
 
