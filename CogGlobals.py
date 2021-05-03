@@ -256,12 +256,12 @@ def get_actual_from_relative_level(cog_key: str, relative_level: int) -> int:
     Returns:
         int: Cog's actual level (cog_min_level + relative_level)
     """
-    cog_data = COG_ATTRIBUTES[cog_key]
     assert relative_level in range(5), (
             "ERROR: Variable `relative_level` must be in the values "
             "[0, 1, 2, 3, 4], where 0 is the mininmum Cog level and 4 is the "
             "maximum Cog level."
     )
+    cog_data = COG_ATTRIBUTES[cog_key]
     actual_level = cog_data['level'] + relative_level
     return actual_level
 
