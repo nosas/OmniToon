@@ -34,7 +34,7 @@ class Cog(Entity):
         self._trap = None
 
         # For testing purposes. See `test_cog_attack_damages_multiple_toons`
-        self.manual_attack = None
+        self.manual_atk = None
 
     def __repr__(self):
         return self.__str__()
