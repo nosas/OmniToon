@@ -34,10 +34,10 @@ COG_ATTRIBUTES = {
         'freq': (50, 30, 10, 5, 5),
         'acc': (35, 40, 45, 50, 55),
         'attacks': (
-            ('PoundKey', ATK_TGT_SINGLE,
-                (2, 2, 3, 4, 6),
-                (75, 75, 80, 80, 90),
-                (30, 35, 40, 45, 50)),
+            ('PoundKey', ATK_TGT_SINGLE,  # Name, Target
+                (2, 2, 3, 4, 6),          # Dmg
+                (75, 75, 80, 80, 90),     # Acc
+                (30, 35, 40, 45, 50)),    # Freq
             ('Shred', ATK_TGT_SINGLE,
                 (3, 4, 5, 6, 7),
                 (50, 55, 60, 65, 70),
