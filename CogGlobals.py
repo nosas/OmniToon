@@ -479,7 +479,7 @@ def pick_cog_attack(attack_choices: tuple, relative_level, attack_name='') -> in
     """
     # If attack_name is specified
     if attack_name:
-        all_attack_names = [attack[0] for attack in attack_choices]
+        all_attack_names = [attack[ATK_IDX_NAME] for attack in attack_choices]
         assert attack_name in all_attack_names
         return all_attack_names.index(attack_name)
 
