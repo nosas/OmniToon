@@ -406,7 +406,7 @@ def get_cog_vitals(cog_key: str, relative_level: int = -1) -> dict:
     if cog_key not in COG_ATTRIBUTES:
         raise InvalidCogKey
 
-    if relative_level not in range(5):
+    if relative_level not in range(-1, 5):
         raise InvalidRelativeLevel
 
     cog_data = COG_ATTRIBUTES[cog_key]
@@ -414,8 +414,8 @@ def get_cog_vitals(cog_key: str, relative_level: int = -1) -> dict:
     if relative_level == -1:
         relative_level = pick_from_freq_list(cog_data['freq'])
     vitals_dict = {}
-    vitals_dict['level'] = get_actual_from_relative_level(cog_key,
-                                                          relative_level)
+    vitals_dict['level'] = get_actual_from_relative_level(
+        cog_key=cog_key, relative_level=relative_level)
     if vitals_dict['level'] == 12:  # for level 12 cogs, ex: Skelecogs
         relative_level = 0
     vitals_dict['hp'] = cog_data['hp'][relative_level]
