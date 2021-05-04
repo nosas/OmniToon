@@ -2,7 +2,7 @@ import pytest
 from ..fixtures.cog_fixtures import cog_flunky as cogf
 from ...Attack import ATK_TGT_SINGLE
 from ...Exceptions import InvalidCogKey, InvalidRelativeLevel
-from ...CogGlobals import ATK_IDX_ACC, ATK_IDX_DMG, ATK_IDX_FREQ, ATK_IDX_NAME, ATK_IDX_TGT, get_actual_from_relative_level, get_cog_attack
+from ...CogGlobals import ATK_IDX_ACC, ATK_IDX_DMG, ATK_IDX_FREQ, ATK_IDX_NAME, ATK_IDX_TGT, get_actual_from_relative_level, get_cog_attack, get_cog_attacks_all_levels
 
 EXPECTED_REL_LVL = 0
 INVALID_COG_KEY = 'zzz'
@@ -101,3 +101,14 @@ class TestCogGlobals:
                                  relative_level=cogf.relative_level,
                                  attack_index=atk_idx)
         assert cog_atk['target'] == exp_tgt
+
+    def test_get_cog_attacks_all_levels(self, cogf):
+        all_attacks = get_cog_attacks_all_levels(cog_key=cogf.key)
+        for attack in all_attacks:
+            assert attack in EXP_ATKS
+
+        assert [atk for atk in all_attacks] == EXP_ATKS
+
+    def test_get_cog_attacks_all_levels_fail(self, cogf):
+        with pytest.raises(InvalidCogKey):
+            get_cog_attacks_all_levels(cog_key=cogf.key + INVALID_COG_KEY)
