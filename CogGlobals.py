@@ -265,7 +265,7 @@ def get_actual_from_relative_level(cog_key: str, relative_level: int) -> int:
     return actual_level
 
 
-def get_cog_attack(cog_key: str, relative_level: int, attack_index: int = -1) -> dict:   # noqa
+def get_cog_attack(cog_key: str, relative_level: int, attack_index: int = None) -> dict:   # noqa
     """Return dictionary of Cog's attack given COG_ATTR key and relative_level,
         returns a pseudo-random Cog attack if attack_index argument
 
@@ -275,7 +275,7 @@ def get_cog_attack(cog_key: str, relative_level: int, attack_index: int = -1) ->
         relative_level (int): Relative level of the Cog, <0-4>
         attack_index (int, optional): Should be within the range of
             (0, len(Cog.attacks)).
-            Defaults to -1, selects random attack.
+            Defaults to None, selects random attack.
 
     Returns:
         dict: Dictionary containing cog key, atk name/id/hp(dmg)/acc/freq etc.
@@ -298,7 +298,7 @@ def get_cog_attack(cog_key: str, relative_level: int, attack_index: int = -1) ->
 
     # * attack_choices == COG_ATTRIBUTES[cog_key]['attacks']
     attack_choices = get_cog_attacks_all_levels(cog_key=cog_key)
-    if attack_index == -1:  # Select random attack_index
+    if attack_index is None:  # Select random attack_index
         # notify.debug('get_cog_attack: picking attacking for %s' % cog_key)
         attack_index = pick_cog_attack(attack_choices, relative_level)
 
