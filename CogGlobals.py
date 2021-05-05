@@ -407,7 +407,7 @@ def get_cog_vitals(cog_key: str, relative_level: int = -1) -> dict:
         raise InvalidCogKey
 
     if relative_level not in range(-1, 5):
-        raise InvalidRelativeLevel
+        raise InvalidRelativeLevel(rel_lvl=relative_level)
 
     cog_data = COG_ATTRIBUTES[cog_key]
     # Pick pseudo-random Cog level if no relative_level is provided

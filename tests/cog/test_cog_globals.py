@@ -4,7 +4,7 @@ from ...Attack import ATK_TGT_SINGLE
 from ...CogGlobals import (ATK_IDX_ACC, ATK_IDX_DMG, ATK_IDX_FREQ,
                            ATK_IDX_NAME, ATK_IDX_TGT,
                            get_actual_from_relative_level, get_cog_attack,
-                           get_cog_attacks_all_levels)
+                           get_cog_attacks_all_levels, get_cog_vitals)
 from ...Exceptions import (InvalidAttackIndex, InvalidCogKey,
                            InvalidRelativeLevel)
 from ..fixtures.cog_fixtures import cog_flunky as cogf
@@ -12,7 +12,7 @@ from ..fixtures.cog_fixtures import cog_flunky as cogf
 EXPECTED_REL_LVL = 0
 INVALID_COG_KEY = 'zzz'
 INVALID_FLUNKY_ATK_IDX = 3
-INVALID_REL_LVLS = [-1, 5]
+INVALID_REL_LVLS = [-1, -2, 5]
 # get_cog_attack
 EXP_ATKS = [
     (
@@ -131,3 +131,12 @@ class TestCogGlobals:
     def test_get_cog_attacks_all_levels_fail(self, cogf):
         with pytest.raises(InvalidCogKey):
             get_cog_attacks_all_levels(cog_key=cogf.key + INVALID_COG_KEY)
+
+    def test_get_cog_vitals_fail_key(self, cogf):
+        with pytest.raises(InvalidCogKey):
+            get_cog_vitals(cog_key=INVALID_COG_KEY)
+
+    @pytest.mark.parametrize('invalid_rel_lvl', INVALID_REL_LVLS[1:])
+    def test_get_cog_vitals_fail_level(self, cogf, invalid_rel_lvl):
+        with pytest.raises(InvalidRelativeLevel):
+            get_cog_vitals(cog_key=cogf.key, relative_level=invalid_rel_lvl)
