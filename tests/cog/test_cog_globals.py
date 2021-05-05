@@ -2,7 +2,7 @@ import pytest
 
 from ...Attack import ATK_TGT_SINGLE
 from ...CogGlobals import (ATK_IDX_ACC, ATK_IDX_DMG, ATK_IDX_FREQ,
-                           ATK_IDX_NAME, ATK_IDX_TGT,
+                           ATK_IDX_NAME, ATK_IDX_TGT, COG_ATTRIBUTES,
                            get_actual_from_relative_level, get_cog_attack,
                            get_cog_attacks_all_levels, get_cog_vitals)
 from ...Exceptions import (InvalidAttackIndex, InvalidCogKey,
@@ -28,7 +28,6 @@ EXP_ATKS = [
         (1, 1, 2, 2, 3), (75, 80, 85, 90, 95),
         (60, 50, 40, 30, 20))
     ]
-
 
 @pytest.mark.parametrize('cogf', [EXPECTED_REL_LVL], indirect=True)
 class TestCogGlobals:
@@ -131,6 +130,27 @@ class TestCogGlobals:
     def test_get_cog_attacks_all_levels_fail(self, cogf):
         with pytest.raises(InvalidCogKey):
             get_cog_attacks_all_levels(cog_key=cogf.key + INVALID_COG_KEY)
+
+    @pytest.mark.parametrize(['rel_lvl', 'exp_lvl'],
+                             [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5)])
+    def test_get_cog_vitals(self, cogf, rel_lvl, exp_lvl):
+        vitals = get_cog_vitals(cog_key=cogf.key, relative_level=rel_lvl)
+        assert vitals['hp'] == COG_ATTRIBUTES[cogf.key]['hp'][rel_lvl]
+        assert vitals['def'] == COG_ATTRIBUTES[cogf.key]['def'][rel_lvl]
+        assert vitals['level'] == exp_lvl
+        exp_atk_dict = []
+        for id, attack_tuple in enumerate(EXP_ATKS):
+            exp_atk = {
+                'acc': attack_tuple[ATK_IDX_ACC][rel_lvl],
+                'cog_key': cogf.key,
+                'damage': attack_tuple[ATK_IDX_DMG][rel_lvl],
+                'freq': attack_tuple[ATK_IDX_FREQ][rel_lvl],
+                'id': id,
+                'name': attack_tuple[ATK_IDX_NAME],
+                'target': attack_tuple[ATK_IDX_TGT]
+            }
+            exp_atk_dict.append(exp_atk)
+        assert vitals['attacks'] == exp_atk_dict
 
     def test_get_cog_vitals_fail_key(self, cogf):
         with pytest.raises(InvalidCogKey):

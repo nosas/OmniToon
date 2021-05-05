@@ -29,7 +29,7 @@ COG_ATTRIBUTES = {
         # 'pluralname': TTLocalizer.SuitFlunkyP,
 
         'level': 1,  # minimum Cog level, max level = min_level+4
-        'hp': COG_HP[0:5],  # Cog HP range from 'level' to 'level'+5
+        'hp': COG_HP[0:5],  # Cog HP range from 'min_rel_level' to '..level'+5
         'def': (2, 5, 10, 12, 15),
         'freq': (50, 30, 10, 5, 5),
         'acc': (35, 40, 45, 50, 55),
