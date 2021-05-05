@@ -11,8 +11,8 @@ from ..fixtures.cog_fixtures import cog_flunky as cogf
 
 EXPECTED_REL_LVL = 0
 INVALID_COG_KEY = 'zzz'
+INVALID_FLUNKY_ATK_IDX = 3
 INVALID_REL_LVLS = [-1, 5]
-INVALID_FLUNKY_ATK_IDXS = [-1, 3]
 # get_cog_attack
 EXP_ATKS = [
     (
@@ -73,12 +73,11 @@ class TestCogGlobals:
                                  attack_index=atk_idx)
         assert cog_atk['damage'] == exp_dmg
 
-    @pytest.mark.parametrize('invalid_atk_idx', INVALID_FLUNKY_ATK_IDXS)
-    def test_get_cog_attack_fail_index(self, cogf, invalid_atk_idx):
+    def test_get_cog_attack_fail_index(self, cogf):
         with pytest.raises(InvalidAttackIndex):
             get_cog_attack(cog_key=cogf.key,
                            relative_level=cogf.relative_level,
-                           attack_index=invalid_atk_idx)
+                           attack_index=INVALID_FLUNKY_ATK_IDX)
 
     def test_get_cog_attack_fail_key(self, cogf):
         with pytest.raises(InvalidCogKey):
