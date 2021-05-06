@@ -306,12 +306,12 @@ def get_gag_exp_needed(track: int, level: int, current_exps: list = None,
     return next_gag_exp - current_exp
 
 
-def get_gag_min_max_exp(track: int, level: int) -> tuple[int, int]:
-    return GAG_DAMAGE[track][level][1]
-
-
 def get_gag_min_max_damage(track: int, level: int) -> tuple[int, int]:
     return GAG_DAMAGE[track][level][0]
+
+
+def get_gag_min_max_exp(track: int, level: int) -> tuple[int, int]:
+    return GAG_DAMAGE[track][level][1]
 
 
 def get_gag_name(track: int, level: int) -> str:
