@@ -1,11 +1,21 @@
 import pytest
-from ..fixtures.cog_fixtures import cog_flunky as cogf
+
 from ...Attack import ATK_TGT_SINGLE
-from ...Exceptions import InvalidCogKey, InvalidRelativeLevel
-from ...CogGlobals import ATK_IDX_ACC, ATK_IDX_DMG, ATK_IDX_FREQ, ATK_IDX_NAME, ATK_IDX_TGT, get_actual_from_relative_level, get_cog_attack
+from ...CogGlobals import (ATK_IDX_ACC, ATK_IDX_DMG, ATK_IDX_FREQ,
+                           ATK_IDX_NAME, ATK_IDX_TGT, COG_ATTRIBUTES,
+                           get_actual_from_relative_level, get_cog_attack,
+                           get_cog_attacks_all_levels, get_cog_vitals,
+                           pick_cog_attack)
+from ...Exceptions import (InvalidAttackIndex, InvalidAttackName,
+                           InvalidCogKey, InvalidRelativeLevel)
+from ..fixtures.cog_fixtures import cog_flunky as cogf
 
 EXPECTED_REL_LVL = 0
+FLUNKY_ATK_NAMES = ['ClipOnTie', 'PoundKey', 'Shred']
+INVALID_ATK_NAME = 'ApplePie'
 INVALID_COG_KEY = 'zzz'
+INVALID_FLUNKY_ATK_IDX = 3
+INVALID_REL_LVLS = [-1, -2, 5]
 # get_cog_attack
 EXP_ATKS = [
     (
@@ -22,7 +32,6 @@ EXP_ATKS = [
         (60, 50, 40, 30, 20))
     ]
 
-
 @pytest.mark.parametrize('cogf', [EXPECTED_REL_LVL], indirect=True)
 class TestCogGlobals:
 
@@ -34,17 +43,17 @@ class TestCogGlobals:
                                                     relative_level=exp_rel_lvl)
         assert actual_lvl == exp_actual_lvl
 
-    @pytest.mark.parametrize('invalid_rel_lvl', [-1, 5])
+    def test_cog_get_actual_from_relative_level_fail_key(self, cogf):
+        with pytest.raises(InvalidCogKey):
+            get_actual_from_relative_level(cog_key=INVALID_COG_KEY,
+                                           relative_level=cogf.relative_level)
+
+    @pytest.mark.parametrize('invalid_rel_lvl', INVALID_REL_LVLS)
     def test_cog_get_actual_from_relative_level_fail_lvl(self, cogf,
                                                          invalid_rel_lvl):
         with pytest.raises(InvalidRelativeLevel):
             get_actual_from_relative_level(cog_key=cogf.key,
                                            relative_level=invalid_rel_lvl)
-
-    def test_cog_get_actual_from_relative_level_fail_key(self, cogf):
-        with pytest.raises(InvalidCogKey):
-            get_actual_from_relative_level(cog_key=INVALID_COG_KEY,
-                                           relative_level=cogf.relative_level)
 
     @pytest.mark.parametrize('atk_idx, exp_acc',
                              [(0, EXP_ATKS[0][ATK_IDX_ACC][EXPECTED_REL_LVL]),
@@ -66,10 +75,22 @@ class TestCogGlobals:
                                  attack_index=atk_idx)
         assert cog_atk['damage'] == exp_dmg
 
-    def test_get_cog_attack_fail(self, cogf):
+    def test_get_cog_attack_fail_index(self, cogf):
+        with pytest.raises(InvalidAttackIndex):
+            get_cog_attack(cog_key=cogf.key,
+                           relative_level=cogf.relative_level,
+                           attack_index=INVALID_FLUNKY_ATK_IDX)
+
+    def test_get_cog_attack_fail_key(self, cogf):
         with pytest.raises(InvalidCogKey):
             get_cog_attack(cog_key=INVALID_COG_KEY,
                            relative_level=cogf.relative_level)
+
+    @pytest.mark.parametrize('invalid_rel_lvl', INVALID_REL_LVLS)
+    def test_get_cog_attack_fail_level(self, cogf, invalid_rel_lvl):
+        with pytest.raises(InvalidRelativeLevel):
+            get_cog_attack(cog_key=cogf.key,
+                           relative_level=invalid_rel_lvl)
 
     @pytest.mark.parametrize('atk_idx, exp_freq',
                              [(0, EXP_ATKS[0][ATK_IDX_FREQ][EXPECTED_REL_LVL]),
@@ -101,3 +122,78 @@ class TestCogGlobals:
                                  relative_level=cogf.relative_level,
                                  attack_index=atk_idx)
         assert cog_atk['target'] == exp_tgt
+
+    def test_get_cog_attacks_all_levels(self, cogf):
+        all_attacks = get_cog_attacks_all_levels(cog_key=cogf.key)
+        for attack in all_attacks:
+            assert attack in EXP_ATKS
+
+        assert [atk for atk in all_attacks] == EXP_ATKS
+
+    def test_get_cog_attacks_all_levels_fail(self, cogf):
+        with pytest.raises(InvalidCogKey):
+            get_cog_attacks_all_levels(cog_key=cogf.key + INVALID_COG_KEY)
+
+    @pytest.mark.parametrize(['rel_lvl', 'exp_lvl'],
+                             [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5)])
+    def test_get_cog_vitals(self, cogf, rel_lvl, exp_lvl):
+        vitals = get_cog_vitals(cog_key=cogf.key, relative_level=rel_lvl)
+        assert vitals['hp'] == COG_ATTRIBUTES[cogf.key]['hp'][rel_lvl]
+        assert vitals['def'] == COG_ATTRIBUTES[cogf.key]['def'][rel_lvl]
+        assert vitals['level'] == exp_lvl
+        exp_atk_dict = []
+        for id, attack_tuple in enumerate(EXP_ATKS):
+            exp_atk = {
+                'acc': attack_tuple[ATK_IDX_ACC][rel_lvl],
+                'cog_key': cogf.key,
+                'damage': attack_tuple[ATK_IDX_DMG][rel_lvl],
+                'freq': attack_tuple[ATK_IDX_FREQ][rel_lvl],
+                'id': id,
+                'name': attack_tuple[ATK_IDX_NAME],
+                'target': attack_tuple[ATK_IDX_TGT]
+            }
+            exp_atk_dict.append(exp_atk)
+        assert vitals['attacks'] == exp_atk_dict
+
+    def test_get_cog_vitals_fail_key(self, cogf):
+        with pytest.raises(InvalidCogKey):
+            get_cog_vitals(cog_key=INVALID_COG_KEY)
+
+    @pytest.mark.parametrize('invalid_rel_lvl', INVALID_REL_LVLS[1:])
+    def test_get_cog_vitals_fail_level(self, cogf, invalid_rel_lvl):
+        with pytest.raises(InvalidRelativeLevel):
+            get_cog_vitals(cog_key=cogf.key, relative_level=invalid_rel_lvl)
+
+    def test_pick_cog_attack(self, cogf):
+        attack_choices = get_cog_attacks_all_levels(cog_key=cogf.key)
+        cog_attack_idx = pick_cog_attack(attack_choices=attack_choices,
+                                         relative_level=cogf.relative_level)
+        assert cog_attack_idx in range(len(FLUNKY_ATK_NAMES))
+
+    @pytest.mark.parametrize('exp_atk_name', FLUNKY_ATK_NAMES)
+    def test_pick_cog_attack_name(self, cogf, exp_atk_name):
+        attack_choices = get_cog_attacks_all_levels(cog_key=cogf.key)
+        cog_attack_idx = pick_cog_attack(attack_choices=attack_choices,
+                                         relative_level=cogf.relative_level,
+                                         attack_name=exp_atk_name)
+        cog_attack = get_cog_attack(cog_key=cogf.key,
+                                    relative_level=cogf.relative_level,
+                                    attack_index=cog_attack_idx)
+
+        assert cog_attack['name'] == exp_atk_name
+
+    @pytest.mark.parametrize('invalid_rel_lvl', INVALID_REL_LVLS)
+    def test_pick_cog_attack_fail_level(self, cogf, invalid_rel_lvl):
+        with pytest.raises(InvalidRelativeLevel):
+            pick_cog_attack(
+                attack_choices=get_cog_attacks_all_levels(cog_key=cogf.key),
+                relative_level=invalid_rel_lvl,
+                )
+
+    def test_pick_cog_attack_fail_name(self, cogf):
+        with pytest.raises(InvalidAttackName):
+            pick_cog_attack(
+                attack_choices=get_cog_attacks_all_levels(cog_key=cogf.key),
+                relative_level=cogf.relative_level,
+                attack_name=INVALID_ATK_NAME
+                )

@@ -6,7 +6,8 @@
 from random import randint
 
 from .Attack import ATK_TGT_MULTI, ATK_TGT_SINGLE
-from .Exceptions import InvalidAttackIndex, InvalidCogKey, InvalidRelativeLevel
+from .Exceptions import (InvalidAttackIndex, InvalidAttackName, InvalidCogKey,
+                         InvalidRelativeLevel)
 
 ATK_IDX_NAME, ATK_IDX_TGT, ATK_IDX_DMG, \
     ATK_IDX_ACC, ATK_IDX_FREQ = (0, 1, 2,
@@ -29,7 +30,7 @@ COG_ATTRIBUTES = {
         # 'pluralname': TTLocalizer.SuitFlunkyP,
 
         'level': 1,  # minimum Cog level, max level = min_level+4
-        'hp': COG_HP[0:5],  # Cog HP range from 'level' to 'level'+5
+        'hp': COG_HP[0:5],  # Cog HP range from 'min_rel_level' to '..level'+5
         'def': (2, 5, 10, 12, 15),
         'freq': (50, 30, 10, 5, 5),
         'acc': (35, 40, 45, 50, 55),
@@ -300,9 +301,10 @@ def get_cog_attack(cog_key: str, relative_level: int, attack_index: int = -1) ->
     attack_choices = get_cog_attacks_all_levels(cog_key=cog_key)
     if attack_index == -1:  # Select random attack_index
         # notify.debug('get_cog_attack: picking attacking for %s' % cog_key)
-        attack_index = pick_cog_attack(attack_choices, relative_level)
+        attack_index = pick_cog_attack(attack_choices=attack_choices,
+                                       relative_level=relative_level)
 
-    if attack_index not in range(len(attack_choices)):
+    if attack_index not in range(-1, len(attack_choices)):
         raise InvalidAttackIndex
 
     attack_tuple = attack_choices[attack_index]
@@ -406,16 +408,16 @@ def get_cog_vitals(cog_key: str, relative_level: int = -1) -> dict:
     if cog_key not in COG_ATTRIBUTES:
         raise InvalidCogKey
 
-    if relative_level not in range(5):
-        raise InvalidRelativeLevel
+    if relative_level not in range(-1, 5):
+        raise InvalidRelativeLevel(rel_lvl=relative_level)
 
     cog_data = COG_ATTRIBUTES[cog_key]
     # Pick pseudo-random Cog level if no relative_level is provided
     if relative_level == -1:
         relative_level = pick_from_freq_list(cog_data['freq'])
     vitals_dict = {}
-    vitals_dict['level'] = get_actual_from_relative_level(cog_key,
-                                                          relative_level)
+    vitals_dict['level'] = get_actual_from_relative_level(
+        cog_key=cog_key, relative_level=relative_level)
     if vitals_dict['level'] == 12:  # for level 12 cogs, ex: Skelecogs
         relative_level = 0
     vitals_dict['hp'] = cog_data['hp'][relative_level]
@@ -443,9 +445,7 @@ def get_cog_vitals(cog_key: str, relative_level: int = -1) -> dict:
 
 
 def pick_cog_attack(attack_choices: tuple, relative_level, attack_name='') -> int:  # noqa
-    # ! This does not support `cog.attacks` dictionary as input
-    # ! That is a lie, but do we want to support it?
-    # ? What the hell am I saying? ^^^^^^^^^^^^^
+    # ! This does not support `cog.attacks` dict as input, use cog.get_attack()
     """Return a pseudo-random attack index obtained from
     `get_cog_attacks_all_levels`, unless `attack_name` argument is provided.
 
@@ -477,27 +477,29 @@ def pick_cog_attack(attack_choices: tuple, relative_level, attack_name='') -> in
     Returns:
         int: Index of the Cog attack
     """
+    # TODO #77, Verify attack_choices input is valid
+
+    if relative_level not in range(5):
+        raise InvalidRelativeLevel(rel_lvl=relative_level)
+
     # If attack_name is specified
     if attack_name:
-        all_attack_names = [attack[0] for attack in attack_choices]
-        assert attack_name in all_attack_names
+        all_attack_names = [attack[ATK_IDX_NAME] for attack in attack_choices]
+        if attack_name not in all_attack_names:
+            raise InvalidAttackName
         return all_attack_names.index(attack_name)
 
     # else, return pseudo-random attack based on the attack's frequency
-    assert relative_level in range(0, 6)
     attack_index = None
     rand_num = randint(0, 99)
     count = 0
-    cur_index = 0
 
-    for attack in attack_choices:
+    for cur_index, attack in enumerate(attack_choices):
         atk_frequency = attack[ATK_IDX_FREQ][relative_level]
-        count = count + atk_frequency
+        count += atk_frequency
         if rand_num < count:
             attack_index = cur_index
             break
-        cur_index = cur_index + 1
-
     return attack_index
 
 
@@ -523,11 +525,9 @@ def pick_from_freq_list(freq_list: tuple or list) -> int:
     index = 0
     level = None
 
-    for f in freq_list:
-        count = count + f
+    for index, freq in enumerate(freq_list):
+        count = count + freq
         if rand_num < count:
             level = index
             break
-        index = index + 1
-
     return level

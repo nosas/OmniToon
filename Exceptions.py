@@ -94,6 +94,10 @@ class CogAlreadyTrappedError(InvalidToonAttackTarget):
     pass
 
 
+class InvalidAttackName(Error):
+    pass
+
+
 class InvalidAttackIndex(Error):
     '''Attack index is out of range, for either Toon/Cog'''
     pass

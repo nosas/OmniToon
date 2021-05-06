@@ -111,10 +111,10 @@ class Cog(Entity):
 
     # TODO #40, `choose_target` method to choose a target when vs 2+ toons
     # TODO #39, Need to write tests for this method
-    def choose_attack(self, attack_name: str = '') -> int:
-        """Return attack_index of cog attack from cog.attacks, a pseudo-random
-            attack index is returned by default unless the `attack_name`
-            argument is provided
+    def choose_attack(self, attack_name: str = '') -> CogAttack:
+        """Return Attack obj containing Cog attack information from
+            self.attacks, a pseudo-random Attack is returned by default
+            unless the `attack_name` argument is provided
 
         Args:
             attack_name (str, optional): Attack name as seen in COG_ATTACKS or
@@ -165,14 +165,12 @@ class Cog(Entity):
         attack_hit = Entity.do_attack(self, target=target, attack=attack)
         return attack_hit
 
-    def get_attack(self, attack_name: str = '') -> CogAttack:
-        """Return dictionary containing Cog attack information, given an index#
+    def get_attack(self, attack_name: str) -> CogAttack:
+        """Return Attack obj containing Cog attack info, given an attack name
 
         Args:
             attack_name (str, optional): Attack name as seen in COG_ATTACKS or
                 the `get_cog_attacks_all_levels` function
-            attack_idx (int, optional): Attack index for attacksseen in
-                COG_ATTACKS or the `get_cog_attacks_all_levels` function
 
             Example of valid input ::
                 <'PoundKey'|'Shred'|'ClipOnTie'>
