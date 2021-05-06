@@ -160,3 +160,6 @@ class TestCogGlobals:
     def test_get_cog_vitals_fail_level(self, cogf, invalid_rel_lvl):
         with pytest.raises(InvalidRelativeLevel):
             get_cog_vitals(cog_key=cogf.key, relative_level=invalid_rel_lvl)
+
+    def test_pick_cog_attack(self, cogf):
+        pass

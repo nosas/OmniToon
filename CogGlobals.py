@@ -6,7 +6,7 @@
 from random import randint
 
 from .Attack import ATK_TGT_MULTI, ATK_TGT_SINGLE
-from .Exceptions import InvalidAttackIndex, InvalidCogKey, InvalidRelativeLevel
+from .Exceptions import InvalidAttackIndex, InvalidAttackName, InvalidCogKey, InvalidRelativeLevel
 
 ATK_IDX_NAME, ATK_IDX_TGT, ATK_IDX_DMG, \
     ATK_IDX_ACC, ATK_IDX_FREQ = (0, 1, 2,
@@ -480,7 +480,8 @@ def pick_cog_attack(attack_choices: tuple, relative_level, attack_name='') -> in
     # If attack_name is specified
     if attack_name:
         all_attack_names = [attack[ATK_IDX_NAME] for attack in attack_choices]
-        assert attack_name in all_attack_names
+        if attack_name not in all_attack_names:
+            raise InvalidAttackName
         return all_attack_names.index(attack_name)
 
     # else, return pseudo-random attack based on the attack's frequency
@@ -488,16 +489,13 @@ def pick_cog_attack(attack_choices: tuple, relative_level, attack_name='') -> in
     attack_index = None
     rand_num = randint(0, 99)
     count = 0
-    cur_index = 0
 
-    for attack in attack_choices:
+    for cur_index, attack in enumerate(attack_choices):
         atk_frequency = attack[ATK_IDX_FREQ][relative_level]
-        count = count + atk_frequency
+        count += atk_frequency
         if rand_num < count:
             attack_index = cur_index
             break
-        cur_index = cur_index + 1
-
     return attack_index
 
 
