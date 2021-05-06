@@ -104,6 +104,3 @@ class TestCogGlobalAttack:
         cogf.do_attack(target=toon_astro, attack=self.dummy_atk)
         print(f"AFTER: {toon_astro.hp}")
         print(cog_attack['name'], cog_attack['id'], cog_attack['damage'])
-
-    # TODO #5, Create test for cog attack damaging multiple toons
-    # NOTE: Must be done with Yesman fixture, attack_name='Synergy'
