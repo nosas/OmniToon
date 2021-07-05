@@ -159,24 +159,27 @@ class ToonAttackState(AttackState):
             if toon.is_defeated:
                 continue
             # TODO #40, choose_target
-            target_cog = rand_choice(self.context.cogs)
-            print(f"        [+] Toon {toon} targets Cog {target_cog}")
+            """
+            1. Get viable attacks against all Cogs
+            2. Randomly pick one viable attack Gags list to use
+                2a. Must have at least 1 viable Gag in the list
+                2b. If no viable Gags available for any target, we pass/stall
+            3. Randomly pick one attack from the viable Gags list
+            """
+            alive_cogs = [
+                cog for cog in self.context.cogs if not cog.is_defeated]
 
-            gag_atk = toon.choose_attack(target=target_cog)
+            target_cogs, gag_atk = toon.choose_attack(targets=[alive_cogs])
+            print(f"        [+] Toon {toon} targets Cog {target_cogs}")
             # #44, Group attacks by Gag.track
             if gag_atk.track not in potential_attacks:
                 potential_attacks[gag_atk.track] = []
 
-            if gag_atk.target == ATK_TGT_MULTI:
-                target_cogs = [] + self.context.cogs
-            else:
-                target_cogs = [target_cog]
-
-            for cog in target_cogs:
-                # Track which Cogs are being targeted and by how many Toons
-                if gag_atk.track not in self.overdefeat_cogs[cog]:
-                    self.overdefeat_cogs[cog][gag_atk.track] = 0
-                self.overdefeat_cogs[cog][gag_atk.track] += 1
+            # Track which Cogs are being targeted and by how many Toons
+            for target_cog in target_cogs:
+                if gag_atk.track not in self.overdefeat_cogs[target_cog]:
+                    self.overdefeat_cogs[target_cog][gag_atk.track] = 0
+                self.overdefeat_cogs[target_cog][gag_atk.track] += 1
 
             potential_attack = (toon, target_cogs, gag_atk)
             potential_attacks[gag_atk.track].append(potential_attack)
