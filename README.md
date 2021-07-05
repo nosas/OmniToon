@@ -1,8 +1,4 @@
-# Roadmap
-
 # OmniToon : ToonTown AI
-
----
 
 ## Purpose
 
@@ -15,8 +11,6 @@ OmniToon(s) wandering around ToonTown supporting other players (or other OmniToo
 1. Training Gags
 2. Completing tasks
 3. Conquering buildings
-
----
 
 ## Roadmap
 
