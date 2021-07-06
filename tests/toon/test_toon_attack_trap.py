@@ -165,50 +165,50 @@ class TestToonAttackTrap:
         assert cog_flunky.hp == cog_hp_before - gag_trap.damage
         assert cog_flunky.is_defeated == is_defeated
 
-    def test_trap_attacks_cancels_on_trapped_flunky(self, toon_ostra,
-                                                    cog_flunky):
-        target_cogs, gag_trap = toon_ostra.choose_attack(targets=[cog_flunky],
-                                                         track=self.trap_track,
-                                                         level=self.trap_level)
-        cog_hp_before = cog_flunky.hp
+    # def test_trap_attacks_cancels_on_trapped_flunky(self, toon_ostra,
+    #                                                 cog_flunky):
+    #     target_cogs, gag_trap = toon_ostra.choose_attack(targets=[cog_flunky],
+    #                                                      track=self.trap_track,
+    #                                                      level=self.trap_level)
+    #     cog_hp_before = cog_flunky.hp
 
-        toon_ostra.do_attack(target=target_cogs[0], gag_atk=gag_trap)
-        assert cog_flunky.is_trapped is True
-        assert cog_flunky.trap[0] == toon_ostra
-        assert str(cog_flunky.trap[1]) == str(gag_trap)
-        assert cog_flunky.hp == cog_hp_before
+    #     toon_ostra.do_attack(target=target_cogs[0], gag_atk=gag_trap)
+    #     assert cog_flunky.is_trapped is True
+    #     assert cog_flunky.trap[0] == toon_ostra
+    #     assert str(cog_flunky.trap[1]) == str(gag_trap)
+    #     assert cog_flunky.hp == cog_hp_before
 
-        target_cogs, gag_trap = toon_ostra.choose_attack(targets=[cog_flunky],
-                                                         track=self.trap_track,
-                                                         level=self.trap_level - 1)
-        toon_ostra.do_attack(target=target_cogs[0], gag_atk=gag_trap)
-        assert cog_flunky.is_trapped is False
-        assert cog_flunky.trap is None
-        assert cog_flunky.hp == cog_hp_before
+    #     target_cogs, gag_trap = toon_ostra.choose_attack(targets=[cog_flunky],
+    #                                                      track=self.trap_track,
+    #                                                      level=self.trap_level - 1)
+    #     toon_ostra.do_attack(target=target_cogs[0], gag_atk=gag_trap)
+    #     assert cog_flunky.is_trapped is False
+    #     assert cog_flunky.trap is None
+    #     assert cog_flunky.hp == cog_hp_before
 
-    def test_trap_attack_on_lured_flunky(self, toon_ostra, cog_flunky):
-        target_cogs, gag_lure = toon_ostra.choose_attack(targets=[cog_flunky],
-                                                         track=self.lure_track,
-                                                         level=self.lure_level)
-        cog_hp_before = cog_flunky.hp
+    # def test_trap_attack_on_lured_flunky(self, toon_ostra, cog_flunky):
+    #     target_cogs, gag_lure = toon_ostra.choose_attack(targets=[cog_flunky],
+    #                                                      track=self.lure_track,
+    #                                                      level=self.lure_level)
+    #     cog_hp_before = cog_flunky.hp
 
-        toon_ostra.do_attack(target=target_cogs[0], gag_atk=gag_lure)
-        assert cog_flunky.is_lured is True
-        assert cog_flunky.is_trapped is False
-        assert cog_flunky.hp == cog_hp_before
+    #     toon_ostra.do_attack(target=target_cogs[0], gag_atk=gag_lure)
+    #     assert cog_flunky.is_lured is True
+    #     assert cog_flunky.is_trapped is False
+    #     assert cog_flunky.hp == cog_hp_before
 
-        target_cogs, gag_trap = toon_ostra.choose_attack(targets=[cog_flunky],
-                                                         track=self.trap_track,
-                                                         level=self.trap_level)
-        toon_ostra.do_attack(target=target_cogs[0], gag_atk=gag_trap)
-        assert cog_flunky.is_lured is True
-        assert cog_flunky.is_trapped is False
-        assert cog_flunky.hp == cog_hp_before
+    #     target_cogs, gag_trap = toon_ostra.choose_attack(targets=[cog_flunky],
+    #                                                      track=self.trap_track,
+    #                                                      level=self.trap_level)
+    #     toon_ostra.do_attack(target=target_cogs[0], gag_atk=gag_trap)
+    #     assert cog_flunky.is_lured is True
+    #     assert cog_flunky.is_trapped is False
+    #     assert cog_flunky.hp == cog_hp_before
 
-        cog_flunky.trap[0].do_attack(target=cog_flunky,
-                                     gag_atk=cog_flunky.trap[1])
-        assert cog_flunky.is_lured is False
-        assert cog_flunky.is_trapped is False
-        assert cog_flunky.trap is None
+    #     cog_flunky.trap[0].do_attack(target=cog_flunky,
+    #                                  gag_atk=cog_flunky.trap[1])
+    #     assert cog_flunky.is_lured is False
+    #     assert cog_flunky.is_trapped is False
+    #     assert cog_flunky.trap is None
 
-        assert cog_flunky.hp == cog_hp_before - gag_trap.damage
+    #     assert cog_flunky.hp == cog_hp_before - gag_trap.damage
