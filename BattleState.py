@@ -169,8 +169,8 @@ class ToonAttackState(AttackState):
             alive_cogs = [
                 cog for cog in self.context.cogs if not cog.is_defeated]
 
-            target_cogs, gag_atk = toon.choose_attack(targets=[alive_cogs])
-            print(f"        [+] Toon {toon} targets Cog {target_cogs}")
+            target_cogs, gag_atk = toon.choose_attack(targets=alive_cogs)
+            print(f"            [-] Toon {toon} targets Cog {target_cogs}")
             # #44, Group attacks by Gag.track
             if gag_atk.track not in potential_attacks:
                 potential_attacks[gag_atk.track] = []

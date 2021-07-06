@@ -237,39 +237,43 @@ class Toon(Entity):
             raise LockedGagError(level=level)
 
         gag_or_atk = 'gag' if not attack else 'attack'
-        print(f"            [-] `choose_{gag_or_atk}()` : {gag}")
+        print(f"        [+] Toon `choose_{gag_or_atk}()` {self} : {gag}")
         return gag
 
-    def choose_attack(self, targets: list[Cog], track: int = -1, level: int = -1) -> Gag:
-        """Return Gag object containing Gag's vital info, iff Toon has the Gag
+    def choose_attack(self, targets: list[Cog], track: int = -1, level: int = -1,
+                      ignore_level: bool = False) -> tuple[list[Cog], Gag]:
+        """Return target Cog(s) and Gag object containing Gag's vital info
 
         Args:
             targets (list, optional): List of targetable Cogs, for choosing viable Gags
             track (int, optional): Index number of the Gag Track <0-6>
             level (int, optional): Level of the Gag <0-6>
+            ignore_level (bool) : Mark Gags as viable despite being a higher lvl
+                than the Cog. Defaults to False.
 
         Returns:
-            Gag: Vital information about the Toon's Gag
+            Tuple(list[Cog], Gag): Target Cog(s) and vital info about Toon's Gag
         """
-        all_viable_atks = {target: self.get_viable_attacks(target=target) for target in targets}
+        # Get all viable attacks against all target Cogs
+        all_viable_atks = {target: self.get_viable_attacks(target=target, ignore_level=ignore_level) for target in targets}
 
         # Verify there's at least 1 viable Gag in each viable_atk list
         for cog, viable_atks in all_viable_atks.items():
             # If there are no viable attacks, expand Gag selection to all Gags
-            if count_all_gags(gags=viable_atks) > 0:
+            if count_all_gags(gags=viable_atks) == 0:
                 atks = self.get_viable_attacks(target=cog, ignore_level=True)
                 all_viable_atks[cog] = atks
                 # There are no viable attacks for this target, delete the target
-                if count_all_gags(gags=atks) > 0:
-                    del all_viable_atks[cog]
+                if count_all_gags(gags=atks) == 0:
+                    all_viable_atks[cog] = []
 
         # There are no viable attacks at all, pass/stall for time
-        if all_viable_atks == {}:
+        if all([atks == [] for atks in all_viable_atks.values()]):
             raise NotEnoughGagsError
 
         # Pick a random target Cog
-        target_cog = rand_choice(all_viable_atks.keys())
-        # Create a list of possible attacks as tuples (gag_track, gag_level)
+        target_cog = rand_choice(list(all_viable_atks.keys()))
+        # Create a list of possible attacks as tuples: [(gag_track, gag_level)]
         possible_attacks = []
         for track_index, gag_track in enumerate(all_viable_atks[target_cog]):
             for gag_level, gag_count in enumerate(gag_track):
