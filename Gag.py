@@ -15,35 +15,51 @@ BattleGlobalAvPropStrings = (
 
 """  # noqa
 
+from dataclasses import dataclass, field
+from typing import Optional
+
 from .Attack import Attack
 from .GagGlobals import (get_gag_accuracy, get_gag_damage, get_gag_name,
                          get_gag_target, get_gag_track_name)
 
 
+@dataclass
 class Gag(Attack):
-    def __init__(self, track: int, exp: int, level: int, count: int = 0):
-        # TODO #25, Create observer to monitor battles & determine viable Gags
-        """Attack/Heal used by a Toon during Battle
 
-        Args:
-            track (int): Index of the Gag Track <0-6>
-            exp (int): EXP of the Gag Track
-            level (int): Level of the Gag <0-6>
-            count (int, optional): Current quantity of the Gag. Defaults to 0.
-        """
-        self.track = track
-        self.level = level
-        name = get_gag_name(track=track, level=level)
-        # ! Damage, quantity, capacity need to be dynamically updated after atk
+    # def __init__(self, track: int, exp: int, level: int, count: int = 0):
+    # TODO #25, Create observer to monitor battles & determine viable Gags
+    """Attack/Heal used by a Toon during Battle
+
+    Args:
+        track (int): Index of the Gag Track <0-6>
+        exp (int): EXP of the Gag Track
+        level (int): Level of the Gag <0-6>
+        count (int, optional): Current quantity of the Gag. Defaults to 0.
+    """
+    exp: int
+    level: int
+    track: int
+    count: Optional[int] = field(default=0)
+    # ! Damage, quantity, capacity need to be dynamically updated after atk
+
+    # Prevent needing to pass in Attack's required arguments
+    # Instead, pass in the required arguments during __post_init__()
+    name: Optional[str] = field(init=False)
+    damage: Optional[int] = field(init=False)
+    accuracy: Optional[int] = field(init=False)
+    target: Optional[int] = field(init=False)
+
+    def __post_init__(self):
+        self.name = get_gag_name(track=self.track, level=self.level)
         super().__init__(
-            name=name,
-            damage=get_gag_damage(track=track, level=level, exp=exp),
-            accuracy=get_gag_accuracy(track=track, level=level),
-            target=get_gag_target(name=name))
+            name=self.name,
+            damage=get_gag_damage(track=self.track, level=self.level, exp=self.exp),
+            accuracy=get_gag_accuracy(track=self.track, level=self.level),
+            target=get_gag_target(name=self.name))
 
-        self.track_name = get_gag_track_name(track=track)
-        self.exp = exp
-        self.count = count
+        self.track_name = get_gag_track_name(track=self.track)
+        self.exp = self.exp
+        self.count = self.count
 
         # Trap-specific attributes used for tracking EXP rewards
         self._is_attack = False
