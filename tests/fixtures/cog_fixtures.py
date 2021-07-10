@@ -23,14 +23,13 @@ def cog_flunky(request):
         Cog: Yields "Flunky" Cog object
     """
     cog_key = 'f'
-    cog_name = COG_ATTRIBUTES[cog_key]['name']
+    # cog_name = COG_ATTRIBUTES[cog_key]['name']
     try:
-        cog_flunky = Cog(key=cog_key, name=cog_name,
-                         relative_level=request.param)
+        cog_flunky = Cog(key=cog_key, relative_level=request.param)
     except AttributeError as e:
         print("[!] WARNING : No relative `cog_level` was provided, returning "
               f"default level of 0, in test {request.function}")
-        cog_flunky = Cog(key=cog_key, name=cog_name)
+        cog_flunky = Cog(key=cog_key)
 
     yield cog_flunky
 
@@ -80,13 +79,12 @@ def cog_yesman(request):
             }
     """
     cog_key = 'ym'
-    cog_name = COG_ATTRIBUTES[cog_key]['name']
+    # cog_name = COG_ATTRIBUTES[cog_key]['name']
     try:
-        cog_yesman = Cog(key=cog_key, name=cog_name,
-                         relative_level=request.param)
+        cog_yesman = Cog(key=cog_key, relative_level=request.param)
     except AttributeError as e:
         print("[!] WARNING : No relative `cog_level` was provided, returning "
               f"default level of 0, in test {request.function}")
-        cog_yesman = Cog(key=cog_key, name=cog_name)
+        cog_yesman = Cog(key=cog_key)
 
     yield cog_yesman

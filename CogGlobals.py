@@ -420,6 +420,7 @@ def get_cog_vitals(cog_key: str, relative_level: int = -1) -> dict:
         cog_key=cog_key, relative_level=relative_level)
     if vitals_dict['level'] == 12:  # for level 12 cogs, ex: Skelecogs
         relative_level = 0
+    vitals_dict['name'] = cog_data['name']
     vitals_dict['hp'] = cog_data['hp'][relative_level]
     vitals_dict['def'] = cog_data['def'][relative_level]
 

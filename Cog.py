@@ -1,11 +1,14 @@
+from dataclasses import dataclass, field
 from random import choice as rand_choice
 from random import randint
+from typing import Optional, Tuple
 
 from .Attack import Attack
 from .CogGlobals import COG_ATTRIBUTES, get_cog_vitals
 from .Entity import Entity
 from .Exceptions import (CogAlreadyTrappedError, CogLuredError,
                          InvalidCogAttackTarget, InvalidRelativeLevel)
+from .Gag import Gag
 
 
 class CogAttack(Attack):
@@ -14,27 +17,35 @@ class CogAttack(Attack):
         return str(self.__dict__)
 
 
+@dataclass(init=False)
 class Cog(Entity):
-    def __init__(self, key, name, relative_level=0, hp=-1):
-        # ! Relative level should be in range [0,4]
-        self.relative_level = relative_level
-        self.vitals = get_cog_vitals(
-            cog_key=key, relative_level=relative_level
-            )
-        super().__init__(name=name, hp=hp if (hp != -1) else self.vitals['hp'])
 
+    def __init__(self, key, relative_level: Optional[int] = 0):
         self.key = key
+        # # ! Relative level should be in range [0,4]
+        self.relative_level = relative_level
+
+        self.vitals = get_cog_vitals(cog_key=self.key,
+                                     relative_level=self.relative_level)
+        self.name = self.vitals['name']
+        self.hp_max = self.vitals['hp']
+
+        super().__init__(name=self.name, hp=self.hp_max)
         self.attacks = self.vitals['attacks']
         self.defense = self.vitals['def']
-        self.hp_max = self.vitals['hp']
         self.level = self.vitals['level']
+
         # TODO (??) Create CogStates
-        self._is_lured = False
-        self._is_trapped = False
-        self._trap = None
+        self._is_lured: bool = False
+        self._is_trapped: bool = False
+        self._trap: Tuple[Entity, Gag] = None
 
         # For testing purposes. See `test_cog_attack_damages_multiple_toons`
         self.manual_atk = None
+
+    # ! This will cause issues if 2+ Toons have the same name
+    def __hash__(self) -> int:
+        return hash((self.name, self.key))
 
     def __repr__(self):
         return self.__str__()
@@ -98,16 +109,6 @@ class Cog(Entity):
         print(f"                [>] self.trap : {(self.trap)} -> ({toon}, "
               f"{gag_trap}) on {self}")
         self._trap = (toon, gag_trap)
-
-    @property
-    def relative_level(self):
-        return self._relative_level
-
-    @relative_level.setter
-    def relative_level(self, new_rel_lvl):
-        if new_rel_lvl not in range(5):
-            raise InvalidRelativeLevel
-        self._relative_level = new_rel_lvl
 
     # TODO #40, `choose_target` method to choose a target when vs 2+ toons
     # TODO #39, Need to write tests for this method
@@ -199,6 +200,5 @@ class Cog(Entity):
 def get_random_cog() -> Cog:
 
     cog_key = rand_choice(list(COG_ATTRIBUTES.keys()))
-    cog_name = COG_ATTRIBUTES[cog_key]['name']
     relative_level = randint(0, 4)
-    return Cog(key=cog_key, name=cog_name, relative_level=relative_level)
+    return Cog(key=cog_key,  relative_level=relative_level)

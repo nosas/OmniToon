@@ -1,14 +1,21 @@
 from __future__ import annotations
 
+from dataclasses import dataclass, field
+from typing import Optional
+
 from .Attack import Attack
 from .Exceptions import InvalidTargetError, TargetDefeatedError
 
 
+@dataclass
 class Entity:
-    def __init__(self, name: str, hp: int):
-        self.name = name
-        self.hp = hp
-        # TODO #25, Create Publisher object to push notifications
+    name: str
+    hp: int
+    # TODO #25, Create Publisher object to push notifications
+
+    # ! This will cause issues if 2+ Toons have the same name
+    def __hash__(self) -> int:
+        return hash(self.name)
 
     @property
     def is_defeated(self):
@@ -16,9 +23,6 @@ class Entity:
 
     def _get_attacked(self, amount: int):
         self.hp -= amount
-
-    def choose_attack():
-        raise NotImplementedError
 
     def do_attack(self, target: Entity, attack: Attack,
                   overdefeat: bool = False, force_miss: bool = False) -> bool:
