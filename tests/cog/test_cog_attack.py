@@ -89,18 +89,11 @@ class TestCogGlobalAttack:
         assert type(cog_attack) == dict
         # ! More validation needs to be done here, maybe against a static dict
 
-    @pytest.mark.parametrize('attack_index', [0, 1, 2])
-    def test_cog_attack_damages_toon(self, cogf, toon_astro, attack_index):
-        cog_attack = get_cog_attack(cog_key=cogf.key,
-                                    relative_level=cogf.relative_level,
-                                    attack_index=attack_index)
+    @pytest.mark.parametrize('attack_name', ['PoundKey', 'Shred', 'ClipOnTie'])
+    def test_cog_attack_damages_toon(self, cogf, toon_astro, attack_name):
+        cog_attack = cogf.get_attack(attack_name=attack_name)
 
-        attack_dmg = cog_attack['damage']
-
-        print(f"\nBEFORE: hp {toon_astro.hp}")
-        print(f"Cog \"{cogf.name}\" (lvl {cogf.level}) attacks {toon_astro.hp}"
-              f"hp Toon \"Astro\" with {attack_dmg} damage attack "
-              f"\"{cog_attack['name']}\"")
-        cogf.do_attack(target=toon_astro, attack=self.dummy_atk)
-        print(f"AFTER: {toon_astro.hp}")
-        print(cog_attack['name'], cog_attack['id'], cog_attack['damage'])
+        toon_hp_before = toon_astro.hp
+        cogf.do_attack(target=toon_astro, attack=cog_attack)
+        toon_hp_after = toon_astro.hp
+        assert toon_hp_after == toon_hp_before - cog_attack.damage

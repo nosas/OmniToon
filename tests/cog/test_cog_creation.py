@@ -26,3 +26,8 @@ class TestFlunky:
 
         expected_hp = COG_HP[cog_flunky.level - 1]
         assert cog_flunky.hp == expected_hp
+
+class TestDefaultCog:
+
+    def test_default_cog(self):
+        c = Cog(key='f')

@@ -17,14 +17,25 @@ class CogAttack(Attack):
         return str(self.__dict__)
 
 
-@dataclass(init=False)
+@dataclass
 class Cog(Entity):
 
-    def __init__(self, key, relative_level: Optional[int] = 0):
-        self.key = key
-        # # ! Relative level should be in range [0,4]
-        self.relative_level = relative_level
+    key: str
+    relative_level: Optional[int] = field(default=0)
 
+    # Prevent needing to pass in Attack's required arguments
+    # Instead, pass in the required arguments during __post_init__()
+    name: str = field(init=False)
+    hp: int = field(init=False)
+    # # For testing purposes. See `test_cog_attack_damages_multiple_toons`
+    manual_atk: CogAttack = field(init=False, default=None)
+
+    # TODO (??) Create CogStates
+    _is_lured: bool = field(init=False, default=False)
+    _is_trapped: bool = field(init=False, default=False)
+    _trap: Tuple[Entity, Gag] = field(init=False, default=None)
+
+    def __post_init__(self):
         self.vitals = get_cog_vitals(cog_key=self.key,
                                      relative_level=self.relative_level)
         self.name = self.vitals['name']
@@ -34,14 +45,6 @@ class Cog(Entity):
         self.attacks = self.vitals['attacks']
         self.defense = self.vitals['def']
         self.level = self.vitals['level']
-
-        # TODO (??) Create CogStates
-        self._is_lured: bool = False
-        self._is_trapped: bool = False
-        self._trap: Tuple[Entity, Gag] = None
-
-        # For testing purposes. See `test_cog_attack_damages_multiple_toons`
-        self.manual_atk = None
 
     # ! This will cause issues if 2+ Toons have the same name
     def __hash__(self) -> int:
@@ -182,7 +185,6 @@ class Cog(Entity):
             Example output for attack_name='PoundKey' ::
                 {
                     'acc': 80,
-                    'freq': 40,
                     'damage': 3,
                     'name': 'PoundKey',
                     'target': 2  # ATK_TGT_SINGLE=1, ATK_TGT_MULTI=2
