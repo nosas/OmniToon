@@ -103,6 +103,11 @@ class InvalidAttackIndex(Error):
     pass
 
 
+class InvalidAttackType(Error):
+    """Set BattleEntity.attack to a non-Attack object"""
+    pass
+
+
 class InvalidToonHealTarget(InvalidTargetError):
     """ Toon targets a Cog or defeated Toon"""
     pass
