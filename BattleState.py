@@ -3,17 +3,16 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from random import choice as rand_choice
 
-from .Attack import ATK_TGT_MULTI
-from .Cog import Cog
+from .AttackGlobals import ATK_TGT_MULTI
+from .Battle import BattleEntity
 from .Exceptions import Error, TooManyCogsError, TooManyToonsError
-from .GagGlobals import get_gag_track_name
-from .Toon import Toon
+from .Gag import get_gag_track_name
 
 
 class BattleContext:
 
-    def __init__(self, state: BattleState, cogs: list[Cog], toons: list[Toon],
-                 rewards: dict[Toon:dict[int:int]]) -> None:
+    def __init__(self, state: BattleState, cogs: list[BattleEntity], toons: list[BattleEntity],
+                 rewards: dict[BattleEntity:dict[int:int]]) -> None:
         # ! Battle should always begin at ToonAttackState
         print("\n[^] Initializing BattleContext...")
         self.cogs = cogs
@@ -42,38 +41,38 @@ class BattleContext:
         return self._cogs
 
     @cogs.setter
-    def cogs(self, cogs: list[Cog]) -> None:
+    def cogs(self, cogs: list[BattleEntity]) -> None:
         if len(cogs) > 4:
             raise TooManyCogsError
-        assert all([type(x) == Cog for x in cogs])
+        assert all([type(x) == BattleEntity for x in cogs])
         self._cogs = cogs
 
     @property
-    def toons(self) -> list[Toon]:
+    def toons(self) -> list[BattleEntity]:
         return self._toons
 
     @toons.setter
-    def toons(self, toons: list[Toon]) -> list:
+    def toons(self, toons: list[BattleEntity]) -> list:
         if len(toons) > 4:
             raise TooManyToonsError
-        assert all([type(x) == Toon for x in toons])
+        assert all([type(x) == BattleEntity for x in toons])
         self._toons = toons
 
-    def add_cog(self, new_cog: Cog) -> None:
-        assert type(new_cog) == Cog
+    def add_cog(self, new_cog: BattleEntity) -> None:
+        assert type(new_cog) == BattleEntity
         if len(self._cogs) == 4:
             raise TooManyCogsError(new_cog)
         self._cogs.append(new_cog)
 
-    def add_toon(self, new_toon: Toon) -> None:
-        assert type(new_toon) == Toon
+    def add_toon(self, new_toon: BattleEntity) -> None:
+        assert type(new_toon) == BattleEntity
         if len(self._toons) == 4:
             raise TooManyToonsError(new_toon)
         self._toons.append(new_toon)
 
-    def remove_cog(self, defeated_cog: Cog) -> None:
-        assert type(defeated_cog) == Cog
-        print(f"            [-] Cog {defeated_cog} is defeated")
+    def remove_cog(self, defeated_cog: BattleEntity) -> None:
+        assert type(defeated_cog) == BattleEntity
+        print(f"            [-] BattleEntity {defeated_cog} is defeated")
         self.cogs.remove(defeated_cog)
 
     def transition_to(self, new_state: BattleState):
@@ -134,7 +133,7 @@ class WinLoseState(BattleState):
     def __init__(self):
         raise Exception("[!] ERROR: Entering state: WinLoseState")
 
-    # TODO #37, #45: Implement methods to add rewards, level up Toon
+    # TODO #37, #45: Implement methods to add rewards, level up BattleEntity
 
 
 # Do we need a ToonChooseAttack state and ToonDoAttack state? Likely yes, will
@@ -144,7 +143,7 @@ class ToonAttackState(AttackState):
 
     # ! ToonAtkState : If all Cogs defeated -> WinState else CogAtkState
     def __init__(self):
-        self.attacks = []  # [(Toon, Cog, Gag, atk_hit_or_miss: int [0|1])]
+        self.attacks = []  # [(BattleEntity, BattleEntity, Gag, atk_hit_or_miss: int [0|1])]
         # Keep track of which Cogs are being targeted and by how many Toons
         self.overdefeat_cogs = {}
         # TODO #51, Add bonus EXP multipliers as a ToonAttackState property
@@ -170,7 +169,7 @@ class ToonAttackState(AttackState):
                 cog for cog in self.context.cogs if not cog.is_defeated]
 
             target_cogs, gag_atk = toon.choose_attack(targets=alive_cogs)
-            print(f"            [-] Toon {toon} targets Cog {target_cogs}")
+            print(f"            [-] BattleEntity {toon} targets BattleEntity {target_cogs}")
             # #44, Group attacks by Gag.track
             if gag_atk.track not in potential_attacks:
                 potential_attacks[gag_atk.track] = []
@@ -194,11 +193,11 @@ class ToonAttackState(AttackState):
 
             print(f"        [>] Gag Track : {get_gag_track_name(gag_track)}")
             for toon, target_cogs, gag_atk in potential_attacks[gag_track]:
-                # If 2+ Toons are attacking the same Cog with the same GagTrack
+                # If 2+ Toons are attacking the same BattleEntity with the same GagTrack
                 #   Set overdefeat to True to override CogAlreadyDefeatedError
                 for cog in target_cogs:
                     is_overdefeat = self.overdefeat_cogs[cog][gag_atk.track] > 1  # noqa
-                    # Cache cog.trap.. if Toon uses Lure and the Trap activates
+                    # Cache cog.trap.. if BattleEntity uses Lure and the Trap activates
                     cog_is_trapped = cog.is_trapped
                     if cog_is_trapped:
                         trap_toon, trap_gag = cog.trap
@@ -207,7 +206,7 @@ class ToonAttackState(AttackState):
                                                 overdefeat=is_overdefeat)
                     # Attack doesn't miss and Gag is eligible for reward
                     if attack_hit:
-                        # Activate the Trap Gag if the Toon lures a trapped Cog
+                        # Activate the Trap Gag if the BattleEntity lures a trapped BattleEntity
                         if cog.is_lured and cog_is_trapped:
                             self.attacks.append((trap_toon, cog, trap_gag,
                                                  attack_hit))
@@ -229,7 +228,7 @@ class ToonAttackState(AttackState):
 class CogAttackState(AttackState):
 
     def __init__(self):
-        self.attacks = {}  # {Cog: (Toon, Damage)}
+        self.attacks = {}  # {BattleEntity: (BattleEntity, Damage)}
 
     def handle_attacks(self):
         transition_state = ToonAttackState
@@ -240,25 +239,25 @@ class CogAttackState(AttackState):
             viable_toons = [toon for toon in self.context.toons
                             if not toon.is_defeated]
             if cog_atk.target == ATK_TGT_MULTI:
-                print(f"        [+] {self} Cog {cog} targets all Toons "
+                print(f"        [+] {self} BattleEntity {cog} targets all Toons "
                       f"{viable_toons}")
                 for toon in viable_toons:
                     atk_hit = cog.do_attack(target=toon, attack=cog_atk)
                     if toon.is_defeated:
-                        print(f"            [-] Toon {target_toon} is defeated")  # noqa
+                        print(f"            [-] BattleEntity {target_toon} is defeated")  # noqa
                         # ! If all Toons defeated -> LoseState else ToonAtkState  # noqa
                     self.attacks[cog] = (toon, cog_atk, atk_hit)
 
             else:
                 # TODO #40, choose_target
                 target_toon = rand_choice(viable_toons)
-                print(f"        [+] {self} Cog {cog} targets Toon "
+                print(f"        [+] {self} BattleEntity {cog} targets BattleEntity "
                       f"{target_toon}")
                 atk_hit = cog.do_attack(target=target_toon, attack=cog_atk)
                 self.attacks[cog] = (target_toon, cog_atk, atk_hit)
 
                 if target_toon.is_defeated:
-                    print(f"            [-] Toon {target_toon} is defeated")
+                    print(f"            [-] BattleEntity {target_toon} is defeated")
                     # ! If all Toons defeated -> LoseState else ToonAtkState
 
             if all([toon.is_defeated for toon in self.context.toons]):
@@ -294,8 +293,8 @@ class WinState(WinLoseState):
 
 
 class LoseState(WinLoseState):
-    # TODO #37, #45: Implement methods to calculate rewards, remove Toon's Gags
-    # TODO #9, implement functionality & create tests for Toon losing to Cog
+    # TODO #37, #45: Implement methods to calculate rewards, remove BattleEntity's Gags
+    # TODO #9, implement functionality & create tests for BattleEntity losing to BattleEntity
 
     # Need an __init__ function, otherwise it'll initialize as an WinLoseState
     def __init__(self):
@@ -303,13 +302,13 @@ class LoseState(WinLoseState):
 
     def handle_win_lose(self):
         # TODO #11, replace this double for-loop with Gag objects
-        # TODO Alternatively, make Toon.is_defeated a property, strip all the
-        # Gags in the setter method if Toon.is_defeated is True
+        # TODO Alternatively, make BattleEntity.is_defeated a property, strip all the
+        # Gags in the setter method if BattleEntity.is_defeated is True
         defeated_toons = [
             toon for toon in self.context._toons if toon.is_defeated]
 
         for toon in defeated_toons:
-            print(f"        [-] Removing all Gags from Toon {toon}")
+            print(f"        [-] Removing all Gags from BattleEntity {toon}")
             for track_idx, gag_track in enumerate(toon.gags):
                 for gag_idx, gag in enumerate(toon.gags[track_idx]):
                     # Set the Gag count to 0 if the Gag is unlocked, or leave

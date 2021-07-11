@@ -5,7 +5,7 @@
 
 from random import randint
 
-from .Attack import ATK_TGT_MULTI, ATK_TGT_SINGLE
+from .AttackGlobals import ATK_TGT_SINGLE, ATK_TGT_MULTI
 from .Exceptions import (InvalidAttackIndex, InvalidAttackName, InvalidCogKey,
                          InvalidRelativeLevel)
 
