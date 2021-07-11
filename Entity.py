@@ -55,6 +55,11 @@ class BattleEntity:
 
     @battle_id.setter
     def battle_id(self, new_id: int) -> None:
+        if not isinstance(new_id, int):
+            try:
+                new_id = int(new_id)
+            except ValueError:
+                raise TypeError("battle_id must be an integer")
         self._battle_id = new_id
 
     @property
@@ -62,7 +67,7 @@ class BattleEntity:
         return self._target
 
     @targets.setter
-    def targets(self, new_targets: BattleEntity) -> None:
+    def targets(self, new_targets: Union[BattleEntity | List[BattleEntity]]) -> None:
         # If passed in a single target, add the target to an empty list
         if isinstance(new_targets, BattleEntity):
             new_targets = [new_targets]
