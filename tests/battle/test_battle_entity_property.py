@@ -28,6 +28,10 @@ class TestBattleEntityPropertyAttack:
         be.attack = atk
 
         assert isinstance(be.attack, Attack)
+        assert be.attack.name == self.atk_name
+        assert be.attack.damage == self.dmg
+        assert be.attack.accuracy == self.acc
+        assert be.attack.group == ATK_TGT_SINGLE
 
     def test_battle_entity_attack_property_fail(self):
         be = BattleEntity(battle_id=BATTLE_ID, name=NAME, hp=HP)
