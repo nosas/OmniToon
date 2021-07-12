@@ -83,12 +83,14 @@ class BattleEntity(Entity):
             new_targets = [new_targets]
         if not isinstance(new_targets, list):
             raise InvalidTargetError("Targets must be a list of BattleEntities")
+        if len(new_targets) > 4:
+            raise Exception("Cannot have more than 4 targets")
 
         for target in new_targets:
             if not isinstance(target, BattleEntity):
                 raise InvalidTargetError("Target must be a subclass of BattleEntity")
-            if type(target) == type(self):
-                raise InvalidTargetError("Target must not be of the same type")
+            if type(target) == type(self) or target == self:
+                raise InvalidTargetError("Target must not be one self or of the same type")
             if target.is_defeated:
                 raise TargetDefeatedError(f"Cannot attack defeated {type(target)}")
 
