@@ -44,10 +44,6 @@ class TestBattleEntityPropertyAttack:
 
 class TestBattleEntityPropertyTargets:
 
-    name = "Test Name"
-    hp = 100
-    dmg = 20
-
     def test_battle_entity_targets_property_1battlecog_no_list(self):
         be = BattleEntity(battle_id=BATTLE_ID, name=NAME, hp=HP)
         assert be.targets is None
@@ -55,7 +51,6 @@ class TestBattleEntityPropertyTargets:
         be.targets = BattleCog(cog=get_random_cog(), battle_id=BATTLE_ID)
         assert isinstance(be.targets, list)
         assert len(be.targets) == 1
-        # be1 = BattleEntity(battle_id=BATTLE_ID, name=NAME, hp=HP)
 
     def test_battle_entity_targets_property_max_battlecogs(self):
         be = BattleEntity(battle_id=BATTLE_ID, name=NAME, hp=HP)
@@ -107,15 +102,15 @@ class TestBattleEntityPropertyTargets:
         assert be.targets is None
 
     def test_battle_entity_targets_property_same_type_fail(self):
-        bc = BattleCog(cog=get_random_cog(), battle_id=BATTLE_ID)
+        be = BattleEntity(battle_id=BATTLE_ID, name=NAME, hp=HP)
 
         with pytest.raises(InvalidTargetError):
-            bc.targets = BattleCog(cog=get_random_cog(), battle_id=BATTLE_ID+1)
+            be.targets = BattleEntity(battle_id=BATTLE_ID+1, name=NAME, hp=HP)
 
         with pytest.raises(InvalidTargetError):
-            bc.targets = bc
+            be.targets = be
 
-        assert bc.targets is None
+        assert be.targets is None
 
     def test_battle_entity_targets_property_defeated_fail(self):
         be = BattleEntity(battle_id=BATTLE_ID, name=NAME, hp=HP)
@@ -126,4 +121,3 @@ class TestBattleEntityPropertyTargets:
 
         with pytest.raises(TargetDefeatedError):
             be.targets = bc
-
