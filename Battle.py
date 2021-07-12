@@ -27,16 +27,16 @@ from .Toon import Toon
 
 
 @dataclass(init=False)
-class BattleCog(Cog, BattleEntity):
+class BattleCog(BattleEntity):
 
     manual_atk: CogAttack = field(init=False, default=None)
     _is_lured: bool = field(init=False, default=False)
     _is_trapped: bool = field(init=False, default=False)
     _trap: Tuple[BattleToon, ToonAttack] = field(init=False, default=(None, None))
 
-    def __init__(self, battle_id: int, key: str, relative_level: int = 0):
-        self.battle_id = battle_id
-        super().__init__(key=key, relative_level=relative_level)
+    def __init__(self, cog: Cog, battle_id: int):
+        self.cog = cog
+        super().__init__(name=cog.name, hp=cog.hp, battle_id=battle_id)
 
     def _clear_trap(self) -> None:
         self._trap = None
@@ -282,7 +282,7 @@ class BattleCog(Cog, BattleEntity):
 
 
 @dataclass(init=False)
-class BattleToon(Toon, BattleEntity):
+class BattleToon(BattleEntity):
     def __init__(self):
         pass
 

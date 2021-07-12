@@ -56,7 +56,7 @@ class TooManyGagsError(GagCountError):
 
 class NotEnoughGagsError(GagCountError):
     """ Toon chooses a Gag with 0 quantity"""
-    def __init__(self, gag: Gag=None, message="Insufficient Gag quantity"):
+    def __init__(self, gag: Gag = None, message="Insufficient Gag quantity"):
         self.gag = gag
         self.message = message
         super().__init__(self.message)
@@ -103,7 +103,7 @@ class InvalidAttackIndex(Error):
     pass
 
 
-class InvalidAttackType(Error):
+class InvalidAttackType(TypeError):
     """Set BattleEntity.attack to a non-Attack object"""
     pass
 
@@ -113,7 +113,7 @@ class InvalidToonHealTarget(InvalidTargetError):
     pass
 
 
-class InvalidRelativeLevel(Error):
+class InvalidRelativeLevel(ValueError):
     """ Must be in range [0-4]"""
     def __init__(self, rel_lvl: int,
                  message="Relative level out of range: [0, 1, 2, 3, 4]"):
@@ -128,7 +128,7 @@ class InvalidRelativeLevel(Error):
         return err_msg
 
 
-class InvalidCogKey(Error):
+class InvalidCogKey(ValueError):
     """ Cog key must be in `COG_ATTRIBUTES` dictionary"""
     pass
 

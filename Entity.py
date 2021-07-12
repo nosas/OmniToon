@@ -4,18 +4,15 @@ from dataclasses import dataclass, field
 from typing import List, Union
 
 from .Attack import Attack
-from .Exceptions import InvalidAttackType, InvalidTargetError, TargetDefeatedError
+from .Exceptions import (InvalidAttackType, InvalidTargetError,
+                         TargetDefeatedError)
 
 
 @dataclass
 class Entity:
-    name: str
-    hp: int
-    # TODO #25, Create Publisher object to push notifications
 
-    # ! This will cause issues if 2+ Toons have the same name
-    def __hash__(self) -> int:
-        return hash(self.name)
+    name: str = field(hash=True)
+    hp: int
 
     @property
     def hp(self) -> int:
@@ -43,11 +40,24 @@ class Entity:
 
 
 @dataclass
-class BattleEntity:
+class BattleEntity(Entity):
 
-    battle_id: int
+    battle_id: int = field(hash=True)
     _attack: Attack = field(init=False, default=None)
-    _targets: Union[BattleEntity | List[BattleEntity]] = field(init=False, default=None)
+    _targets: list[BattleEntity] = field(init=False, default=None)
+
+    def __post_init__(self):
+        super().__init__(name=self.name, hp=self.hp)
+
+    @property
+    def attack(self) -> Attack:
+        return self._attack
+
+    @attack.setter
+    def attack(self, new_attack: Attack) -> None:
+        if not isinstance(new_attack, Attack):
+            raise InvalidAttackType
+        self._attack = new_attack
 
     @property
     def battle_id(self) -> int:
@@ -63,8 +73,8 @@ class BattleEntity:
         self._battle_id = new_id
 
     @property
-    def targets(self) -> BattleEntity:
-        return self._target
+    def targets(self) -> list[BattleEntity]:
+        return self._targets
 
     @targets.setter
     def targets(self, new_targets: Union[BattleEntity | List[BattleEntity]]) -> None:
@@ -83,19 +93,6 @@ class BattleEntity:
                 raise TargetDefeatedError(f"Cannot attack defeated {type(target)}")
 
         self._targets = new_targets
-
-    @property
-    def attack(self) -> Attack:
-        return self._attack
-
-    @attack.setter
-    def attack(self, new_attack: Attack) -> None:
-        if not isinstance(new_attack, Attack):
-            raise InvalidAttackType
-        self._attack = new_attack
-
-    def __hash__(self) -> int:
-        return hash((self.hp, self.name, self.battle_id))
 
     def _get_attacked(self, amount: int):
         self.hp -= amount

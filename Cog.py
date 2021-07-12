@@ -9,16 +9,17 @@ from .CogGlobals import COG_ATTRIBUTES, get_cog_vitals
 from .Entity import Entity
 
 
-@dataclass(init=False, repr=False)
+@dataclass
 class Cog(Entity):
+
     key: str
     relative_level: Optional[int] = field(default=0)
 
-    def __init__(self, key: str, relative_level: int):
-        self.key = key
-        self.relative_level = relative_level
-        self.vitals = get_cog_vitals(cog_key=self.key,
-                                     relative_level=self.relative_level)
+    name: str = field(init=False)
+    hp: int = field(init=False)
+
+    def __post_init__(self):
+        self.vitals = get_cog_vitals(cog_key=self.key, relative_level=self.relative_level)
         self.hp_max = self.vitals['hp']
         super().__init__(name=self.vitals['name'], hp=self.vitals['hp'])
 
