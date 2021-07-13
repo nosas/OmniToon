@@ -1,7 +1,7 @@
 import pytest
 
 from ...Attack import Attack
-from ...AttackGlobals import ATK_TGT_SINGLE
+from ...AttackGlobals import Group
 from ...Battle import BattleCog
 from ...Cog import get_random_cog
 from ...Entity import Entity, BattleEntity
@@ -21,7 +21,7 @@ class TestBattleEntityPropertyAttack:
     atk_name = "Test Attack"
     dmg = 20
     acc = 100
-    group = ATK_TGT_SINGLE
+    group = Group.Single
     e = Entity(name=NAME, hp=HP)
 
     def test_battle_entity_attack_property(self):
@@ -35,7 +35,7 @@ class TestBattleEntityPropertyAttack:
         assert be.attack.name == self.atk_name
         assert be.attack.damage == self.dmg
         assert be.attack.accuracy == self.acc
-        assert be.attack.group == ATK_TGT_SINGLE
+        assert be.attack.group == Group.Single
 
     def test_battle_entity_attack_property_fail(self):
         be = BattleEntity(battle_id=BATTLE_ID, entity=self.e)

@@ -8,7 +8,7 @@ from .Entity import Entity
 from .Exceptions import (GagCountError, LockedGagError, LockedGagTrackError,
                          NotEnoughGagsError, TooManyGagsError)
 from .Gag import (Gag, count_all_gags,  get_gag_exp, get_gag_exp_needed)
-from .GagGlobals import HEAL_TRACK, LEVELS, LURE_TRACK, TRAP_TRACK
+from .GagGlobals import Track, LEVELS
 
 DEFAULT_HP = 15
 # -1 means the gag_track is locked,0 means lvl 1 Gag is unlocked
@@ -198,15 +198,15 @@ class Toon(Entity):
 
                 rules = [gag_count not in [0, -1],
                          # Toons cannot use Heal as an attack
-                         track_index != HEAL_TRACK if attack is True else 1
+                         track_index != Track.Heal.value if attack is True else 1
                          ]
                 if target:
                     # Can't lure a lured Cog
                     rules.append(
-                        track_index != LURE_TRACK if target.is_lured else 1)
+                        track_index != Track.Lure.value if target.is_lured else 1)
                     # Can't trap a trapped Cog
                     rules.append(
-                        track_index != TRAP_TRACK if target.is_trapped else 1)
+                        track_index != Track.Trap.value if target.is_trapped else 1)
 
                 # If all rules pass, this Gag is viable
                 if all(rules):
@@ -254,9 +254,9 @@ class Toon(Entity):
             track (int): Index number of the Gag Track <0-6>
 
             Example of valid input ::
-                0     # HEAL_TRACK
-                1     # TRAP_TRACK
-                2     # LURE_TRACK
+                0     # Track.Heal.value
+                1     # Track.Trap.value
+                2     # Track.Lure.value
                 3     # SOUND_TRACK
                 4     # THROW_TRACK
                 5     # SQUIRT_TRACK
@@ -275,9 +275,9 @@ class Toon(Entity):
             track (int): Index number of the Gag Track <0-6>
 
             Example of valid input ::
-                0     # HEAL_TRACK
-                1     # TRAP_TRACK
-                2     # LURE_TRACK
+                0     # Track.Heal.value
+                1     # Track.Trap.value
+                2     # Track.Lure.value
                 3     # SOUND_TRACK
                 4     # THROW_TRACK
                 5     # SQUIRT_TRACK

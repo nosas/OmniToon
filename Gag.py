@@ -17,7 +17,7 @@ from dataclasses import dataclass, field
 from math import floor as math_floor
 from typing import Optional
 
-from .AttackGlobals import ATK_TGT_MULTI, ATK_TGT_SINGLE
+from .AttackGlobals import Group
 from .GagGlobals import (GAG_CARRY_LIMITS, GAG_DAMAGE, GAG_LABELS,
                          GAG_TRACK_LABELS, LEVELS, MULTI_TARGET_GAGS)
 
@@ -245,7 +245,7 @@ def get_gag_target(name: str):
     Returns:
         int: Single-target (1) or multi-target (2)
     """
-    return ATK_TGT_MULTI if name in MULTI_TARGET_GAGS else ATK_TGT_SINGLE
+    return Group.Multi if name in MULTI_TARGET_GAGS else Group.Single
 
 
 def get_gag_track_name(track: int) -> str:
