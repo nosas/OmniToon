@@ -15,20 +15,19 @@ class TestBattleCogCreation:
         relative_level = 0
 
         cog = Cog(key=KEY)
-        bc = BattleCog(battle_id=BATTLE_ID, cog=cog)
+        bc = BattleCog(battle_id=BATTLE_ID, entity=cog)
         assert bc.battle_id == BATTLE_ID
         assert bc.name == NAME
         assert bc.hp == hp
-        assert bc.cog.key == KEY
-        assert bc.cog.level == level
-        assert bc.cog.relative_level == relative_level
+        assert bc.entity.key == KEY
+        assert bc.entity.level == level
+        assert bc.entity.relative_level == relative_level
         assert isinstance(bc, BattleCog)
         assert isinstance(bc, BattleEntity)
-        assert isinstance(bc, Entity)
-        assert isinstance(bc.cog, Cog)
-        assert isinstance(bc.cog, Entity)
+        assert isinstance(bc.entity, Cog)
+        assert isinstance(bc.entity, Entity)
 
-        bc1 = BattleCog(battle_id=BATTLE_ID + 1, cog=Cog(key=KEY))
+        bc1 = BattleCog(battle_id=BATTLE_ID + 1, entity=Cog(key=KEY))
         assert bc != bc1
         assert bc1.battle_id == bc.battle_id + 1
 
@@ -41,20 +40,19 @@ class TestBattleCogCreation:
         relative_level = 1
 
         cog = Cog(key=KEY, relative_level=relative_level)
-        bc = BattleCog(battle_id=BATTLE_ID, cog=cog)
+        bc = BattleCog(battle_id=BATTLE_ID, entity=cog)
         assert bc.battle_id == BATTLE_ID
         assert bc.name == NAME
         assert bc.hp == hp
-        assert bc.cog.key == KEY
-        assert bc.cog.level == level
-        assert bc.cog.relative_level == relative_level
+        assert bc.entity.key == KEY
+        assert bc.entity.level == level
+        assert bc.entity.relative_level == relative_level
         assert isinstance(bc, BattleCog)
         assert isinstance(bc, BattleEntity)
-        assert isinstance(bc, Entity)
-        assert isinstance(bc.cog, Cog)
-        assert isinstance(bc.cog, Entity)
+        assert isinstance(bc.entity, Cog)
+        assert isinstance(bc.entity, Entity)
 
-        bc1 = BattleCog(battle_id=BATTLE_ID + 1, cog=Cog(key=KEY, relative_level=relative_level))
+        bc1 = BattleCog(battle_id=BATTLE_ID + 1, entity=Cog(key=KEY, relative_level=relative_level))
         assert bc != bc1
         assert bc1.battle_id == bc.battle_id + 1
 

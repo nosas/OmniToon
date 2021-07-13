@@ -26,20 +26,28 @@ from .Toon import Toon
 # points are dangerously low.
 
 
-@dataclass(init=False)
+@dataclass
 class BattleCog(BattleEntity):
 
+    entity: Cog
+    battle_id: int
     manual_atk: CogAttack = field(init=False, default=None)
     _is_lured: bool = field(init=False, default=False)
     _is_trapped: bool = field(init=False, default=False)
     _trap: Tuple[BattleToon, ToonAttack] = field(init=False, default=(None, None))
 
-    def __init__(self, cog: Cog, battle_id: int):
-        self.cog = cog
-        super().__init__(name=cog.name, hp=cog.hp, battle_id=battle_id)
-
     def _clear_trap(self) -> None:
         self._trap = None
+
+    @property
+    def entity(self) -> Cog:
+        return self._entity
+
+    @entity.setter
+    def entity(self, new_entity) -> None:
+        if not isinstance(new_entity, Cog):
+            raise ValueError("BattleCog.entity must be of type Cog")
+        self._entity = new_entity
 
     @property
     def is_lured(self) -> bool:
@@ -52,8 +60,7 @@ class BattleCog(BattleEntity):
 
         if new_is_lured and self.is_lured:
             raise CogLuredError("Can't Lure a Cog that's already Lured")
-        print(f"                [>] is_lured : {self.is_lured} -> "
-              f"{new_is_lured} on {self}")
+        print(f"                [>] is_lured : {self.is_lured} ->  {new_is_lured} on {self}")
         self._is_lured = new_is_lured
 
     @property
@@ -79,6 +86,18 @@ class BattleCog(BattleEntity):
             self._is_trapped = False
             print(f"                [>] self.trap : {(self.trap)} -> None on {self}")  # noqa
             self._trap = None
+
+    @property
+    def key(self) -> str:
+        return self.cog.key
+
+    @property
+    def level(self) -> int:
+        return self.cog.level
+
+    @property
+    def relative_level(self) -> int:
+        return self.cog.relative_level
 
     @property
     def trap(self) -> Tuple[BattleToon, ToonAttack]:
@@ -124,6 +143,9 @@ class BattleCog(BattleEntity):
                     break
         # return attack['id']
         return self.get_attack(attack_name=attack_name)
+
+    def choose_targets(self):
+        pass
 
     def do_attack(self, target, attack: CogAttack) -> bool:
         """Perform an attack on a Toon, given an attack damage

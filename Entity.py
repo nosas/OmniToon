@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import List, Union
 
@@ -44,14 +45,22 @@ class Entity:
 
 
 @dataclass
-class BattleEntity(Entity):
+class BattleEntity(ABC):
 
     battle_id: int = field(hash=True)
+    entity: Entity
+
     _attack: Attack = field(init=False, default=None)
     _targets: list[BattleEntity] = field(init=False, default=None)
 
-    def __post_init__(self):
-        super().__init__(name=self.name, hp=self.hp)
+    @property
+    def entity(self) -> Entity:
+        return self._entity
+
+    @entity.setter
+    @abstractmethod
+    def entity(self, new_entity) -> None:
+        self._entity = new_entity
 
     @property
     def attack(self) -> Attack:
@@ -75,6 +84,18 @@ class BattleEntity(Entity):
             except ValueError:
                 raise TypeError("battle_id must be an integer")
         self._battle_id = new_id
+
+    @property
+    def hp(self) -> int:
+        return self.entity.hp
+
+    @property
+    def name(self) -> str:
+        return self.entity.name
+
+    @property
+    def is_defeated(self) -> bool:
+        return self.entity.is_defeated
 
     @property
     def targets(self) -> list[BattleEntity]:
@@ -101,10 +122,18 @@ class BattleEntity(Entity):
         self._targets = new_targets
 
     def _get_attacked(self, amount: int):
-        self.hp -= amount
+        self.entity.hp -= amount
 
     def _get_healed(self, amount: int):
-        self.hp += amount
+        self.entity.hp += amount
+
+    @abstractmethod
+    def choose_attack(self):
+        pass
+
+    @abstractmethod
+    def choose_targets(self):
+        pass
 
     def do_attack(self, overdefeat: bool = False, force_miss: bool = False) -> bool:
         # TODO #10, Add chance_to_hit
@@ -121,7 +150,7 @@ class BattleEntity(Entity):
                 # Multiple Toons attack the same Cog with the same Gag track
                 raise TargetDefeatedError(f"Cannot attack defeated {type(target)}")
 
-            target_hp_before = target.get_hp()
+            target_hp_before = target.hp
             target._get_attacked(amount=damage)
             class_name = self.__class__.__name__
             # TODO Add attack name and object name
