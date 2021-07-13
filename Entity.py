@@ -20,8 +20,12 @@ class Entity:
 
     @hp.setter
     def hp(self, new_hp: int) -> None:
+        # TODO try casting new_hp to int if it's a str or float
         if not isinstance(new_hp, int):
-            raise ValueError(f"new_hp {new_hp!r} must be of type int!")
+            try:
+                new_hp = int(new_hp)
+            except ValueError:
+                raise ValueError(f"new_hp {new_hp!r} must be of type int!")
         self._hp = new_hp
 
     @property
@@ -113,11 +117,11 @@ class BattleEntity(Entity):
             damage = self.attack.damage
 
         for target in self.targets:
-            if self.targets.is_defeated and overdefeat is False:
+            if target.is_defeated and overdefeat is False:
                 # Multiple Toons attack the same Cog with the same Gag track
-                raise TargetDefeatedError(f"Cannot attack defeated {type(self.targets)}")
+                raise TargetDefeatedError(f"Cannot attack defeated {type(target)}")
 
-            target_hp_before = self.targets.get_hp()
+            target_hp_before = target.get_hp()
             target._get_attacked(amount=damage)
             class_name = self.__class__.__name__
             # TODO Add attack name and object name
