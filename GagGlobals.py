@@ -1,18 +1,112 @@
 # Original: https://github.com/forest2001/Toontown-Rewritten/blob/master/toontown/toonbase/ToontownBattleGlobals.py  # noqa
+from __future__ import annotations
 
-from enum import Enum
+from enum import Enum, IntEnum
+from typing import Tuple, Union
 
 
-# Gag track indexes
-# Gag track indexes
-class Track(Enum):
-    Heal = 0
-    Trap = 1
-    Lure = 2
-    Sound = 3
-    Throw = 4
-    Squirt = 5
-    Drop = 6
+# Gag track indices
+class TRACK(IntEnum):
+    HEAL = 0
+    TRAP = 1
+    LURE = 2
+    SOUND = 3
+    THROW = 4
+    SQUIRT = 5
+    DROP = 6
+
+
+# Gag indices
+class GAG(bytes, Enum):
+
+    @staticmethod
+    def _get_gag_idx(track: int, gag_level: int) -> int:
+        return track * 7 + gag_level
+
+    def __new__(cls, track: TRACK, level: int):
+        gag_index = cls._get_gag_idx(track=track, gag_level=level)
+        obj = bytes.__new__(cls, [gag_index])
+        obj._value_ = gag_index
+        obj._value = (track, level)
+        obj._track = track
+        obj._level = level
+        return obj
+
+    @classmethod
+    def from_tuple(cls, track_gag_tuple: Tuple[Union[TRACK | int], int]) -> GAG:
+        track = track_gag_tuple[0]
+        gag_level = track_gag_tuple[1]
+        return cls(cls._get_gag_idx(track=track, gag_level=gag_level))
+
+    @property
+    def track(self) -> TRACK:
+        # return self.value[0].value
+        return self._track
+
+    @property
+    def level(self) -> int:
+        # return self.value[1]
+        return self._level
+
+    @property
+    def value(self) -> Tuple[TRACK, int]:
+        return (self._track, self._level)
+
+    FEATHER = (TRACK.HEAL, 0)
+    MEGAPHONE = (TRACK.HEAL, 1)
+    LIPSTICK = (TRACK.HEAL, 2)
+    BAMBOO_CANE = (TRACK.HEAL, 3)
+    PIXIE_DUST = (TRACK.HEAL, 4)
+    JUGGLING_BALLS = (TRACK.HEAL, 5)
+    HIGH_DIVE = (TRACK.HEAL, 6)
+
+    BANANA_PEEL = (TRACK.TRAP, 0)
+    RAKE = (TRACK.TRAP, 1)
+    MARBLES = (TRACK.TRAP, 2)
+    QUICKSAND = (TRACK.TRAP, 3)
+    TRAPDOOR = (TRACK.TRAP, 4)
+    TNT = (TRACK.TRAP, 5)
+    RAILROAD = (TRACK.TRAP, 6)
+
+    ONE_BILL = (TRACK.LURE, 0)
+    SMALL_MAGNET = (TRACK.LURE, 1)
+    FIVE_BILL = (TRACK.LURE, 2)
+    BIG_MAGNET = (TRACK.LURE, 3)
+    TEN_BILL = (TRACK.LURE, 4)
+    HYPNO_GOGGLES = (TRACK.LURE, 5)
+    PRESENTATION = (TRACK.LURE, 6)
+
+    BIKE_HORN = (TRACK.SOUND, 0)
+    WHISTLE = (TRACK.SOUND, 1)
+    BUGLE = (TRACK.SOUND, 2)
+    AOOGAH = (TRACK.SOUND, 3)
+    ELEPHANT_TRUNK = (TRACK.SOUND, 4)
+    FOGHORN = (TRACK.SOUND, 5)
+    OPERA_SINGER = (TRACK.SOUND, 6)
+
+    CUPCAKE = (TRACK.THROW, 0)
+    FRUIT_PIE_SLICE = (TRACK.THROW, 1)
+    CREAM_PIE_SLICE = (TRACK.THROW, 2)
+    WHOLE_FRUIT_PIE = (TRACK.THROW, 3)
+    WHOLE_CREAM_PIE = (TRACK.THROW, 4)
+    BIRTHDAY_CAKE = (TRACK.THROW, 5)
+    WEDDING_CAKE = (TRACK.THROW, 6)
+
+    SQUIRTING_FLOWER = (TRACK.SQUIRT, 0)
+    GLASS_OF_WATER = (TRACK.SQUIRT, 1)
+    SQUIRT_GUN = (TRACK.SQUIRT, 2)
+    SELTZER_BOTTLE = (TRACK.SQUIRT, 3)
+    FIRE_HOSE = (TRACK.SQUIRT, 4)
+    STORM_CLOUD = (TRACK.SQUIRT, 5)
+    GEYSER = (TRACK.SQUIRT, 6)
+
+    FLOWER_POT = (TRACK.DROP, 0)
+    SANDBAG = (TRACK.DROP, 1)
+    ANVIL = (TRACK.DROP, 2)
+    BIG_WEIGHT = (TRACK.DROP, 3)
+    SAFE = (TRACK.DROP, 4)
+    GRAND_PIANO = (TRACK.DROP, 5)
+    TOONTANIC = (TRACK.DROP, 6)
 
 
 REG_MAX_SKILL = 10000  # Max gag EXP
@@ -50,55 +144,55 @@ LEVELS = [[0, 20, 200, 800, 2000, 6000, 10000],    # Toon-Up
 # MIN_EXP, MAX_EXP = MIN_MAX_TUPLE[1] = (min_exp, max_exp)
 #    Example of Level 3 Throw min/max = GAG_DAMAGE[4][3]
 GAG_DAMAGE = (
-    (((8, 10), (LEVELS[Track.Heal.value][0], LEVELS[Track.Heal.value][1])),      # Toon-Up
-        ((15, 18), (LEVELS[Track.Heal.value][1], LEVELS[Track.Heal.value][2])),
-        ((25, 30), (LEVELS[Track.Heal.value][2], LEVELS[Track.Heal.value][3])),
-        ((40, 45), (LEVELS[Track.Heal.value][3], LEVELS[Track.Heal.value][4])),
-        ((60, 70), (LEVELS[Track.Heal.value][4], LEVELS[Track.Heal.value][5])),
-        ((90, 120), (LEVELS[Track.Heal.value][5], LEVELS[Track.Heal.value][6])),
-        ((210, 210), (LEVELS[Track.Heal.value][6], MAX_SKILL))),
-    (((10, 12), (LEVELS[Track.Trap.value][0], LEVELS[Track.Trap.value][1])),     # Trap
-        ((18, 20), (LEVELS[Track.Trap.value][1], LEVELS[Track.Trap.value][2])),
-        ((30, 35), (LEVELS[Track.Trap.value][2], LEVELS[Track.Trap.value][3])),
-        ((45, 50), (LEVELS[Track.Trap.value][3], LEVELS[Track.Trap.value][4])),
-        ((60, 70), (LEVELS[Track.Trap.value][4], LEVELS[Track.Trap.value][5])),
-        ((90, 180), (LEVELS[Track.Trap.value][5], LEVELS[Track.Trap.value][6])),
-        ((195, 195), (LEVELS[Track.Trap.value][6], MAX_SKILL))),
-    (((0, 0), (LEVELS[Track.Lure.value][0], LEVELS[Track.Lure.value][1])),       # Lure
-        ((0, 0), (LEVELS[Track.Lure.value][1], LEVELS[Track.Lure.value][2])),
-        ((0, 0), (LEVELS[Track.Lure.value][2], LEVELS[Track.Lure.value][3])),
-        ((0, 0), (LEVELS[Track.Lure.value][3], LEVELS[Track.Lure.value][4])),
-        ((0, 0), (LEVELS[Track.Lure.value][4], LEVELS[Track.Lure.value][5])),
-        ((0, 0), (LEVELS[Track.Lure.value][5], LEVELS[Track.Lure.value][6])),
-        ((0, 0), (LEVELS[Track.Lure.value][6], MAX_SKILL))),
-    (((3, 4), (LEVELS[Track.Sound.value][0], LEVELS[Track.Sound.value][1])),       # Sound
-        ((5, 7), (LEVELS[Track.Sound.value][1], LEVELS[Track.Sound.value][2])),
-        ((9, 11), (LEVELS[Track.Sound.value][2], LEVELS[Track.Sound.value][3])),
-        ((14, 16), (LEVELS[Track.Sound.value][3], LEVELS[Track.Sound.value][4])),
-        ((19, 21), (LEVELS[Track.Sound.value][4], LEVELS[Track.Sound.value][5])),
-        ((25, 50), (LEVELS[Track.Sound.value][5], LEVELS[Track.Sound.value][6])),
-        ((90, 90), (LEVELS[Track.Sound.value][6], MAX_SKILL))),
-    (((4, 6), (LEVELS[Track.Throw.value][0], LEVELS[Track.Throw.value][1])),       # Throw
-        ((8, 10), (LEVELS[Track.Throw.value][1], LEVELS[Track.Throw.value][2])),
-        ((14, 17), (LEVELS[Track.Throw.value][2], LEVELS[Track.Throw.value][3])),
-        ((24, 27), (LEVELS[Track.Throw.value][3], LEVELS[Track.Throw.value][4])),
-        ((36, 40), (LEVELS[Track.Throw.value][4], LEVELS[Track.Throw.value][5])),
-        ((48, 100), (LEVELS[Track.Throw.value][5], LEVELS[Track.Throw.value][6])),
-        ((120, 120), (LEVELS[Track.Throw.value][6], MAX_SKILL))),
-    (((3, 4), (LEVELS[Track.Squirt.value][0], LEVELS[Track.Squirt.value][1])),     # Squirt
-        ((6, 8), (LEVELS[Track.Squirt.value][1], LEVELS[Track.Squirt.value][2])),
-        ((10, 12), (LEVELS[Track.Squirt.value][2], LEVELS[Track.Squirt.value][3])),
-        ((18, 21), (LEVELS[Track.Squirt.value][3], LEVELS[Track.Squirt.value][4])),
-        ((27, 30), (LEVELS[Track.Squirt.value][4], LEVELS[Track.Squirt.value][5])),
-        ((36, 80), (LEVELS[Track.Squirt.value][5], LEVELS[Track.Squirt.value][6])),
-        ((105, 105), (LEVELS[Track.Squirt.value][6], MAX_SKILL))),
-    (((10, 10), (LEVELS[Track.Drop.value][0], LEVELS[Track.Drop.value][1])),     # Drop
-        ((18, 18), (LEVELS[Track.Drop.value][1], LEVELS[Track.Drop.value][2])),
-        ((30, 30), (LEVELS[Track.Drop.value][2], LEVELS[Track.Drop.value][3])),
-        ((45, 45), (LEVELS[Track.Drop.value][3], LEVELS[Track.Drop.value][4])),
-        ((60, 60), (LEVELS[Track.Drop.value][4], LEVELS[Track.Drop.value][5])),
-        ((85, 170), (LEVELS[Track.Drop.value][5], LEVELS[Track.Drop.value][6])),
-        ((180, 180), (LEVELS[Track.Drop.value][6], MAX_SKILL)))
+    (((8, 10), (LEVELS[TRACK.HEAL][0], LEVELS[TRACK.HEAL][1])),      # Toon-Up
+        ((15, 18), (LEVELS[TRACK.HEAL][1], LEVELS[TRACK.HEAL][2])),
+        ((25, 30), (LEVELS[TRACK.HEAL][2], LEVELS[TRACK.HEAL][3])),
+        ((40, 45), (LEVELS[TRACK.HEAL][3], LEVELS[TRACK.HEAL][4])),
+        ((60, 70), (LEVELS[TRACK.HEAL][4], LEVELS[TRACK.HEAL][5])),
+        ((90, 120), (LEVELS[TRACK.HEAL][5], LEVELS[TRACK.HEAL][6])),
+        ((210, 210), (LEVELS[TRACK.HEAL][6], MAX_SKILL))),
+    (((10, 12), (LEVELS[TRACK.TRAP][0], LEVELS[TRACK.TRAP][1])),     # Trap
+        ((18, 20), (LEVELS[TRACK.TRAP][1], LEVELS[TRACK.TRAP][2])),
+        ((30, 35), (LEVELS[TRACK.TRAP][2], LEVELS[TRACK.TRAP][3])),
+        ((45, 50), (LEVELS[TRACK.TRAP][3], LEVELS[TRACK.TRAP][4])),
+        ((60, 70), (LEVELS[TRACK.TRAP][4], LEVELS[TRACK.TRAP][5])),
+        ((90, 180), (LEVELS[TRACK.TRAP][5], LEVELS[TRACK.TRAP][6])),
+        ((195, 195), (LEVELS[TRACK.TRAP][6], MAX_SKILL))),
+    (((0, 0), (LEVELS[TRACK.LURE][0], LEVELS[TRACK.LURE][1])),       # Lure
+        ((0, 0), (LEVELS[TRACK.LURE][1], LEVELS[TRACK.LURE][2])),
+        ((0, 0), (LEVELS[TRACK.LURE][2], LEVELS[TRACK.LURE][3])),
+        ((0, 0), (LEVELS[TRACK.LURE][3], LEVELS[TRACK.LURE][4])),
+        ((0, 0), (LEVELS[TRACK.LURE][4], LEVELS[TRACK.LURE][5])),
+        ((0, 0), (LEVELS[TRACK.LURE][5], LEVELS[TRACK.LURE][6])),
+        ((0, 0), (LEVELS[TRACK.LURE][6], MAX_SKILL))),
+    (((3, 4), (LEVELS[TRACK.SOUND][0], LEVELS[TRACK.SOUND][1])),       # Sound
+        ((5, 7), (LEVELS[TRACK.SOUND][1], LEVELS[TRACK.SOUND][2])),
+        ((9, 11), (LEVELS[TRACK.SOUND][2], LEVELS[TRACK.SOUND][3])),
+        ((14, 16), (LEVELS[TRACK.SOUND][3], LEVELS[TRACK.SOUND][4])),
+        ((19, 21), (LEVELS[TRACK.SOUND][4], LEVELS[TRACK.SOUND][5])),
+        ((25, 50), (LEVELS[TRACK.SOUND][5], LEVELS[TRACK.SOUND][6])),
+        ((90, 90), (LEVELS[TRACK.SOUND][6], MAX_SKILL))),
+    (((4, 6), (LEVELS[TRACK.THROW][0], LEVELS[TRACK.THROW][1])),       # Throw
+        ((8, 10), (LEVELS[TRACK.THROW][1], LEVELS[TRACK.THROW][2])),
+        ((14, 17), (LEVELS[TRACK.THROW][2], LEVELS[TRACK.THROW][3])),
+        ((24, 27), (LEVELS[TRACK.THROW][3], LEVELS[TRACK.THROW][4])),
+        ((36, 40), (LEVELS[TRACK.THROW][4], LEVELS[TRACK.THROW][5])),
+        ((48, 100), (LEVELS[TRACK.THROW][5], LEVELS[TRACK.THROW][6])),
+        ((120, 120), (LEVELS[TRACK.THROW][6], MAX_SKILL))),
+    (((3, 4), (LEVELS[TRACK.SQUIRT][0], LEVELS[TRACK.SQUIRT][1])),     # Squirt
+        ((6, 8), (LEVELS[TRACK.SQUIRT][1], LEVELS[TRACK.SQUIRT][2])),
+        ((10, 12), (LEVELS[TRACK.SQUIRT][2], LEVELS[TRACK.SQUIRT][3])),
+        ((18, 21), (LEVELS[TRACK.SQUIRT][3], LEVELS[TRACK.SQUIRT][4])),
+        ((27, 30), (LEVELS[TRACK.SQUIRT][4], LEVELS[TRACK.SQUIRT][5])),
+        ((36, 80), (LEVELS[TRACK.SQUIRT][5], LEVELS[TRACK.SQUIRT][6])),
+        ((105, 105), (LEVELS[TRACK.SQUIRT][6], MAX_SKILL))),
+    (((10, 10), (LEVELS[TRACK.DROP][0], LEVELS[TRACK.DROP][1])),     # Drop
+        ((18, 18), (LEVELS[TRACK.DROP][1], LEVELS[TRACK.DROP][2])),
+        ((30, 30), (LEVELS[TRACK.DROP][2], LEVELS[TRACK.DROP][3])),
+        ((45, 45), (LEVELS[TRACK.DROP][3], LEVELS[TRACK.DROP][4])),
+        ((60, 60), (LEVELS[TRACK.DROP][4], LEVELS[TRACK.DROP][5])),
+        ((85, 170), (LEVELS[TRACK.DROP][5], LEVELS[TRACK.DROP][6])),
+        ((180, 180), (LEVELS[TRACK.DROP][6], MAX_SKILL)))
 )
 
 GAG_CARRY_LIMITS = (((10, 0, 0, 0, 0, 0, 0),      # Toon-up

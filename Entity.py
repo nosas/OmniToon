@@ -21,7 +21,6 @@ class Entity:
 
     @hp.setter
     def hp(self, new_hp: int) -> None:
-        # TODO try casting new_hp to int if it's a str or float
         if not isinstance(new_hp, int):
             try:
                 new_hp = int(new_hp)

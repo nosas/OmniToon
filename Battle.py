@@ -14,7 +14,7 @@ from .Exceptions import (CogAlreadyTrappedError, CogLuredError, Error,
                          InvalidCogAttackTarget, TooManyCogsError,
                          TooManyGagsError, TooManyToonsError)
 from .Gag import Gag, get_gag_track_name
-from .GagGlobals import Track
+from .GagGlobals import TRACK
 
 # TODO Create BattleCogBuilding w/ constructor accepting multi-toon&cogs
 # TODO Look into Strategy design patterns for Toon decision making
@@ -381,7 +381,7 @@ class BattleToon(BattleEntity):
         #     # Trap-specific attack logic:
         #     #   If the Cog is NOT Lured, set the Trap's setup attr to True so
         #     #   the Toon sets up the Trap rather than damages the Cog with the Trap
-        #     if gag_atk.track == Track.Trap.value:
+        #     if gag_atk.track == TRACK.TRAP:
         #         # No damage is done to Cog until the Cog is Lured onto the Trap
         #         # We're only setting up the Trap Gag here
         #         gag_atk.is_setup = True
@@ -420,7 +420,7 @@ class BattleToon(BattleEntity):
         #         #   If setting up Trap, don't do any damage to Cog
         #         #   If not setting up or attacking, we're attacking a Lured Cog
         #         #       and we should force a miss
-        #         if gag_atk.track == Track.Trap.value:
+        #         if gag_atk.track == TRACK.TRAP:
         #             if gag_atk.is_setup:
         #                 # No damage is done to Cog until the Cog is Lured onto Trap
         #                 gag_setup = Gag(track=gag_atk.track, exp=gag_atk.exp,
@@ -461,7 +461,7 @@ class BattleToon(BattleEntity):
 
         #             # Trap-specific attack logic:
         #             #   Set Cog's is_lured/trapped/trap attrs
-        #             elif gag_atk.track == Track.Trap.value:
+        #             elif gag_atk.track == TRACK.TRAP:
         #                 # Trap should never be both is_attack and is_setup
         #                 assert not (gag_atk.is_attack and gag_atk.is_setup)
 
@@ -649,8 +649,8 @@ class BattleToon(BattleEntity):
         #         # attack the Cog when it's lured, and then we use Drop. But we'll
         #         # assume it's unviable until we develop Strategies
         #         # TODO #38
-        #         if any([target.is_lured and track_index in [Track.Trap.value, LURE_TRACK, DROP_TRACK],
-        #                 target.is_trapped and track_index == Track.Trap.value]
+        #         if any([target.is_lured and track_index in [TRACK.TRAP, LURE_TRACK, DROP_TRACK],
+        #                 target.is_trapped and track_index == TRACK.TRAP]
         #                ):
         #             all_viable_gags.append([-1]*7)
         #             continue
@@ -784,7 +784,7 @@ class Battle:
                 if atk_hit:
                     eligible = any([cog for cog in cogs if cog.level >= gag.level])
                     reward = gag.level + 1 if eligible else 0
-                    if gag.track == Track.Trap.value:  # Don't reward for Trap setup
+                    if gag.track == TRACK.TRAP:  # Don't reward for Trap setup
                         reward = reward if gag.is_attack else 0
                 else:  # Attack missed
                     reward = 0
