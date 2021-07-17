@@ -7,94 +7,136 @@ from typing import List, Optional
 from .Entity import Entity
 from .Exceptions import (GagCountError, LockedGagError, LockedGagTrackError,
                          NotEnoughGagsError, TooManyGagsError)
-from .Gag import (Gag, count_all_gags,  get_gag_exp, get_gag_exp_needed)
-from .GagGlobals import TRACK, LEVELS
+from .Gag import Gag, count_all_gags, get_gag_exp, get_gag_exp_needed
+from .GagGlobals import GAG, LEVELS, TRACK
 
+DEFAULT_BEAN_COUNT = 0
+DEFAULT_BEAN_LIMIT = 40
 DEFAULT_HP = 15
-# -1 means the gag_track is locked,0 means lvl 1 Gag is unlocked
-DEFAULT_LEVELS = [-1, -1, -1, -1, 0, 0, -1]
-# Populate DEFAULT_EXP from Gag track levels in DEFAULT_LEVELS
-DEFAULT_EXPS = [LEVELS[idx][level] for idx, level in enumerate(DEFAULT_LEVELS)]
+# -1 means the gag_track is locked, 0 means lvl 1 Gag is unlocked
+DEFAULT_TRACK_LEVELS = [-1, -1, -1, -1, 0, 0, -1]
+DEFAULT_TRACK_EXPS_CURRENT = DEFAULT_TRACK_LEVELS
+# Populate DEFAULT_TRACK_EXPS_NEXT from Gag track levels in DEFAULT_LEVELS
+# NOTE: The EXP value is the required to level up the Gag
+# DEFAULT_TRACK_EXPS_NEXT = [0, 0, 0, 0, 10, 10, 0]
+DEFAULT_TRACK_EXPS_NEXT = [
+    LEVELS[track_idx][level+1] for
+    track_idx, level in enumerate(DEFAULT_TRACK_LEVELS)
+    ]
 # DEFAULT_EXPS = [0, 0, 0, 0, 10, 10, 0]
-DEFAULT_GAGS = [[-1, -1, -1, -1, -1, -1, -1],  # Toon-Up
-                [-1, -1, -1, -1, -1, -1, -1],  # Trap
-                [-1, -1, -1, -1, -1, -1, -1],  # Lure
-                [-1, -1, -1, -1, -1, -1, -1],  # Sound
-                [0,  -1, -1, -1, -1, -1, -1],  # Throw
-                [0,  -1, -1, -1, -1, -1, -1],  # Squirt
-                [-1, -1, -1, -1, -1, -1, -1]]  # Drop
+DEFAULT_GAG_COUNT = [[-1, -1, -1, -1, -1, -1, -1],  # Toon-Up
+                     [-1, -1, -1, -1, -1, -1, -1],  # Trap
+                     [-1, -1, -1, -1, -1, -1, -1],  # Lure
+                     [-1, -1, -1, -1, -1, -1, -1],  # Sound
+                     [0,  -1, -1, -1, -1, -1, -1],  # Throw
+                     [0,  -1, -1, -1, -1, -1, -1],  # Squirt
+                     [-1, -1, -1, -1, -1, -1, -1]]  # Drop
 DEFAULT_GAG_LIMIT = 20
 
 
+def get_default_exps_current():
+    return DEFAULT_TRACK_EXPS_CURRENT.copy()
+
+
+def get_default_exps_next():
+    return DEFAULT_TRACK_EXPS_NEXT.copy()
+
+
+def get_default_gags():
+    default_gags = []
+
+    gag_track_list = []
+    for gag_enum in GAG:
+        gag_track_list.append(
+            Gag(exp=DEFAULT_TRACK_EXPS_CURRENT[gag_enum.track],
+                level=gag_enum.level,
+                track=gag_enum.track,
+                count=DEFAULT_GAG_COUNT[gag_enum.track][gag_enum.level])
+        )
+
+        if gag_enum.level == 6:  # or gag_enum.index
+            default_gags.append(gag_track_list)
+            gag_track_list = []
+
+    return default_gags
+
+
 @dataclass
-class Toon(Entity):
-    """Toon object class
+class Inventory:
 
-    Args:
-        name (str): Name of the Toon
-        hp (int, optional): Laff-o-Meter (health points) of a Toon
-        gags (list, optional): 2-D list, ex: `gags[GAG_TRACK][GAG]`.
-            Defaults to DEFAULT_GAGS.
-            Example `gags` ::
-                gags = [[0,   0,  0,  5,  5,  3, -1],  # 0 Toon-up
-                        [-1, -1, -1, -1, -1, -1, -1],  # 1 Trap (locked)
-                        [0,   0,  0,  0,  5,  3,  1],  # 2 Lure
-                        [0,   0,  0,  0,  5,  3, -1],  # 3 Sound
-                        [0,   2,  1,  4,  4,  2, -1],  # 4 Throw
-                        [0,   0,  0,  5,  5,  3, -1],  # 5 Squirt
-                        [0,   9,  5, -1, -1, -1, -1]]  # 6 Drop
+    _gags: List[List[Gag]] = field(init=False, default_factory=get_default_gags)
+    gag_exps: Optional[List[int]] = field(default_factory=get_default_exps_current)
+    # TODO Turn this into a property
+    gag_exps_next: Optional[List[int]] = field(init=False, default_factory=get_default_exps_next)
 
-        gag_exps (list, optional): List containing Gag track EXP.
-            Defaults to DEFAULT_EXPS.
-            Example `gag_exps` ::
-                gag_exps = [7421,   # 0 Toon-up
-                            0,      # 1 Trap (locked)
-                            10101,  # 2 Lure
-                            9443,   # 3 Sound
-                            8690,   # 4 Throw
-                            6862,   # 5 Squirt
-                            191]    # 6 Drop
+    jellybeans: int = field(default=DEFAULT_BEAN_COUNT)
 
-        gag_levels (list, optional): List containing Gag track levels.
-            Defaults to DEFAULT_LEVELS.
-            Example `gag_levels` ::
-                gag_levels = [5,   # 0 Toon-up
-                                -1,  # 1 Trap (locked)
-                                6,   # 2 Lure
-                                5,   # 3 Sound
-                                5,   # 4 Throw
-                                5,   # 5 Squirt
-                                2]   # 6 Drop
+    max_jellybeans: int = field(default=DEFAULT_BEAN_LIMIT)
+    max_gags: Optional[int] = field(default=DEFAULT_GAG_LIMIT)
 
-        gag_limit (int, optional): Maximum number of Gags a Toon can carry.
-            Defaults to DEFAULT_GAG_LIMIT.
-    """
+    @property
+    def gags(self):
+        """Return a flattened list of Gags"""
 
-    hp: Optional[int] = field(default=DEFAULT_HP)
-    gags: Optional[List[List[int]]] = field(default_factory=list)
-    gag_exps: Optional[List[int]] = field(default_factory=list)
-    gag_levels: Optional[List[int]] = field(default_factory=list)
-    gag_limit: Optional[int] = field(default=DEFAULT_GAG_LIMIT)
+        return [gag for gag_list in self._gags for gag in gag_list]
 
-    def __post_init__(self):
-        super().__init__(name=self.name, hp=self.hp)
+    @property
+    def available_gags(self):
+        """Return a flattened list unlocked of Gags"""
 
-        if self.gags == []:
-            self.gags = DEFAULT_GAGS.copy()
-        if self.gag_exps == []:
-            self.gag_exps = DEFAULT_EXPS.copy()
-        if self.gag_levels == []:
-            self.gag_levels = DEFAULT_LEVELS.copy()
-        self.hp_max = self.hp
+        return [gag for gag in self.gags if gag.count != -1]
+
+    @gags.setter
+    def gags(self, new_gags: List[List[Gag]]):
         # Verify total Gag count in `gags` doesn't exceed `gag_limit`
-        if self._count_all_gags() > self.gag_limit:
-            self.gags = DEFAULT_GAGS.copy()
+        # if self._count_all_gags() > self.gag_limit:
+        #     raise TooManyGagsError
+        self._gags = new_gags
 
-    def __str__(self):
-        return f'"{self.name}" ({self.hp}/{self.hp_max}hp)'
+    def _calculate_gag_levels_from_gags(self) -> List[int]:
+        """Determine the Gag Level of each Gag Track, given a list of all Gags
 
-    def __repr__(self):
-        return self.__str__()
+        Returns:
+            List[int]: Level of each Gag track, -1 == locked, 0 == lvl 1 Gag is unlocked
+
+        Example Input:
+                DEFAULT_GAGS = [
+                    [-1, -1, -1, -1, -1, -1, -1],   # Toon-Up
+                    [-1, -1, -1, -1, -1, -1, -1],   # Trap
+                    [-1, -1, -1, -1, -1, -1, -1],   # Lure
+                    [-1, -1, -1, -1, -1, -1, -1],   # Sound
+                    [0,  -1, -1, -1, -1, -1, -1],   # Throw
+                    [0,  -1, -1, -1, -1, -1, -1],   # Squirt
+                    [-1, -1, -1, -1, -1, -1, -1]    # Drop
+                ]
+
+            Output: [-1, -1, -1, -1, 0, 0, -1, -1]
+        """
+        return [(6 - track.count(-1)) for track in self.gags]
+
+    def _calculate_gag_levels_from_exps(self) -> List[int]:
+        """Determine the Gag Level of each Gag Track, given a list of Track EXPs
+
+        Returns:
+            List[int]: Level of each Gag track, -1 == locked, 0 == lvl 1 Gag is unlocked
+
+        Example Input:
+                DEFAULT_EXPS = [-1, -1, -1, -1, 0, 0, -1, -1]
+
+            Output: [-1, -1, -1, -1, 0, 0, -1, -1]
+        """
+        gag_levels = [-1, -1, -1, -1, 0, 0, -1, -1]
+
+        for track_idx, current_exp in enumerate(self.gags):
+            if current_exp == -1:
+                continue
+
+            for level, exp in enumerate(LEVELS[track_idx]):
+                if current_exp <= exp:
+                    gag_levels[track_idx] = level
+                    continue
+
+        return gag_levels
 
     def _count_all_gags(self) -> int:
         """Return the Toon's total number of usable Gags
@@ -162,10 +204,6 @@ class Toon(Entity):
 
     # ! TODO #38, this & all attack-related stuff should go into Strategy
     def _pick_random_gag(self, target=None, attack=False) -> Gag:
-        if self._count_all_gags() == 0:
-            # If there are no Gags at all, raise GagCountError and restock
-            # TODO Need another error, this one is for individual Gags
-            raise GagCountError
 
         gags = self.gags if target is None else self.get_viable_attacks(target=target)
 
@@ -218,9 +256,6 @@ class Toon(Entity):
         random_gag = self.choose_gag(track=gag_track, level=gag_level,
                                      attack=attack)
         return random_gag
-
-    def _pick_random_attack(self, target) -> Gag:
-        return self._pick_random_gag(target=target, attack=True)
 
     def choose_gag(self, track: int, level: int, attack=False) -> Gag:
         """Return Gag object containing Gag's vital info, iff Toon has the Gag
@@ -305,3 +340,60 @@ class Toon(Entity):
         # Return True if the 2-D list is NOT empty, aka Toon has Gags
         # return self.gags != [[0]*7]*7
         return self._count_all_gags() != 0
+
+
+@dataclass
+class Toon(Entity):
+    """Toon object class
+
+    Args:
+        name (str): Name of the Toon
+        hp (int, optional): Laff-o-Meter (health points) of a Toon
+        gags (list, optional): 2-D list, ex: `gags[GAG_TRACK][GAG]`.
+            Defaults to DEFAULT_GAGS.
+            Example `gags` ::
+                gags = [[0,   0,  0,  5,  5,  3, -1],  # 0 Toon-up
+                        [-1, -1, -1, -1, -1, -1, -1],  # 1 Trap (locked)
+                        [0,   0,  0,  0,  5,  3,  1],  # 2 Lure
+                        [0,   0,  0,  0,  5,  3, -1],  # 3 Sound
+                        [0,   2,  1,  4,  4,  2, -1],  # 4 Throw
+                        [0,   0,  0,  5,  5,  3, -1],  # 5 Squirt
+                        [0,   9,  5, -1, -1, -1, -1]]  # 6 Drop
+
+        gag_exps (list, optional): List containing Gag track EXP.
+            Defaults to DEFAULT_EXPS.
+            Example `gag_exps` ::
+                gag_exps = [7421,   # 0 Toon-up
+                            0,      # 1 Trap (locked)
+                            10101,  # 2 Lure
+                            9443,   # 3 Sound
+                            8690,   # 4 Throw
+                            6862,   # 5 Squirt
+                            191]    # 6 Drop
+
+        gag_levels (list, optional): List containing Gag track levels.
+            Defaults to DEFAULT_LEVELS.
+            Example `gag_levels` ::
+                gag_levels = [5,   # 0 Toon-up
+                                -1,  # 1 Trap (locked)
+                                6,   # 2 Lure
+                                5,   # 3 Sound
+                                5,   # 4 Throw
+                                5,   # 5 Squirt
+                                2]   # 6 Drop
+
+        gag_limit (int, optional): Maximum number of Gags a Toon can carry.
+            Defaults to DEFAULT_GAG_LIMIT.
+    """
+
+    inventory: Inventory = field(default_factory=Inventory)
+    hp: Optional[int] = field(default=DEFAULT_HP)
+
+    def __post_init__(self):
+        super().__init__(name=self.name, hp=self.hp)
+
+    def __str__(self):
+        return f'"{self.name}" ({self.hp}/{self.hp_max}hp)'
+
+    def __repr__(self):
+        return self.__str__()

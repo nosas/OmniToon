@@ -1,17 +1,17 @@
 """
-BattleGlobalTracks = ['toon-up', 'trap', 'lure', 'sound', 'throw', 'squirt', 'drop']
-BattleGlobalNPCTracks = ['restock', 'toons hit', 'cogs miss']
-BattleGlobalAvPropStrings = (
- ('Feather', 'Megaphone', 'Lipstick', 'Bamboo Cane', 'Pixie Dust', 'Juggling Balls', 'High Dive'),
- ('Banana Peel', 'Rake', 'Marbles', 'Quicksand', 'Trapdoor', 'TNT', 'Railroad'),
- ('$1 bill', 'Small Magnet', '$5 bill', 'Big Magnet', '$10 bill', 'Hypno-goggles', 'Presentation'),
- ('Bike Horn', 'Whistle', 'Bugle', 'Aoogah', 'Elephant Trunk', 'Foghorn', 'Opera Singer'),
- ('Cupcake', 'Fruit Pie Slice', 'Cream Pie Slice', 'Whole Fruit Pie', 'Whole Cream Pie', 'Birthday Cake', 'Wedding Cake'),
- ('Squirting Flower', 'Glass of Water', 'Squirt Gun', 'Seltzer Bottle', 'Fire Hose', 'Storm Cloud', 'Geyser'),
- ('Flower Pot', 'Sandbag', 'Anvil', 'Big Weight', 'Safe', 'Grand Piano', 'Toontanic')
- )
-
+    BattleGlobalTracks = ['toon-up', 'trap', 'lure', 'sound', 'throw', 'squirt', 'drop']
+    BattleGlobalNPCTracks = ['restock', 'toons hit', 'cogs miss']
+    BattleGlobalAvPropStrings = (
+    ('Feather', 'Megaphone', 'Lipstick', 'Bamboo Cane', 'Pixie Dust', 'Juggling Balls', 'High Dive'),
+    ('Banana Peel', 'Rake', 'Marbles', 'Quicksand', 'Trapdoor', 'TNT', 'Railroad'),
+    ('$1 bill', 'Small Magnet', '$5 bill', 'Big Magnet', '$10 bill', 'Hypno-goggles', 'Presentation'),
+    ('Bike Horn', 'Whistle', 'Bugle', 'Aoogah', 'Elephant Trunk', 'Foghorn', 'Opera Singer'),
+    ('Cupcake', 'Fruit Pie Slice', 'Cream Pie Slice', 'Whole Fruit Pie', 'Whole Cream Pie', 'Birthday Cake', 'Wedding Cake'),
+    ('Squirting Flower', 'Glass of Water', 'Squirt Gun', 'Seltzer Bottle', 'Fire Hose', 'Storm Cloud', 'Geyser'),
+    ('Flower Pot', 'Sandbag', 'Anvil', 'Big Weight', 'Safe', 'Grand Piano', 'Toontanic')
+    )
 """  # noqa
+from __future__ import annotations
 
 from dataclasses import dataclass, field
 from math import floor as math_floor
@@ -45,11 +45,9 @@ class Gag:
     # self.capacity_maximum = 5 + (5*(highest_level-level))
 
     def __post_init__(self):
+        self.accuracy = get_gag_accuracy(track=self.track, level=self.level)
         self.name = get_gag_name(track=self.track, level=self.level)
         self.track_name = get_gag_track_name(track=self.track)
-        # ! Damage, quantity, capacity need to be dynamically updated after atk
-        self.damage = get_gag_damage(track=self.gag.track, level=self.gag.level, exp=self.gag.exp)
-        self.accuracy = get_gag_accuracy(track=self.gag.track, level=self.gag.level)
         self.target = get_gag_target(name=self.name)
 
     def __str__(self):
@@ -58,12 +56,18 @@ class Gag:
                f'"{self.name}" ({self.track, self.level}, {self.damage}dmg)'
 
     def __repr__(self):
-        # repr(gag_throw) == (track_idx, level, exp, damage_min, damage_max,
-        #                     damage, accuracy, count_current, count_max)
+        #    , setup={self.is_setup}, f' attack={self.is_attack})'
         return f'Gag(track_name="{self.track_name}", track={self.track}, '\
                f'level={self.level}, name="{self.name}", count={self.count}, '\
-               f'damage={self.damage}, exp={self.exp}, setup={self.is_setup},'\
-               f' attack={self.is_attack})'
+               f'damage={self.damage}, exp={self.exp}'
+
+    @property
+    def damage(self) -> int:
+        return get_gag_damage(track=self.track, level=self.level, exp=self.exp)
+
+    @property
+    def max_count(self) -> int:
+        return get_gag_carry_limits(track=self.track, level=self.level)
 
 
 def count_all_gags(gags: list) -> int:
