@@ -7,7 +7,7 @@ from random import randint
 from typing import List, Tuple, Union
 
 from .Attack import Attack
-from .AttackGlobals import Group
+from .AttackGlobals import GROUP
 from .Cog import Cog
 from .Entity import BattleEntity, Entity
 from .Exceptions import (CogAlreadyTrappedError, CogLuredError, Error,
@@ -629,10 +629,10 @@ class ToonAttackState(AttackState):
         # #44, Do attacks in order, sorted ascending (low->high) GagTrack index
         for gag_track in sorted(potential_attacks):
             # TODO #20, Calculate bonus damage
-            highest_accuracy = max(
-                gag.accuracy for _, _, gag in potential_attacks[gag_track])
-            total_damage = sum(
-                gag.damage for _, _, gag in potential_attacks[gag_track])
+            # highest_accuracy = max(
+            #     gag.accuracy for _, _, gag in potential_attacks[gag_track])
+            # total_damage = sum(
+            #     gag.damage for _, _, gag in potential_attacks[gag_track])
 
             print(f"        [>] Gag Track : {get_gag_track_name(gag_track)}")
             for toon, target_cogs, gag_atk in potential_attacks[gag_track]:
@@ -681,7 +681,7 @@ class CogAttackState(AttackState):
 
             viable_toons = [toon for toon in self.context.toons
                             if not toon.is_defeated]
-            if cog_atk.target == Group.Multi:
+            if cog_atk.target == GROUP.MULTI:
                 print(f"        [+] {self} BattleEntity {cog} targets all Toons "
                       f"{viable_toons}")
                 for toon in viable_toons:

@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from builtins import Exception
 
-from .Gag import Gag
-
 
 class Error(Exception):
     pass
@@ -56,7 +54,7 @@ class TooManyGagsError(GagCountError):
 
 class NotEnoughGagsError(GagCountError):
     """ Toon chooses a Gag with 0 quantity"""
-    def __init__(self, gag: Gag = None, message="Insufficient Gag quantity"):
+    def __init__(self, gag, message="Insufficient Gag quantity"):
         self.gag = gag
         self.message = message
         super().__init__(self.message)

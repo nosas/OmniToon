@@ -34,7 +34,18 @@ class GAG(bytes, Enum):
 
     @classmethod
     def from_tuple(cls, track_gag_tuple: Tuple[Union[TRACK | int], int]) -> GAG:
-        track = track_gag_tuple[0]
+        """Return GAG enum object from a tuple containing TRACK, gag_level
+
+        Example: (TRACK.HEAL, 0) return GAG.FEATHER
+                 (TRACK.HEAL.value, 0) also returns GAG.FEATHER
+                 (0, 0) also returns GAG.FEATHER
+        Args:
+            track_gag_tuple (Tuple[Union[TRACK): Tuple containing TRACK, gag_level
+
+        Returns:
+            GAG: GAG enum object
+        """
+        track = TRACK(track_gag_tuple[0])
         gag_level = track_gag_tuple[1]
         return cls(cls._get_gag_idx(track=track, gag_level=gag_level))
 
@@ -138,6 +149,26 @@ LEVELS = [[0, 20, 200, 800, 2000, 6000, 10000],    # Toon-Up
           [0, 10, 50, 400, 2000, 6000, 10000],     # Throw
           [0, 10, 50, 400, 2000, 6000, 10000],     # Squirt
           [0, 20, 100, 500, 2000, 6000, 10000]]    # Drop
+
+# -1 means the gag_track is locked, 0 means lvl 1 Gag is unlocked
+DEFAULT_TRACK_LEVELS = [-1, -1, -1, -1, 0, 0, -1]
+DEFAULT_TRACK_EXPS_CURRENT = DEFAULT_TRACK_LEVELS
+# Populate DEFAULT_TRACK_EXPS_NEXT from Gag track levels in DEFAULT_LEVELS
+# NOTE: The EXP value is the required to level up the Gag
+# DEFAULT_TRACK_EXPS_NEXT = [0, 0, 0, 0, 10, 10, 0]
+DEFAULT_TRACK_EXPS_NEXT = [
+    LEVELS[track_idx][level+1] for
+    track_idx, level in enumerate(DEFAULT_TRACK_LEVELS)
+    ]
+# DEFAULT_EXPS = [0, 0, 0, 0, 10, 10, 0]
+DEFAULT_GAG_COUNT = [[-1, -1, -1, -1, -1, -1, -1],  # Toon-Up
+                     [-1, -1, -1, -1, -1, -1, -1],  # Trap
+                     [-1, -1, -1, -1, -1, -1, -1],  # Lure
+                     [-1, -1, -1, -1, -1, -1, -1],  # Sound
+                     [0,  -1, -1, -1, -1, -1, -1],  # Throw
+                     [0,  -1, -1, -1, -1, -1, -1],  # Squirt
+                     [-1, -1, -1, -1, -1, -1, -1]]  # Drop
+DEFAULT_GAG_LIMIT = 20
 
 # MIN_MAX_TUPLE = GAG_DAMAGE[GAG_TRACK_INDEX][GAG_LEVEL] = ((min_dmg, max_dmg), (min_exp, max_exp))  # noqa
 # MIN_DMG, MAX_DMG = MIN_MAX_TUPLE[0] = (min_dmg, max_dmg)
