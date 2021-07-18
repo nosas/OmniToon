@@ -1,11 +1,14 @@
+from __future__ import annotations
 
-ATK_TGT_UNKNOWN, ATK_TGT_SINGLE, ATK_TGT_MULTI = (0, 1, 2)  # previously 1,2,3
+from dataclasses import dataclass, field
+
+from .AttackGlobals import GROUP
 
 
+@dataclass
 class Attack():
-    def __init__(self, name: str, damage: int, accuracy: int,
-                 target: int = ATK_TGT_UNKNOWN):
-        self.name = name
-        self.damage = damage
-        self.accuracy = accuracy
-        self.target = target  # Multi-target or single-target
+
+    name: str
+    damage: int
+    accuracy: int
+    group: int = field(default=GROUP.UNKNOWN)  # Multi or single-target attack

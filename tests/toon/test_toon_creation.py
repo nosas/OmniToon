@@ -1,54 +1,41 @@
-from ...GagGlobals import count_all_gags
-from ...Toon import (DEFAULT_EXPS, DEFAULT_GAG_LIMIT, DEFAULT_GAGS, DEFAULT_HP,
-                     DEFAULT_LEVELS)
-from ..fixtures.toon_fixtures import toon_astro, toon_default
+from ...Gag import Gags
+from ...GagGlobals import DEFAULT_GAG_LIMIT
+from ...Toon import (DEFAULT_BEAN_COUNT, DEFAULT_BEAN_LIMIT, DEFAULT_HP,
+                     Inventory, Toon)
+
+DEFAULT_NAME = "Mickey"
+
+NAME = "Astro"
+HP = 65
+LEVELS = [5, -1, 6, 5, 5, 5, 2]
+TRACK_EXPS = [7421, 0, 10101, 9443, 8690, 6862, 191]
+GAG_COUNT = [[0,   0,  0,  5,  5,  3, -1],  # 0 TOON-UP
+             [-1, -1, -1, -1, -1, -1, -1],  # 1 TRAP (LOCKED)
+             [0,   0,  0,  0,  5,  3,  1],  # 2 LURE
+             [0,   0,  0,  0,  5,  3, -1],  # 3 SOUND
+             [0,   2,  1,  4,  4,  2, -1],  # 4 THROW
+             [0,   0,  0,  5,  5,  3, -1],  # 5 SQUIRT
+             [0,   9,  5, -1, -1, -1, -1]]  # 6 DROP
+GAG_LIMIT = 70
 
 
-class TestDefault:
-    """Baseline testing for Toon with Default values"""
-    # TODO #9, Add battle scenarios (losing, winning) in `test_toon_battle.py`
+class TestToonCreation:
 
-    def test_hp(self, toon_default):
-        assert toon_default.hp == DEFAULT_HP
+    def test_toon_default_creation(self):
+        t = Toon(name=DEFAULT_NAME)
 
-    def test_gags(self, toon_default):
-        assert toon_default.gags == DEFAULT_GAGS
+        assert t.name == DEFAULT_NAME
+        assert t.hp == DEFAULT_HP
+        assert t.inventory == Inventory()
+        assert t.inventory.gags == Gags()
+        assert t.inventory.max_gags == DEFAULT_GAG_LIMIT
+        assert t.inventory.jellybeans == DEFAULT_BEAN_COUNT
+        assert t.inventory.max_jellybeans == DEFAULT_BEAN_LIMIT
 
-    def test_gag_exps(self, toon_default):
-        assert toon_default.gag_exps == DEFAULT_EXPS
+    def test_toon_astro_creation(self):
+        astro_gags = Gags(gag_count=GAG_COUNT, track_exps=TRACK_EXPS)
+        astro_inventory = Inventory(gags=astro_gags, max_gags=GAG_LIMIT)
+        astro = Toon(name=NAME, hp=HP, inventory=astro_inventory)
 
-    def test_levels(self, toon_default):
-        assert toon_default.gag_levels == DEFAULT_LEVELS
-
-    def test_gag_limit(self, toon_default):
-        assert toon_default.gag_limit == DEFAULT_GAG_LIMIT
-
-    def test_has_gags(self, toon_default):
-        assert toon_default.has_gags() is False
-
-    def test_gag_count(self, toon_default):
-        assert count_all_gags(toon_default.gags) == 0
-
-
-class TestAstro:
-    """Specific testing against my Toon, Astro"""
-    # ? Verify structures of the constructor's args, gag[s|[exps|levels|etc.]
-    # TODO #9, Add battle scenarios (losing, winning) in `test_toon_battle.py`
-    # ? Are we neglecting any negative tests?
-    # ? Yes. But we're only focusing on toon_astro for now, until we can create
-    # ? random Toons and have multi-Toon battle support
-
-    def test_hp(self, toon_astro):
-        assert toon_astro.hp == 65
-
-    def test_gag_exps(self, toon_astro):
-        assert toon_astro.gag_exps == [7421, 0, 10101, 9443, 8690, 6862, 191]
-
-    def test_levels(self, toon_astro):
-        assert toon_astro.gag_levels == [5, -1, 6, 5, 5, 5, 2]
-
-    def test_gag_limit(self, toon_astro):
-        assert toon_astro.gag_limit == 70
-
-    def test_has_gags(self, toon_astro):
-        assert toon_astro.has_gags() is True
+        assert astro.name == NAME
+        assert astro.hp == HP

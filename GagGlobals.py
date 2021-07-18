@@ -1,18 +1,125 @@
-# %% Import functions, define globals
 # Original: https://github.com/forest2001/Toontown-Rewritten/blob/master/toontown/toonbase/ToontownBattleGlobals.py  # noqa
+from __future__ import annotations
 
-from math import floor as math_floor
+from enum import Enum, IntEnum
+from typing import Tuple, Union
 
-from .Attack import ATK_TGT_MULTI, ATK_TGT_SINGLE
 
-# Gag track indexes
-HEAL_TRACK = 0
-TRAP_TRACK = 1
-LURE_TRACK = 2
-SOUND_TRACK = 3
-THROW_TRACK = 4
-SQUIRT_TRACK = 5
-DROP_TRACK = 6
+# Gag track indices
+class TRACK(IntEnum):
+    HEAL = 0
+    TRAP = 1
+    LURE = 2
+    SOUND = 3
+    THROW = 4
+    SQUIRT = 5
+    DROP = 6
+
+
+# Gag indices
+class GAG(bytes, Enum):
+
+    @staticmethod
+    def _get_gag_idx(track: int, gag_level: int) -> int:
+        return track * 7 + gag_level
+
+    def __new__(cls, track: TRACK, level: int):
+        gag_index = cls._get_gag_idx(track=track, gag_level=level)
+        obj = bytes.__new__(cls, [gag_index])
+        obj._value_ = gag_index
+        obj._value = (track, level)
+        obj._track = track
+        obj._level = level
+        return obj
+
+    @classmethod
+    def from_tuple(cls, track_gag_tuple: Tuple[Union[TRACK | int], int]) -> GAG:
+        """Return GAG enum object from a tuple containing TRACK, gag_level
+
+        Example: (TRACK.HEAL, 0) return GAG.FEATHER
+                 (TRACK.HEAL.value, 0) also returns GAG.FEATHER
+                 (0, 0) also returns GAG.FEATHER
+        Args:
+            track_gag_tuple (Tuple[Union[TRACK): Tuple containing TRACK, gag_level
+
+        Returns:
+            GAG: GAG enum object
+        """
+        track = TRACK(track_gag_tuple[0])
+        gag_level = track_gag_tuple[1]
+        return cls(cls._get_gag_idx(track=track, gag_level=gag_level))
+
+    @property
+    def track(self) -> TRACK:
+        # return self.value[0].value
+        return self._track
+
+    @property
+    def level(self) -> int:
+        # return self.value[1]
+        return self._level
+
+    @property
+    def value(self) -> Tuple[TRACK, int]:
+        return (self._track, self._level)
+
+    FEATHER = (TRACK.HEAL, 0)
+    MEGAPHONE = (TRACK.HEAL, 1)
+    LIPSTICK = (TRACK.HEAL, 2)
+    BAMBOO_CANE = (TRACK.HEAL, 3)
+    PIXIE_DUST = (TRACK.HEAL, 4)
+    JUGGLING_BALLS = (TRACK.HEAL, 5)
+    HIGH_DIVE = (TRACK.HEAL, 6)
+
+    BANANA_PEEL = (TRACK.TRAP, 0)
+    RAKE = (TRACK.TRAP, 1)
+    MARBLES = (TRACK.TRAP, 2)
+    QUICKSAND = (TRACK.TRAP, 3)
+    TRAPDOOR = (TRACK.TRAP, 4)
+    TNT = (TRACK.TRAP, 5)
+    RAILROAD = (TRACK.TRAP, 6)
+
+    ONE_BILL = (TRACK.LURE, 0)
+    SMALL_MAGNET = (TRACK.LURE, 1)
+    FIVE_BILL = (TRACK.LURE, 2)
+    BIG_MAGNET = (TRACK.LURE, 3)
+    TEN_BILL = (TRACK.LURE, 4)
+    HYPNO_GOGGLES = (TRACK.LURE, 5)
+    PRESENTATION = (TRACK.LURE, 6)
+
+    BIKE_HORN = (TRACK.SOUND, 0)
+    WHISTLE = (TRACK.SOUND, 1)
+    BUGLE = (TRACK.SOUND, 2)
+    AOOGAH = (TRACK.SOUND, 3)
+    ELEPHANT_TRUNK = (TRACK.SOUND, 4)
+    FOGHORN = (TRACK.SOUND, 5)
+    OPERA_SINGER = (TRACK.SOUND, 6)
+
+    CUPCAKE = (TRACK.THROW, 0)
+    FRUIT_PIE_SLICE = (TRACK.THROW, 1)
+    CREAM_PIE_SLICE = (TRACK.THROW, 2)
+    WHOLE_FRUIT_PIE = (TRACK.THROW, 3)
+    WHOLE_CREAM_PIE = (TRACK.THROW, 4)
+    BIRTHDAY_CAKE = (TRACK.THROW, 5)
+    WEDDING_CAKE = (TRACK.THROW, 6)
+
+    SQUIRTING_FLOWER = (TRACK.SQUIRT, 0)
+    GLASS_OF_WATER = (TRACK.SQUIRT, 1)
+    SQUIRT_GUN = (TRACK.SQUIRT, 2)
+    SELTZER_BOTTLE = (TRACK.SQUIRT, 3)
+    FIRE_HOSE = (TRACK.SQUIRT, 4)
+    STORM_CLOUD = (TRACK.SQUIRT, 5)
+    GEYSER = (TRACK.SQUIRT, 6)
+
+    FLOWER_POT = (TRACK.DROP, 0)
+    SANDBAG = (TRACK.DROP, 1)
+    ANVIL = (TRACK.DROP, 2)
+    BIG_WEIGHT = (TRACK.DROP, 3)
+    SAFE = (TRACK.DROP, 4)
+    GRAND_PIANO = (TRACK.DROP, 5)
+    TOONTANIC = (TRACK.DROP, 6)
+
+
 REG_MAX_SKILL = 10000  # Max gag EXP
 UBER_SKILL = 500       # EXP required to unlock final gag
 MAX_SKILL = UBER_SKILL + REG_MAX_SKILL
@@ -43,60 +150,80 @@ LEVELS = [[0, 20, 200, 800, 2000, 6000, 10000],    # Toon-Up
           [0, 10, 50, 400, 2000, 6000, 10000],     # Squirt
           [0, 20, 100, 500, 2000, 6000, 10000]]    # Drop
 
+# -1 means the gag_track is locked, 0 means lvl 1 Gag is unlocked
+DEFAULT_TRACK_LEVELS = [-1, -1, -1, -1, 0, 0, -1]
+DEFAULT_TRACK_EXPS_CURRENT = DEFAULT_TRACK_LEVELS
+# Populate DEFAULT_TRACK_EXPS_NEXT from Gag track levels in DEFAULT_LEVELS
+# NOTE: The EXP value is the required to level up the Gag
+# DEFAULT_TRACK_EXPS_NEXT = [0, 0, 0, 0, 10, 10, 0]
+DEFAULT_TRACK_EXPS_NEXT = [
+    LEVELS[track_idx][level+1] for
+    track_idx, level in enumerate(DEFAULT_TRACK_LEVELS)
+    ]
+# DEFAULT_EXPS = [0, 0, 0, 0, 10, 10, 0]
+DEFAULT_GAG_COUNT = [[-1, -1, -1, -1, -1, -1, -1],  # Toon-Up
+                     [-1, -1, -1, -1, -1, -1, -1],  # Trap
+                     [-1, -1, -1, -1, -1, -1, -1],  # Lure
+                     [-1, -1, -1, -1, -1, -1, -1],  # Sound
+                     [0,  -1, -1, -1, -1, -1, -1],  # Throw
+                     [0,  -1, -1, -1, -1, -1, -1],  # Squirt
+                     [-1, -1, -1, -1, -1, -1, -1]]  # Drop
+DEFAULT_GAG_LIMIT = 20
+
 # MIN_MAX_TUPLE = GAG_DAMAGE[GAG_TRACK_INDEX][GAG_LEVEL] = ((min_dmg, max_dmg), (min_exp, max_exp))  # noqa
 # MIN_DMG, MAX_DMG = MIN_MAX_TUPLE[0] = (min_dmg, max_dmg)
 # MIN_EXP, MAX_EXP = MIN_MAX_TUPLE[1] = (min_exp, max_exp)
 #    Example of Level 3 Throw min/max = GAG_DAMAGE[4][3]
 GAG_DAMAGE = (
-    (((8, 10), (LEVELS[HEAL_TRACK][0], LEVELS[HEAL_TRACK][1])),      # Toon-Up
-        ((15, 18), (LEVELS[HEAL_TRACK][1], LEVELS[HEAL_TRACK][2])),
-        ((25, 30), (LEVELS[HEAL_TRACK][2], LEVELS[HEAL_TRACK][3])),
-        ((40, 45), (LEVELS[HEAL_TRACK][3], LEVELS[HEAL_TRACK][4])),
-        ((60, 70), (LEVELS[HEAL_TRACK][4], LEVELS[HEAL_TRACK][5])),
-        ((90, 120), (LEVELS[HEAL_TRACK][5], LEVELS[HEAL_TRACK][6])),
-        ((210, 210), (LEVELS[HEAL_TRACK][6], MAX_SKILL))),
-    (((10, 12), (LEVELS[TRAP_TRACK][0], LEVELS[TRAP_TRACK][1])),     # Trap
-        ((18, 20), (LEVELS[TRAP_TRACK][1], LEVELS[TRAP_TRACK][2])),
-        ((30, 35), (LEVELS[TRAP_TRACK][2], LEVELS[TRAP_TRACK][3])),
-        ((45, 50), (LEVELS[TRAP_TRACK][3], LEVELS[TRAP_TRACK][4])),
-        ((60, 70), (LEVELS[TRAP_TRACK][4], LEVELS[TRAP_TRACK][5])),
-        ((90, 180), (LEVELS[TRAP_TRACK][5], LEVELS[TRAP_TRACK][6])),
-        ((195, 195), (LEVELS[TRAP_TRACK][6], MAX_SKILL))),
-    (((0, 0), (LEVELS[LURE_TRACK][0], LEVELS[LURE_TRACK][1])),       # Lure
-        ((0, 0), (LEVELS[LURE_TRACK][1], LEVELS[LURE_TRACK][2])),
-        ((0, 0), (LEVELS[LURE_TRACK][2], LEVELS[LURE_TRACK][3])),
-        ((0, 0), (LEVELS[LURE_TRACK][3], LEVELS[LURE_TRACK][4])),
-        ((0, 0), (LEVELS[LURE_TRACK][4], LEVELS[LURE_TRACK][5])),
-        ((0, 0), (LEVELS[LURE_TRACK][5], LEVELS[LURE_TRACK][6])),
-        ((0, 0), (LEVELS[LURE_TRACK][6], MAX_SKILL))),
-    (((3, 4), (LEVELS[SOUND_TRACK][0], LEVELS[SOUND_TRACK][1])),       # Sound
-        ((5, 7), (LEVELS[SOUND_TRACK][1], LEVELS[SOUND_TRACK][2])),
-        ((9, 11), (LEVELS[SOUND_TRACK][2], LEVELS[SOUND_TRACK][3])),
-        ((14, 16), (LEVELS[SOUND_TRACK][3], LEVELS[SOUND_TRACK][4])),
-        ((19, 21), (LEVELS[SOUND_TRACK][4], LEVELS[SOUND_TRACK][5])),
-        ((25, 50), (LEVELS[SOUND_TRACK][5], LEVELS[SOUND_TRACK][6])),
-        ((90, 90), (LEVELS[SOUND_TRACK][6], MAX_SKILL))),
-    (((4, 6), (LEVELS[THROW_TRACK][0], LEVELS[THROW_TRACK][1])),       # Throw
-        ((8, 10), (LEVELS[THROW_TRACK][1], LEVELS[THROW_TRACK][2])),
-        ((14, 17), (LEVELS[THROW_TRACK][2], LEVELS[THROW_TRACK][3])),
-        ((24, 27), (LEVELS[THROW_TRACK][3], LEVELS[THROW_TRACK][4])),
-        ((36, 40), (LEVELS[THROW_TRACK][4], LEVELS[THROW_TRACK][5])),
-        ((48, 100), (LEVELS[THROW_TRACK][5], LEVELS[THROW_TRACK][6])),
-        ((120, 120), (LEVELS[THROW_TRACK][6], MAX_SKILL))),
-    (((3, 4), (LEVELS[SQUIRT_TRACK][0], LEVELS[SQUIRT_TRACK][1])),     # Squirt
-        ((6, 8), (LEVELS[SQUIRT_TRACK][1], LEVELS[SQUIRT_TRACK][2])),
-        ((10, 12), (LEVELS[SQUIRT_TRACK][2], LEVELS[SQUIRT_TRACK][3])),
-        ((18, 21), (LEVELS[SQUIRT_TRACK][3], LEVELS[SQUIRT_TRACK][4])),
-        ((27, 30), (LEVELS[SQUIRT_TRACK][4], LEVELS[SQUIRT_TRACK][5])),
-        ((36, 80), (LEVELS[SQUIRT_TRACK][5], LEVELS[SQUIRT_TRACK][6])),
-        ((105, 105), (LEVELS[SQUIRT_TRACK][6], MAX_SKILL))),
-    (((10, 10), (LEVELS[DROP_TRACK][0], LEVELS[DROP_TRACK][1])),     # Drop
-        ((18, 18), (LEVELS[DROP_TRACK][1], LEVELS[DROP_TRACK][2])),
-        ((30, 30), (LEVELS[DROP_TRACK][2], LEVELS[DROP_TRACK][3])),
-        ((45, 45), (LEVELS[DROP_TRACK][3], LEVELS[DROP_TRACK][4])),
-        ((60, 60), (LEVELS[DROP_TRACK][4], LEVELS[DROP_TRACK][5])),
-        ((85, 170), (LEVELS[DROP_TRACK][5], LEVELS[DROP_TRACK][6])),
-        ((180, 180), (LEVELS[DROP_TRACK][6], MAX_SKILL)))
+    (((8, 10), (LEVELS[TRACK.HEAL][0], LEVELS[TRACK.HEAL][1])),      # Toon-Up
+        ((15, 18), (LEVELS[TRACK.HEAL][1], LEVELS[TRACK.HEAL][2])),
+        ((25, 30), (LEVELS[TRACK.HEAL][2], LEVELS[TRACK.HEAL][3])),
+        ((40, 45), (LEVELS[TRACK.HEAL][3], LEVELS[TRACK.HEAL][4])),
+        ((60, 70), (LEVELS[TRACK.HEAL][4], LEVELS[TRACK.HEAL][5])),
+        ((90, 120), (LEVELS[TRACK.HEAL][5], LEVELS[TRACK.HEAL][6])),
+        ((210, 210), (LEVELS[TRACK.HEAL][6], MAX_SKILL))),
+    (((10, 12), (LEVELS[TRACK.TRAP][0], LEVELS[TRACK.TRAP][1])),     # Trap
+        ((18, 20), (LEVELS[TRACK.TRAP][1], LEVELS[TRACK.TRAP][2])),
+        ((30, 35), (LEVELS[TRACK.TRAP][2], LEVELS[TRACK.TRAP][3])),
+        ((45, 50), (LEVELS[TRACK.TRAP][3], LEVELS[TRACK.TRAP][4])),
+        ((60, 70), (LEVELS[TRACK.TRAP][4], LEVELS[TRACK.TRAP][5])),
+        ((90, 180), (LEVELS[TRACK.TRAP][5], LEVELS[TRACK.TRAP][6])),
+        ((195, 195), (LEVELS[TRACK.TRAP][6], MAX_SKILL))),
+    (((0, 0), (LEVELS[TRACK.LURE][0], LEVELS[TRACK.LURE][1])),       # Lure
+        ((0, 0), (LEVELS[TRACK.LURE][1], LEVELS[TRACK.LURE][2])),
+        ((0, 0), (LEVELS[TRACK.LURE][2], LEVELS[TRACK.LURE][3])),
+        ((0, 0), (LEVELS[TRACK.LURE][3], LEVELS[TRACK.LURE][4])),
+        ((0, 0), (LEVELS[TRACK.LURE][4], LEVELS[TRACK.LURE][5])),
+        ((0, 0), (LEVELS[TRACK.LURE][5], LEVELS[TRACK.LURE][6])),
+        ((0, 0), (LEVELS[TRACK.LURE][6], MAX_SKILL))),
+    (((3, 4), (LEVELS[TRACK.SOUND][0], LEVELS[TRACK.SOUND][1])),       # Sound
+        ((5, 7), (LEVELS[TRACK.SOUND][1], LEVELS[TRACK.SOUND][2])),
+        ((9, 11), (LEVELS[TRACK.SOUND][2], LEVELS[TRACK.SOUND][3])),
+        ((14, 16), (LEVELS[TRACK.SOUND][3], LEVELS[TRACK.SOUND][4])),
+        ((19, 21), (LEVELS[TRACK.SOUND][4], LEVELS[TRACK.SOUND][5])),
+        ((25, 50), (LEVELS[TRACK.SOUND][5], LEVELS[TRACK.SOUND][6])),
+        ((90, 90), (LEVELS[TRACK.SOUND][6], MAX_SKILL))),
+    (((4, 6), (LEVELS[TRACK.THROW][0], LEVELS[TRACK.THROW][1])),       # Throw
+        ((8, 10), (LEVELS[TRACK.THROW][1], LEVELS[TRACK.THROW][2])),
+        ((14, 17), (LEVELS[TRACK.THROW][2], LEVELS[TRACK.THROW][3])),
+        ((24, 27), (LEVELS[TRACK.THROW][3], LEVELS[TRACK.THROW][4])),
+        ((36, 40), (LEVELS[TRACK.THROW][4], LEVELS[TRACK.THROW][5])),
+        ((48, 100), (LEVELS[TRACK.THROW][5], LEVELS[TRACK.THROW][6])),
+        ((120, 120), (LEVELS[TRACK.THROW][6], MAX_SKILL))),
+    (((3, 4), (LEVELS[TRACK.SQUIRT][0], LEVELS[TRACK.SQUIRT][1])),     # Squirt
+        ((6, 8), (LEVELS[TRACK.SQUIRT][1], LEVELS[TRACK.SQUIRT][2])),
+        ((10, 12), (LEVELS[TRACK.SQUIRT][2], LEVELS[TRACK.SQUIRT][3])),
+        ((18, 21), (LEVELS[TRACK.SQUIRT][3], LEVELS[TRACK.SQUIRT][4])),
+        ((27, 30), (LEVELS[TRACK.SQUIRT][4], LEVELS[TRACK.SQUIRT][5])),
+        ((36, 80), (LEVELS[TRACK.SQUIRT][5], LEVELS[TRACK.SQUIRT][6])),
+        ((105, 105), (LEVELS[TRACK.SQUIRT][6], MAX_SKILL))),
+    (((10, 10), (LEVELS[TRACK.DROP][0], LEVELS[TRACK.DROP][1])),     # Drop
+        ((18, 18), (LEVELS[TRACK.DROP][1], LEVELS[TRACK.DROP][2])),
+        ((30, 30), (LEVELS[TRACK.DROP][2], LEVELS[TRACK.DROP][3])),
+        ((45, 45), (LEVELS[TRACK.DROP][3], LEVELS[TRACK.DROP][4])),
+        ((60, 60), (LEVELS[TRACK.DROP][4], LEVELS[TRACK.DROP][5])),
+        ((85, 170), (LEVELS[TRACK.DROP][5], LEVELS[TRACK.DROP][6])),
+        ((180, 180), (LEVELS[TRACK.DROP][6], MAX_SKILL)))
 )
 
 GAG_CARRY_LIMITS = (((10, 0, 0, 0, 0, 0, 0),      # Toon-up
@@ -155,197 +282,3 @@ MULTI_TARGET_GAGS = [
     'Bike Horn', 'Whistle', 'Bugle', 'Aoogah', 'Elephant Trunk', 'Foghorn',
     'Opera Singer', 'Wedding Cake', 'Geyser', 'Toontanic'
     ]
-
-
-def count_all_gags(gags: list) -> int:
-    """Return the total number of Gags, given a 2-D list of Gags
-
-    Args:
-        gags (2-D list): List of Gags, can be obtained from Toon.gags
-            `gags` structure ::
-                DEFAULT_GAGS = [
-                    [-1, -1, -1, -1, -1, -1, -1],  # Toon-Up
-                    [-1, -1, -1, -1, -1, -1, -1],  # Trap
-                    [-1, -1, -1, -1, -1, -1, -1],  # Lure
-                    [-1, -1, -1, -1, -1, -1, -1],  # Sound
-                    [0,  -1, -1, -1, -1, -1, -1],  # Throw
-                    [0,  -1, -1, -1, -1, -1, -1],  # Squirt
-                    [-1, -1, -1, -1, -1, -1, -1]   # Drop
-                ]
-
-    Returns:
-        int: Total number of Gags
-    """
-    count = 0
-    for gag_track in gags:
-        # Summing the -1 values will result in a negative Gag count
-        # We can negate summing of -1 values by adding the count of -1 in the
-        # current Gag track list to the starting index of sum(gag_track)
-        count += sum(gag_track, start=gag_track.count(-1))
-
-    return count
-
-
-def get_gag_accuracy(track: int, level: int) -> int:
-    """atkAcc = propAcc + trackExp + tgtDef + bonus
-
-    Args:
-        track (int): Index number of the Gag Track <0-6>
-        level (int): Level of the Gag <0-6>
-
-    Returns:
-        int: [description]
-    """
-    return -1  # ! TODO #10 <<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-
-def get_gag_carry_limits(track: int, level: int) -> tuple:
-    """Return list of Gag carry limits based on Gag level
-
-    Args:
-        track (int): Index number of the Gag Track <0-6>
-        level (int): Level of the Gag <0-6>
-
-    Returns:
-        tuple: 7-member tuple of Gag carry limits
-
-        Example output for level 2 Drop track carry limits (track=6, lvl=1) ::
-            GAG_CARRY_LIMITS[6][1] = (10, 5, 0, 0, 0, 0, 0)
-    """
-
-    return GAG_CARRY_LIMITS[track][level]
-
-
-def get_gag_damage(track: int, level: int, exp: int) -> int:
-    """Calculate and return Gag damage, given track#, level# and exp
-
-    Args:
-        track (int): Index number of the Gag Track <0-6>
-        level (int): Level of the Gag <0-6>
-        exp (int): Current EXP of the Gag Track <0-10000?>
-
-    Returns:
-        int: Damage of Gag
-    """
-    # MIN_MAX_TUPLE = GAG_DAMAGE[GAG_TRACK_INDEX][GAG_INDEX] =>
-    #                 ((min_dmg, max_dmg), (min_exp, max_exp))
-    # MIN_DMG, MAX_DMG = MIN_MAX_TUPLE[0] = (min_dmg, max_dmg)
-    # MIN_EXP, MAX_EXP = MIN_MAX_TUPLE[1] = (min_exp, max_exp)
-    #    Example of Level 3 Throw min/max = GAG_DAMAGE[4][3]
-
-    min_dmg, max_dmg = get_gag_min_max_damage(track=track, level=level)
-    min_exp, max_exp = get_gag_min_max_exp(track=track, level=level)
-    exp_val = min(exp, max_exp)
-    exp_per_hp = float(max_exp - min_exp + 1) / float(max_dmg - min_dmg + 1)
-    damage = math_floor((exp_val - min_exp) / exp_per_hp) + min_dmg
-    if damage <= 0:
-        damage = min_dmg
-    # if propAndOrganicBonusStack:
-    #     originalDamage = damage
-    #     if organicBonus:
-    #         damage += getDamageBonus(originalDamage)
-    #     if propBonus:
-    #         damage += getDamageBonus(originalDamage)
-    # elif organicBonus or propBonus:
-    #     damage += getDamageBonus(damage)
-    return damage
-
-
-def get_gag_exp(track: int, current_exps: list) -> int:
-    """Get EXP for a Toon's Gag Track, given track# and list of Gag exps
-
-    Args:
-        track (int): Index number of the Gag Track <0-6>
-        current_exps (list): Ordered 7-member list of all Gag Track EXPs, can
-                             be obtained from Toon.gag_exps
-            `current_exps` ordered structure ::
-                [
-                    HEAL_TRACK_XP,    # 0
-                    TRAP_TRACK_XP,    # 1
-                    LURE_TRACK_XP,    # 2
-                    SOUND_TRACK_XP,   # 3
-                    THROW_TRACK_XP,   # 4
-                    SQUIRT_TRACK_XP,  # 5
-                    DROP_TRACK_XP     # 6
-                ]
-
-    Returns:
-        int: Current Gag Track EXP
-    """
-    return current_exps[track]
-
-
-def get_gag_exp_needed(track: int, level: int, current_exps: list = None,
-                       current_exp: int = None) -> int:  # noqa
-    """Return the Gag Track EXP required to advance to next Gag Track level
-
-    Args:
-        track (int): Index number of the Gag Track <0-6>
-        level (int): Level of the Gag <0-6>
-        current_exps (list): Ordered 7-member list of all Gag Track EXPs, can
-                             be obtained from Toon.gag_exps
-            `current_exps` ordered structure ::
-                [
-                    HEAL_TRACK_XP,    # 0
-                    TRAP_TRACK_XP,    # 1
-                    LURE_TRACK_XP,    # 2
-                    SOUND_TRACK_XP,   # 3
-                    THROW_TRACK_XP,   # 4
-                    SQUIRT_TRACK_XP,  # 5
-                    DROP_TRACK_XP     # 6
-                ]
-
-    Returns:
-        int: EXP required to advance to next Gag Track level
-    """
-    assert current_exp or current_exps
-    if current_exps:  # If passing in Toon's EXPs
-        current_exp = get_gag_exp(track, current_exps)
-
-    next_gag_exp = LEVELS[track][level]
-    return next_gag_exp - current_exp
-
-
-def get_gag_min_max_damage(track: int, level: int) -> tuple[int, int]:
-    return GAG_DAMAGE[track][level][0]
-
-
-def get_gag_min_max_exp(track: int, level: int) -> tuple[int, int]:
-    return GAG_DAMAGE[track][level][1]
-
-
-def get_gag_name(track: int, level: int) -> str:
-    """Return name of the Gag, given a track# and level#
-
-    Args:
-        track (int): Index number of the Gag Track <0-6>
-        level (int): Level of the Gag <0-6>
-
-    Returns:
-        str: Name of the Gag, typically used for logging messages
-    """
-    return GAG_LABELS[track][level]
-
-
-def get_gag_target(name: str):
-    """Return whether a Gag attacks is single-target or multi-target
-
-    Args:
-        name (str): Name of the Gag
-
-    Returns:
-        int: Single-target (1) or multi-target (2)
-    """
-    return ATK_TGT_MULTI if name in MULTI_TARGET_GAGS else ATK_TGT_SINGLE
-
-
-def get_gag_track_name(track: int) -> str:
-    """Return name of the Gag Track, given a track#
-
-    Args:
-        track (int): Index number of the Gag Track <0-6>
-
-    Returns:
-        str: Name of the Gag Track, typically used for logging messages
-    """
-    return GAG_TRACK_LABELS[track]

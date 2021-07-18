@@ -5,7 +5,7 @@
 
 from random import randint
 
-from .Attack import ATK_TGT_MULTI, ATK_TGT_SINGLE
+from .AttackGlobals import GROUP
 from .Exceptions import (InvalidAttackIndex, InvalidAttackName, InvalidCogKey,
                          InvalidRelativeLevel)
 
@@ -35,15 +35,15 @@ COG_ATTRIBUTES = {
         'freq': (50, 30, 10, 5, 5),
         'acc': (35, 40, 45, 50, 55),
         'attacks': (
-            ('PoundKey', ATK_TGT_SINGLE,  # Name, Target
+            ('PoundKey', GROUP.SINGLE,    # Name, Target
                 (2, 2, 3, 4, 6),          # Dmg
                 (75, 75, 80, 80, 90),     # Acc
                 (30, 35, 40, 45, 50)),    # Freq
-            ('Shred', ATK_TGT_SINGLE,
+            ('Shred', GROUP.SINGLE,
                 (3, 4, 5, 6, 7),
                 (50, 55, 60, 65, 70),
                 (10, 15, 20, 25, 30)),
-            ('ClipOnTie', ATK_TGT_SINGLE,
+            ('ClipOnTie', GROUP.SINGLE,
                 (1, 1, 2, 2, 3),
                 (75, 80, 85, 90, 95),
                 (60, 50, 40, 30, 20))
@@ -57,23 +57,23 @@ COG_ATTRIBUTES = {
         'freq': (50, 30, 10, 5, 5),
         'acc': (45, 50, 55, 60, 65),
         'attacks': (
-            ('FountainPen', ATK_TGT_SINGLE,
+            ('FountainPen', GROUP.SINGLE,
                 (2, 3, 4, 6, 9),
                 (75, 75, 75, 75, 75),
                 (20, 20, 20, 20, 20)),
-            ('RubOut', ATK_TGT_SINGLE,
+            ('RubOut', GROUP.SINGLE,
                 (4, 5, 6, 8, 12),
                 (75, 75, 75, 75, 75),
                 (20, 20, 20, 20, 20)),
-            ('FingerWag', ATK_TGT_SINGLE,
+            ('FingerWag', GROUP.SINGLE,
                 (1, 2, 2, 3, 4),
                 (75, 75, 75, 75, 75),
                 (35, 30, 25, 20, 15)),
-            ('WriteOff', ATK_TGT_SINGLE,
+            ('WriteOff', GROUP.SINGLE,
                 (4, 6, 8, 10, 12),
                 (75, 75, 75, 75, 75),
                 (5, 10, 15, 20, 25)),
-            ('FillWithLead', ATK_TGT_SINGLE,
+            ('FillWithLead', GROUP.SINGLE,
                 (3, 4, 5, 6, 7),
                 (75, 75, 75, 75, 75),
                 (20, 20, 20, 20, 20))
@@ -87,19 +87,19 @@ COG_ATTRIBUTES = {
         'freq': (50, 30, 10, 5, 5),
         'acc': (65, 70, 75, 80, 85),
         'attacks': (
-            ('RubberStamp', ATK_TGT_SINGLE,
+            ('RubberStamp', GROUP.SINGLE,
                 (2, 2, 3, 3, 4),
                 (75, 75, 75, 75, 75),
                 (35, 35, 35, 35, 35)),
-            ('RazzleDazzle', ATK_TGT_SINGLE,
+            ('RazzleDazzle', GROUP.SINGLE,
                 (1, 1, 1, 1, 1),
                 (50, 50, 50, 50, 50),
                 (25, 20, 15, 10, 5)),
-            ('Synergy', ATK_TGT_MULTI,
+            ('Synergy', GROUP.MULTI,
                 (4, 5, 6, 7, 8),
                 (50, 60, 70, 80, 90),
                 (5, 10, 15, 20, 25)),
-            ('TeeOff', ATK_TGT_SINGLE,
+            ('TeeOff', GROUP.SINGLE,
                 (3, 3, 4, 4, 5),
                 (50, 60, 70, 80, 90),
                 (35, 35, 35, 35, 35))
@@ -113,23 +113,23 @@ COG_ATTRIBUTES = {
         'freq': (50, 30, 10, 5, 5),
         'acc': (70, 75, 80, 82, 85),
         'attacks': (
-            ('Demotion', ATK_TGT_SINGLE,
+            ('Demotion', GROUP.SINGLE,
                 (6, 8, 12, 15, 18),
                 (50, 60, 70, 80, 90),
                 (30, 30, 30, 30, 30)),
-            ('FingerWag', ATK_TGT_SINGLE,
+            ('FingerWag', GROUP.SINGLE,
                 (4, 6, 9, 12, 15),
                 (50, 60, 70, 80, 90),
                 (10, 10, 10, 10, 10)),
-            ('FountainPen', ATK_TGT_SINGLE,
+            ('FountainPen', GROUP.SINGLE,
                 (3, 4, 6, 8, 10),
                 (50, 60, 70, 80, 90),
                 (15, 15, 15, 15, 15)),
-            ('BrainStorm', ATK_TGT_SINGLE,
+            ('BrainStorm', GROUP.SINGLE,
                 (4, 6, 9, 12, 15),
                 (5, 5, 5, 5, 5),
                 (25, 25, 25, 25, 25)),
-            ('BuzzWord', ATK_TGT_SINGLE,
+            ('BuzzWord', GROUP.SINGLE,
                 (4, 6, 9, 12, 15),
                 (50, 60, 70, 80, 90),
                 (20, 20, 20, 20, 20))
@@ -143,19 +143,19 @@ COG_ATTRIBUTES = {
         'freq': (50, 30, 10, 5, 5),
         'acc': (35, 40, 45, 50, 55),
         'attacks': (
-            ('Canned', ATK_TGT_SINGLE,
+            ('Canned', GROUP.SINGLE,
                 (5, 6, 8, 10, 12),
                 (60, 75, 80, 85, 90),
                 (25, 25, 25, 25, 25)),
-            ('Downsize', ATK_TGT_SINGLE,
+            ('Downsize', GROUP.SINGLE,
                 (8, 9, 11, 13, 15),
                 (50, 65, 70, 75, 80),
                 (35, 35, 35, 35, 35)),
-            ('PinkSlip', ATK_TGT_SINGLE,
+            ('PinkSlip', GROUP.SINGLE,
                 (4, 5, 6, 7, 8),
                 (60, 65, 75, 80, 85),
                 (25, 25, 25, 25, 25)),
-            ('Sacked', ATK_TGT_SINGLE,
+            ('Sacked', GROUP.SINGLE,
                 (5, 6, 7, 8, 9),
                 (50, 50, 50, 50, 50),
                 (15, 15, 15, 15, 15))
@@ -169,23 +169,23 @@ COG_ATTRIBUTES = {
         'freq': (50, 30, 10, 5, 5),
         'acc': (35, 40, 45, 50, 55),
         'attacks': (
-            ('FountainPen', ATK_TGT_SINGLE,
+            ('FountainPen', GROUP.SINGLE,
                 (5, 6, 8, 10, 12),
                 (60, 75, 80, 85, 90),
                 (15, 15, 15, 15, 15)),
-            ('GlowerPower', ATK_TGT_SINGLE,
+            ('GlowerPower', GROUP.SINGLE,
                 (7, 8, 10, 12, 13),
                 (50, 60, 70, 80, 90),
                 (20, 20, 20, 20, 20)),
-            ('HalfWindsor', ATK_TGT_SINGLE,
+            ('HalfWindsor', GROUP.SINGLE,
                 (8, 10, 12, 14, 16),
                 (60, 65, 70, 75, 80),
                 (20, 20, 20, 20, 20)),
-            ('HeadShrink', ATK_TGT_SINGLE,
+            ('HeadShrink', GROUP.SINGLE,
                 (10, 12, 15, 18, 21),
                 (65, 75, 80, 85, 95),
                 (35, 35, 35, 35, 35)),
-            ('Rolodex', ATK_TGT_SINGLE,
+            ('Rolodex', GROUP.SINGLE,
                 (6, 7, 8, 9, 10),
                 (60, 65, 70, 75, 80),
                 (10, 10, 10, 10, 10))
@@ -199,19 +199,19 @@ COG_ATTRIBUTES = {
         'freq': (50, 30, 10, 5, 5),
         'acc': (35, 40, 45, 50, 55),
         'attacks': (
-            ('Canned', ATK_TGT_SINGLE,
+            ('Canned', GROUP.SINGLE,
                 (6, 7, 8, 9, 10),
                 (60, 75, 80, 85, 90),
                 (20, 20, 20, 20, 20)),
-            ('EvilEye', ATK_TGT_SINGLE,
+            ('EvilEye', GROUP.SINGLE,
                 (12, 15, 18, 21, 24),
                 (60, 70, 75, 80, 90),
                 (35, 35, 35, 35, 35)),
-            ('PlayHardball', ATK_TGT_SINGLE,
+            ('PlayHardball', GROUP.SINGLE,
                 (7, 8, 12, 15, 16),
                 (60, 65, 70, 75, 80),
                 (30, 30, 30, 30, 30)),
-            ('PowerTie', ATK_TGT_SINGLE,
+            ('PowerTie', GROUP.SINGLE,
                 (10, 12, 14, 16, 18),
                 (65, 75, 80, 85, 95),
                 (15, 15, 15, 15, 15))
@@ -225,19 +225,19 @@ COG_ATTRIBUTES = {
         'freq': (50, 30, 10, 5, 5),
         'acc': (35, 40, 45, 50, 55),
         'attacks': (
-            ('CigarSmoke', ATK_TGT_SINGLE,
+            ('CigarSmoke', GROUP.SINGLE,
                 (10, 12, 15, 18, 20),
                 (55, 65, 75, 85, 95),
                 (20, 20, 20, 20, 20)),
-            ('FloodTheMarket', ATK_TGT_SINGLE,
+            ('FloodTheMarket', GROUP.SINGLE,
                 (14, 16, 18, 20, 22),
                 (70, 75, 85, 90, 95),
                 (10, 10, 10, 10, 10)),
-            ('SongAndDance', ATK_TGT_SINGLE,
+            ('SongAndDance', GROUP.SINGLE,
                 (14, 15, 17, 19, 20),
                 (60, 65, 70, 75, 80),
                 (20, 20, 20, 20, 20)),
-            ('TeeOff', ATK_TGT_SINGLE,
+            ('TeeOff', GROUP.SINGLE,
                 (8, 11, 14, 17, 20),
                 (55, 65, 70, 75, 80),
                 (50, 50, 50, 50, 50))
@@ -289,7 +289,7 @@ def get_cog_attack(cog_key: str, relative_level: int, attack_index: int = -1) ->
                 'damage': 3,
                 'acc': 80,
                 'freq': 40,
-                'target': 2  # ATK_TGT_SINGLE=1, ATK_TGT_MULTI=2
+                'target': 2  # GROUP.SINGLE=1, GROUP.MULTI=2
             }
     """
     if cog_key not in COG_ATTRIBUTES:
@@ -310,7 +310,7 @@ def get_cog_attack(cog_key: str, relative_level: int, attack_index: int = -1) ->
     attack_tuple = attack_choices[attack_index]
     """ Example attack tuple ::
             (
-                'PoundKey', ATK_TGT_SINGLE, # Name, Target
+                'PoundKey', GROUP.SINGLE, # Name, Target
                 (2, 2, 3, 4, 6),            # Dmg
                 (75, 75, 80, 80, 90),       # Acc
                 (30, 35, 40, 45, 50)        # Freq
@@ -342,15 +342,15 @@ def get_cog_attacks_all_levels(cog_key: str) -> tuple:
 
         Example output for cog_key='f' ::
             'attacks': (
-                ('PoundKey', ATK_TGT_SINGLE  [0] Name, [1] Target
+                ('PoundKey', GROUP.SINGLE  [0] Name, [1] Target
                     (2, 2, 3, 4, 6),         [2] Damage
                     (75, 75, 80, 80, 90),    [3] Accuracy
                     (30, 35, 40, 45, 50)),   [4] Frequency
-                ('Shred', ATK_TGT_SINGLE
+                ('Shred', GROUP.SINGLE
                     (3, 4, 5, 6, 7),
                     (50, 55, 60, 65, 70),
                     (10, 15, 20, 25, 30)),
-                ('ClipOnTie', ATK_TGT_SINGLE
+                ('ClipOnTie', GROUP.SINGLE
                     (1, 1, 2, 2, 3),
                     (75, 80, 85, 90, 95),
                     (60, 50, 40, 30, 20))
@@ -384,7 +384,7 @@ def get_cog_vitals(cog_key: str, relative_level: int = -1) -> dict:
                         'damage': 3,
                         'id': 0,
                         'name': 'PoundKey',
-                        'target': 1  # <0-2> ATK_TGT_SINGLE=1, ATK_TGT_MULTI=2
+                        'target': 1  # <0-2> GROUP.SINGLE=1, GROUP.MULTI=2
                     }
                     {
                         'acc': 70,
@@ -420,6 +420,7 @@ def get_cog_vitals(cog_key: str, relative_level: int = -1) -> dict:
         cog_key=cog_key, relative_level=relative_level)
     if vitals_dict['level'] == 12:  # for level 12 cogs, ex: Skelecogs
         relative_level = 0
+    vitals_dict['name'] = cog_data['name']
     vitals_dict['hp'] = cog_data['hp'][relative_level]
     vitals_dict['def'] = cog_data['def'][relative_level]
 
@@ -454,15 +455,15 @@ def pick_cog_attack(attack_choices: tuple, relative_level, attack_name='') -> in
             `get_cog_attacks_all_levels` function
             Example of `attack_choices` ::
                 attack_choices = (
-                    ('PoundKey', ATK_TGT_SINGLE  [0] Name, [1] Target
+                    ('PoundKey', GROUP.SINGLE  [0] Name, [1] Target
                         (2, 2, 3, 4, 6),         [2] Damage
                         (75, 75, 80, 80, 90),    [3] Accuracy
                         (30, 35, 40, 45, 50)),   [4] Frequency
-                    ('Shred', ATK_TGT_SINGLE
+                    ('Shred', GROUP.SINGLE
                         (3, 4, 5, 6, 7),
                         (50, 55, 60, 65, 70),
                         (10, 15, 20, 25, 30)),
-                    ('ClipOnTie', ATK_TGT_SINGLE
+                    ('ClipOnTie', GROUP.SINGLE
                         (1, 1, 2, 2, 3),
                         (75, 80, 85, 90, 95),
                         (60, 50, 40, 30, 20))
