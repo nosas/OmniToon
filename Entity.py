@@ -5,8 +5,7 @@ from dataclasses import dataclass, field
 from typing import List, Union
 
 from .Attack import Attack
-from .Exceptions import (InvalidAttackType, InvalidTargetError,
-                         TargetDefeatedError)
+from .Exceptions import InvalidTargetError, TargetDefeatedError
 
 
 @dataclass
@@ -59,6 +58,8 @@ class BattleEntity(ABC):
     @entity.setter
     @abstractmethod
     def entity(self, new_entity) -> None:
+        if not isinstance(new_entity, Entity):
+            raise ValueError("BattleEntity.entity must be of type Entity")
         self._entity = new_entity
 
     @property
@@ -68,7 +69,7 @@ class BattleEntity(ABC):
     @attack.setter
     def attack(self, new_attack: Attack) -> None:
         if not isinstance(new_attack, Attack):
-            raise InvalidAttackType
+            raise ValueError("BattleEntity.attack must be of type Attack")
         self._attack = new_attack
 
     @property
@@ -81,7 +82,7 @@ class BattleEntity(ABC):
             try:
                 new_id = int(new_id)
             except ValueError:
-                raise TypeError("battle_id must be an integer")
+                raise ValueError("battle_id must be an integer")
         self._battle_id = new_id
 
     @property

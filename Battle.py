@@ -15,6 +15,7 @@ from .Exceptions import (CogAlreadyTrappedError, CogLuredError, Error,
                          TooManyGagsError, TooManyToonsError)
 from .Gag import Gag, get_gag_track_name
 from .GagGlobals import TRACK
+from .Toon import Toon
 
 # TODO Create BattleCogBuilding w/ constructor accepting multi-toon&cogs
 # TODO Look into Strategy design patterns for Toon decision making
@@ -29,7 +30,9 @@ from .GagGlobals import TRACK
 class BattleCog(BattleEntity):
 
     entity: Cog
-    battle_id: int
+
+    # Initialize default values for all properties
+    _entity: Entity = field(init=False, repr=False)
     _is_lured: bool = field(init=False, default=False)
     _is_trapped: bool = field(init=False, default=False)
     _trap: Tuple[BattleToon, ToonAttack] = field(init=False, default=(None, None))
@@ -301,10 +304,23 @@ class BattleCog(BattleEntity):
     pass
 
 
-@dataclass(init=False)
+@dataclass
 class BattleToon(BattleEntity):
-    def __init__(self):
-        pass
+
+    entity: Toon
+
+    # Initialize default values for all properties
+    _entity: Toon = field(init=False, repr=False)
+
+    @property
+    def entity(self) -> Toon:
+        return self._entity
+
+    @entity.setter
+    def entity(self, new_entity) -> None:
+        if not isinstance(new_entity, Toon):
+            raise ValueError("BattleToon.entity must be of type Toon")
+        self._entity = new_entity
 
     def choose_attack(self):
         return super().choose_attack()
