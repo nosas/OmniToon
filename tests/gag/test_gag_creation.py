@@ -1,7 +1,7 @@
 
 from ...Gag import Gag, Gags
-from ...GagGlobals import GAG, DEFAULT_GAG_COUNT, DEFAULT_TRACK_EXPS_CURRENT, TRACK
-
+from ...GagGlobals import (DEFAULT_GAG_COUNT, DEFAULT_TRACK_EXPS_CURRENT,
+                           DEFAULT_TRACK_LEVELS, GAG, TRACK)
 
 EXP = 0
 LEVEL = 0
@@ -44,10 +44,16 @@ class TestGagsCreation:
         assert len([gag for gag in gs]) == 7*7
         assert len(gs.unlocked_gags) == 2
         assert len(gs.available_gags) == 0
+        assert gs.gag_count == DEFAULT_GAG_COUNT
+        assert gs.track_exps == DEFAULT_TRACK_EXPS_CURRENT
+        assert gs.track_levels == DEFAULT_TRACK_LEVELS
 
     def test_gags_astro_creation(self):
         gs = Gags(gag_count=GAG_COUNTS, track_exps=TRACK_EXPS)
 
         assert len([gag for gag in gs]) == 7*7
-        assert len(gs.unlocked_gags) == 34
-        assert len(gs.available_gags) == 18
+        assert len(gs.unlocked_gags) == EXPECTED_UNLOCKED_GAGS
+        assert len(gs.available_gags) == EXPECTED_AVAILABLE_GAGS
+        assert gs.gag_count == GAG_COUNTS
+        assert gs.track_exps == TRACK_EXPS
+        assert gs.track_levels == EXPECTED_TRACK_LEVELS

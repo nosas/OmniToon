@@ -10,6 +10,7 @@ class TestInventoryCreation:
         gs = Gags(gag_count=DEFAULT_GAG_COUNT, track_exps=DEFAULT_TRACK_EXPS_CURRENT)
         i = Inventory(gags=gs, max_gags=DEFAULT_GAG_LIMIT)
         assert i.gags.gags == get_default_gags()
+        assert i.has_gags() is False
         assert i.gags.track_exps == DEFAULT_TRACK_EXPS_CURRENT
         # assert i.gag_exps_next == DEFAULT_TRACK_EXPS_NEXT
 

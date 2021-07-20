@@ -15,19 +15,18 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from math import floor as math_floor
-from random import choice as rand_choice
 from typing import List, Optional
 
 from .AttackGlobals import GROUP
 from .Exceptions import (GagCountError, LockedGagError, LockedGagTrackError,
-                         NotEnoughGagsError, TooManyGagsError)
+                         NotEnoughGagsError)
 from .GagGlobals import (DEFAULT_GAG_COUNT, DEFAULT_TRACK_EXPS_CURRENT,
                          DEFAULT_TRACK_EXPS_NEXT, GAG, GAG_CARRY_LIMITS,
                          GAG_DAMAGE, GAG_LABELS, GAG_TRACK_LABELS, LEVELS,
                          MULTI_TARGET_GAGS, TRACK)
 
 
-def get_default_gag_counts():
+def get_default_gag_count():
     return DEFAULT_GAG_COUNT.copy()
 
 
@@ -118,9 +117,40 @@ class Gag:
 
 @dataclass
 class Gags:
-    """Collection of Gags and Gag-related functions"""
+    # """Collection of Gags and Gag-related functions"""
+    """Collection of Gags and Gag-related function
 
-    gag_count: List[List[int]] = field(default_factory=get_default_gag_counts)
+    Args:
+        gags (list, optional): 2-D list, ex: `gags[GAG_TRACK][GAG_LEVEL]`.
+            Defaults to DEFAULT_GAG_COUNTS.
+            Example `gag_count` ::
+                gag_count = [[0,   0,  0,  5,  5,  3, -1],  # 0 Toon-up
+                             [-1, -1, -1, -1, -1, -1, -1],  # 1 Trap (locked)
+                             [0,   0,  0,  0,  5,  3,  1],  # 2 Lure
+                             [0,   0,  0,  0,  5,  3, -1],  # 3 Sound
+                             [0,   2,  1,  4,  4,  2, -1],  # 4 Throw
+                             [0,   0,  0,  5,  5,  3, -1],  # 5 Squirt
+                             [0,   9,  5, -1, -1, -1, -1]]  # 6 Drop
+        track_exps (list, optional): List containing Gag Track EXP.
+            Defaults to DEFAULT_TRACK_EXPS_CURRENT.
+            Example `track_exps` ::
+                track_exps = [7421,   # 0 Toon-up
+                              -1,     # 1 Trap (locked)
+                              10101,  # 2 Lure
+                              9443,   # 3 Sound
+                              8690,   # 4 Throw
+                              6862,   # 5 Squirt
+                              191]    # 6 Drop
+
+    Raises:
+        GagCountError: Raised when counting Gags and Gag count is less than 0
+        NotEnoughGagsError: Raised when choosing a Gag whose count is 0
+        LockedGagTrackError: Raised when choosing a Gag whose Gag Track is locked
+        LockedGagError: Raised when choosing a locked Gag
+
+    """
+
+    gag_count: List[List[int]] = field(default_factory=get_default_gag_count)
     track_exps: Optional[List[int]] = field(default_factory=get_default_exps_current)
     # TODO Turn this into a property
     # track_exps_next: Optional[List[int]] = field(init=False,
@@ -128,7 +158,8 @@ class Gags:
 
     @property
     def track_levels(self):
-        return self._calculate_gag_levels_from_gag_count(self.gag_count)
+        """Return ordered (by Gag Track index) list of Gag Track exps"""
+        return self._calculate_gag_levels_from_gag_count()
 
     @property
     def gags(self):
@@ -188,31 +219,7 @@ class Gags:
 
             Output: [-1, -1, -1, -1, 0, 0, -1, -1]
         """
-        return [(6 - track.count(-1)) for track in self.gags]
-
-    def _calculate_gag_levels_from_track_exps(self) -> List[int]:
-        """Determine the Gag Level of each Gag Track, given a list of Track EXPs
-
-        Returns:
-            List[int]: Level of each Gag track, -1 == locked, 0 == lvl 1 Gag is unlocked
-
-        Example Input:
-                DEFAULT_EXPS = [-1, -1, -1, -1, 0, 0, -1, -1]
-
-            Output: [-1, -1, -1, -1, 0, 0, -1, -1]
-        """
-        gag_levels = [-1, -1, -1, -1, 0, 0, -1, -1]
-
-        for track_idx, current_exp in enumerate(self.gags):
-            if current_exp == -1:
-                continue
-
-            for level, exp in enumerate(LEVELS[track_idx]):
-                if current_exp <= exp:
-                    gag_levels[track_idx] = level
-                    continue
-
-        return gag_levels
+        return [(6 - track.count(-1)) for track in self.gag_count]
 
     def _count_all_gags(self) -> int:
         """Return the Toon's total number of usable Gags
@@ -220,13 +227,12 @@ class Gags:
         Returns:
             int: Total number of Gags
         """
-        count = count_all_gags(gags=self.gag_count)
+        count = count_all_gags(gag_count=self.gag_count)
 
-        if count > self.gag_limit:
-            raise TooManyGagsError(count, self.gag_limit)
+        # if count > self.gag_limit:
+        #     raise TooManyGagsError(count, self.gag_limit)
         if count < 0:
             raise GagCountError
-
         return count
 
     def _count_gag(self, track: int, level: int) -> int:
@@ -239,11 +245,7 @@ class Gags:
         Returns:
             int: Current quantity of a Gag
         """
-        assert track in range(7)
-        assert level in range(7)
-
         count = self.gags[track][level]
-
         return count
 
     def _count_gag_track(self, track: int) -> int:
@@ -278,69 +280,13 @@ class Gags:
         # Not in [0, -1]
         return self._count_gag(track=track, level=level) > 0
 
-    # ! TODO #38, this & all attack-related stuff should go into Strategy
-    def _pick_random_gag(self, target=None, attack=False) -> Gag:
-
-        gags = self.gags if target is None else self.get_viable_attacks(target=target)
-
-        # Verify there's at least 1 viable Gag, given the Cog's level
-        if target:
-            # If no Gags are viable (e.g. gag.unlocked & gag.count>0), expand
-            # the random Gag selection to all of the Toon's Gags
-            if count_all_gags(gags=gags) == 0:
-                print(f"        [!] WARNING `_pick_random_gag` : Toon {self} "
-                      f"does not have any viable attacks against Cog {target}")
-                print("            [-] Expanding random Gag selection to all "
-                      "Gags")
-                gags = self.gags
-
-        # If there are no viable Gags at all, raise GagCountError and restock
-        if count_all_gags(gags=gags) == 0:
-            raise GagCountError
-
-        # Example `viable_gags` = [(track, level), (track, level), ... ]
-        # TODO : How can we utilize get_viable_gags here?
-        # Can we just do [(track_index, gag_level) for track, level in gags if gag_count > 0]
-        viable_gags = []
-        for track_index, gag_track in enumerate(gags):
-            for gag_level, gag_count in enumerate(gag_track):
-                # TODO #38, add different rules for different Strategies
-                # TODO #38, Create Rules for valid Gags using numpy masks,
-                # validate against those Rules. We can make more custom
-                # exceptions for this when we make strategies.
-
-                rules = [gag_count not in [0, -1],
-                         # Toons cannot use Heal as an attack
-                         track_index != TRACK.HEAL if attack is True else 1
-                         ]
-                if target:
-                    # Can't lure a lured Cog
-                    rules.append(
-                        track_index != TRACK.LURE if target.is_lured else 1)
-                    # Can't trap a trapped Cog
-                    rules.append(
-                        track_index != TRACK.TRAP if target.is_trapped else 1)
-
-                # If all rules pass, this Gag is viable
-                if all(rules):
-                    viable_gags.append((track_index, gag_level))
-
-        if viable_gags == []:
-            raise NotEnoughGagsError
-
-        gag_track, gag_level = rand_choice(viable_gags)
-        random_gag = self.choose_gag(track=gag_track, level=gag_level,
-                                     attack=attack)
-        return random_gag
-
-    def choose_gag(self, track: int, level: int, attack=False) -> Gag:
+    def choose_gag(self, track: int, level: int) -> Gag:
         """Return Gag object containing Gag's vital info, iff Toon has the Gag
 
         Args:
             track (int): Index number of the Gag Track <0-6>
             level (int): Level of the Gag <0-6>
-            attack (bool, optional) : True if called by `choose_attack()`.
-                                      Defaults to False
+
 
         Returns:
             Gag: Vital information about the Toon's Gag
@@ -353,8 +299,7 @@ class Gags:
         if gag.count == -1:
             raise LockedGagError(level=level)
 
-        gag_or_atk = 'gag' if not attack else 'attack'
-        print(f"        [+] Toon `choose_{gag_or_atk}()` {self} : {gag}")
+        print(f"        [+] Toon `choose_gag()` {self} : {gag}")
         return gag
 
     def get_gag_exp(self, track: int) -> int:
@@ -375,8 +320,7 @@ class Gags:
         Returns:
             int: Toon's current Gag Track EXP
         """
-        # return self.track_exps[track]
-        return get_gag_exp(track=track, current_exps=self.track_exps)
+        return self.track_exps[track]
 
     def get_gag_exp_needed(self, track: int) -> int:
         """Return the Gag Track EXP required to advance to next Gag Track level
@@ -401,11 +345,11 @@ class Gags:
                                   )
 
 
-def count_all_gags(gags: list) -> int:
+def count_all_gags(gag_count: list) -> int:
     """Return the total number of Gags, given a 2-D list of Gags
 
     Args:
-        gags (2-D list): List of Gags, can be obtained from Toon.gags
+        gags (2-D list): List of Gags, can be obtained from Toon.gag_counts
             `gags` structure ::
                 DEFAULT_GAGS = [
                     [-1, -1, -1, -1, -1, -1, -1],  # Toon-Up
@@ -421,7 +365,7 @@ def count_all_gags(gags: list) -> int:
         int: Total number of Gags
     """
     count = 0
-    for gag_track in gags:
+    for gag_track in gag_count:
         # Summing the -1 values will result in a negative Gag count
         # We can negate summing of -1 values by adding the count of -1 in the
         # current Gag track list to the starting index of sum(gag_track)
@@ -538,6 +482,7 @@ def get_gag_exp_needed(track: int, level: int, current_exps: list = None,
                     SQUIRT_TRACK_XP,  # 5
                     DROP_TRACK_XP     # 6
                 ]
+        current_exp (int): Gag track's current EXP value
 
     Returns:
         int: EXP required to advance to next Gag Track level
@@ -551,22 +496,43 @@ def get_gag_exp_needed(track: int, level: int, current_exps: list = None,
 
 
 def get_gag_min_max_damage(track: int, level: int) -> tuple[int, int]:
-    return GAG_DAMAGE[track][level][0]
-
-
-def get_gag_min_max_exp(track: int, level: int) -> tuple[int, int]:
-    return GAG_DAMAGE[track][level][1]
-
-
-def get_gag_label(track: int, level: int) -> str:
-    """Return name of the Gag, given a track# and level#
+    """Return a tuple of the Gag's min/max damage
 
     Args:
         track (int): Index number of the Gag Track <0-6>
         level (int): Level of the Gag <0-6>
 
     Returns:
-        str: Name of the Gag, typically used for logging messages
+        tuple[int, int]: (Minimum damage, maximum damage)
+    """
+    return GAG_DAMAGE[track][level][0]
+
+
+def get_gag_min_max_exp(track: int, level: int) -> tuple[int, int]:
+    """Return a tuple of the Gag's min/max EXP
+
+    Minimum EXP required to unlock this Gag, maximum EXP to unlock following Gag.
+    This EXP is also used to calculate the Gag's current damage value.
+
+    Args:
+        track (int): Index number of the Gag Track <0-6>
+        level (int): Level of the Gag <0-6>
+
+    Returns:
+        tuple[int, int]: (Minimum EXP, maximum EXP)
+    """
+    return GAG_DAMAGE[track][level][1]
+
+
+def get_gag_label(track: int, level: int) -> str:
+    """Return label of the Gag, given a track# and level#
+
+    Args:
+        track (int): Index number of the Gag Track <0-6>
+        level (int): Level of the Gag <0-6>
+
+    Returns:
+        str: Label of the Gag, typically used for logging messages
     """
     return GAG_LABELS[track][level]
 
@@ -597,13 +563,13 @@ def get_gag_target(name: str):
 
 
 def get_gag_track_label(track: int) -> str:
-    """Return name of the Gag Track, given a track#
+    """Return label of the Gag Track, given a track#
 
     Args:
         track (int): Index number of the Gag Track <0-6>
 
     Returns:
-        str: Name of the Gag Track, typically used for logging messages
+        str: Label of the Gag Track, typically used for logging messages
     """
     return GAG_TRACK_LABELS[track]
 
