@@ -55,6 +55,13 @@ class Toon(Entity):
     inventory: Inventory = field(default_factory=Inventory)
     hp: Optional[int] = field(default=DEFAULT_HP)
 
+    def __post_init__(self):
+        super().__init__(name=self.name, hp=self.hp)
+        self.hp_max = self.hp
+
+    def __str__(self):
+        return f'"{self.name}" ({self.hp}/{self.hp_max}hp)'
+
     def has_gags(self) -> bool:
         """True if Toon has any available Gags, checks quantity of all Gags
 
@@ -62,12 +69,3 @@ class Toon(Entity):
             bool: True if Toon has any available Gags
         """
         return self.inventory.has_gags()
-
-    def __post_init__(self):
-        super().__init__(name=self.name, hp=self.hp)
-
-    def __str__(self):
-        return f'"{self.name}" ({self.hp}/{self.hp_max}hp)'
-
-    def __repr__(self):
-        return self.__str__()

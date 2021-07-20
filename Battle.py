@@ -45,7 +45,7 @@ class BattleCog(BattleEntity):
         return self._entity
 
     @entity.setter
-    def entity(self, new_entity) -> None:
+    def entity(self, new_entity: Cog) -> None:
         if not isinstance(new_entity, Cog):
             raise ValueError("BattleCog.entity must be of type Cog")
         self._entity = new_entity
@@ -317,10 +317,38 @@ class BattleToon(BattleEntity):
         return self._entity
 
     @entity.setter
-    def entity(self, new_entity) -> None:
+    def entity(self, new_entity: Toon) -> None:
         if not isinstance(new_entity, Toon):
             raise ValueError("BattleToon.entity must be of type Toon")
         self._entity = new_entity
+
+    def get_possible_attacks(self, target: BattleCog) -> List[Gag]:
+        """Return a list of possible attacks against a BattleCog target, ignore EXP reward
+
+        Trap Gags are not returned against a Trapped Cog.
+        Lure Gags are not returned against a Lured Cog.
+
+        Args:
+            target (BattleCog): BattleCog to be attacked
+
+        Returns:
+            List[Gag]: List of possible attacks againt target, ignores EXP reward
+        """
+        pass
+
+    def get_viable_attacks(self, target: BattleCog) -> List[Gag]:
+        """Return a list of viable attacks against a BattleCog target, weigh EXP rewards
+
+        Trap Gags are not returned against a Trapped Cog.
+        Lure Gags are not returned against a Lured Cog.
+
+        Args:
+            target (BattleCog): BattleCog to be attacked
+
+        Returns:
+            List[Gag]: List of viable attacks againt target, weigh EXP rewards
+        """
+        pass
 
     def choose_attack(self):
         return super().choose_attack()

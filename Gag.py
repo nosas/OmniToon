@@ -157,7 +157,7 @@ class Gags:
     #                                              default_factory=get_default_exps_next)
 
     @property
-    def track_levels(self):
+    def track_levels(self) -> List[int]:
         """Return ordered (by Gag Track index) list of Gag Track exps"""
         return self._calculate_gag_levels_from_gag_count()
 
@@ -182,13 +182,13 @@ class Gags:
         return all_gags
 
     @property
-    def unlocked_gags(self):
+    def unlocked_gags(self) -> List[Gag]:
         """Return a flattened list unlocked of Gags"""
 
         return [gag for gag in self._flatten_gags() if gag.count != -1]
 
     @property
-    def available_gags(self):
+    def available_gags(self) -> List[Gag]:
         """Return a flattened list available (unlocked, count > 0) of Gags"""
 
         return [gag for gag in self.unlocked_gags if gag.count > 0]
@@ -196,7 +196,7 @@ class Gags:
     def __iter__(self):
         return iter(self._flatten_gags())
 
-    def _flatten_gags(self) -> list:
+    def _flatten_gags(self) -> List[Gag]:
         """Return a flattened list of Gags"""
         return [gag for gag_list in self.gags for gag in gag_list]
 
@@ -280,7 +280,7 @@ class Gags:
         # Not in [0, -1]
         return self._count_gag(track=track, level=level) > 0
 
-    def choose_gag(self, track: int, level: int) -> Gag:
+    def get_gag(self, track: int, level: int) -> Gag:
         """Return Gag object containing Gag's vital info, iff Toon has the Gag
 
         Args:
