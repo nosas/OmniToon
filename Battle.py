@@ -90,15 +90,15 @@ class BattleCog(BattleEntity):
 
     @property
     def key(self) -> str:
-        return self.cog.key
+        return self.entity.key
 
     @property
     def level(self) -> int:
-        return self.cog.level
+        return self.entity.level
 
     @property
     def relative_level(self) -> int:
-        return self.cog.relative_level
+        return self.entity.relative_level
 
     @property
     def trap(self) -> Tuple[BattleToon, ToonAttack]:
@@ -322,6 +322,55 @@ class BattleToon(BattleEntity):
             raise ValueError("BattleToon.entity must be of type Toon")
         self._entity = new_entity
 
+    @property
+    def available_gags(self) -> List[ToonAttack]:
+        """Return a list of available Gags which can be used to attack a target"""
+        return self.entity.gags.available_gags
+
+    @staticmethod
+    def _gag_is_possible(gag: Gag, target: BattleCog) -> bool:
+        """Return True if the Gag can be used against the target, regardless if there's a reward
+
+        Certain Gags cannot be used against BattleCogs. For example...
+            - a Lure Gag cannot be used against a Lured Cog
+                UNLESS, there are other non-Lured Cogs in the Battle and a multi-Lure Gag was used
+            - a Trap Gag cannot be used against a Trapped Cog
+                UNLESS, there are other non-Trapped Cogs in the Battle and a multi-Trap Gag was used
+            - a Heal (Toon-Up) Gag cannot be used against a Cog
+
+        Args:
+            gag (Gag): Gag object from the BattleToon.entity.gags
+            target (BattleCog): BattleCog object to be attacked
+
+        Returns:
+            bool: True if the Gag can be used against the target
+        """
+        impossible_rules = [
+            gag.track == TRACK.HEAL,
+            target.is_lured and gag.track == TRACK.LURE and gag.target == GROUP.SINGLE,
+            target.is_trapped and gag.track == TRACK.TRAP and gag.target == GROUP.SINGLE,
+        ]
+        return any(impossible_rules) is False
+
+    def _gag_is_viable(self, gag: Gag, target: BattleCog) -> bool:
+        """Return True if the Gag is possible and provides a reward
+
+        Viable Gags are possible to use against the target and provide a rewards because the
+        level of the Gag is lower than the target.
+
+        Args:
+            gag (Gag): Gag object from the BattleToon.entity.gags
+            target (BattleCog): BattleCog object to be attacked
+
+        Returns:
+            bool: True if the Gag can be used against the target and provides a reward
+        """
+        unviable_rules = [
+            self._gag_is_possible(gag=gag, target=target) is False,
+            gag.level >= target.level
+        ]
+        return any(unviable_rules) is False
+
     def get_possible_attacks(self, target: BattleCog) -> List[Gag]:
         """Return a list of possible attacks against a BattleCog target, ignore EXP reward
 
@@ -334,7 +383,13 @@ class BattleToon(BattleEntity):
         Returns:
             List[Gag]: List of possible attacks againt target, ignores EXP reward
         """
-        pass
+        possible_attacks = []
+        for gag in self.available_gags:
+            if self._gag_is_possible(gag=gag, target=target):
+                attack = ToonAttack(gag=gag, target_cogs=target)
+                possible_attacks.append(attack)
+
+        return possible_attacks
 
     def get_viable_attacks(self, target: BattleCog) -> List[Gag]:
         """Return a list of viable attacks against a BattleCog target, weigh EXP rewards
@@ -348,7 +403,8 @@ class BattleToon(BattleEntity):
         Returns:
             List[Gag]: List of viable attacks againt target, weigh EXP rewards
         """
-        pass
+        possible_attacks = self.get_possible_attacks(target=target)
+        return [attack for attack in possible_attacks if attack.gag.level < target.level]
 
     def choose_attack(self):
         return super().choose_attack()
@@ -375,7 +431,7 @@ class ToonAttack(Attack):
             name=self.gag.name,
             damage=self.gag.damage,
             accuracy=self.gag.accuracy,
-            target=self.gag.target
+            group=self.gag.target
         )
 
         self.target_cogs = target_cogs

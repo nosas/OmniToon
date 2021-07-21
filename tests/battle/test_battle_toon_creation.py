@@ -23,9 +23,9 @@ class TestBattleToonCreation:
         assert BT.entity.inventory.has_gags() is False
 
     def test_battle_toon_creation_default_gags(self):
-        assert BT.entity.inventory.gags.gags == get_default_gags()
-        assert BT.entity.inventory.gags.available_gags == []
-        assert len(BT.entity.inventory.gags.unlocked_gags) == 2
+        assert BT.entity.inventory.gags.gags == BT.entity.gags.gags == get_default_gags()
+        assert BT.entity.inventory.gags.available_gags == BT.entity.gags.available_gags == []
+        assert len(BT.entity.inventory.gags.unlocked_gags) == len(BT.entity.gags.unlocked_gags) == 2
         default_unlocked_gags = [
             Gag(exp=0, level=GAG.CUPCAKE.level, track=GAG.CUPCAKE.track, count=0),
             Gag(exp=0, level=GAG.SQUIRTING_FLOWER.level, track=GAG.SQUIRTING_FLOWER.track, count=0)

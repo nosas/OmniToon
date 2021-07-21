@@ -62,6 +62,10 @@ class Toon(Entity):
     def __str__(self):
         return f'"{self.name}" ({self.hp}/{self.hp_max}hp)'
 
+    @property
+    def gags(self) -> Gags:
+        return self.inventory.gags
+
     def has_gags(self) -> bool:
         """True if Toon has any available Gags, checks quantity of all Gags
 

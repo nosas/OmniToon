@@ -183,13 +183,13 @@ class Gags:
 
     @property
     def unlocked_gags(self) -> List[Gag]:
-        """Return a flattened list unlocked of Gags"""
+        """Return a flattened list of unlocked Gags"""
 
         return [gag for gag in self._flatten_gags() if gag.count != -1]
 
     @property
     def available_gags(self) -> List[Gag]:
-        """Return a flattened list available (unlocked, count > 0) of Gags"""
+        """Return a flattened list of available (unlocked, count > 0) Gags"""
 
         return [gag for gag in self.unlocked_gags if gag.count > 0]
 
