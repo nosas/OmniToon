@@ -7,54 +7,77 @@ KEY = 'f'
 NAME = 'Flunky'
 
 
-class TestBattleCogCreation:
+class TestBattleCogDefaultCreation:
+    cog = Cog(key=KEY)
+    bc = BattleCog(battle_id=BATTLE_ID, entity=cog)
 
-    def test_battle_cog_creation_default_rel_lvl(self):
-        hp = 6
-        level = 1
-        relative_level = 0
+    # Expected values
+    hp = 6
+    level = 1
+    relative_level = 0
 
-        cog = Cog(key=KEY)
-        bc = BattleCog(battle_id=BATTLE_ID, entity=cog)
-        assert bc.battle_id == BATTLE_ID
-        assert bc.name == NAME
-        assert bc.hp == hp
-        assert bc.entity.key == KEY
-        assert bc.entity.level == level
-        assert bc.entity.relative_level == relative_level
-        assert isinstance(bc, BattleCog)
-        assert isinstance(bc, BattleEntity)
-        assert isinstance(bc.entity, Cog)
-        assert isinstance(bc.entity, Entity)
+    def test_battle_cog_default_creation_battle_id(self):
+        assert self.bc.battle_id == BATTLE_ID
 
+    def test_battle_cog_default_creation_hp(self):
+        assert self.bc.hp == self.hp
+
+    def test_battle_cog_default_creation_name(self):
+        assert self.bc.name == NAME
+
+    def test_battle_cog_default_creation_key(self):
+        assert self.bc.entity.key == self.bc.key == KEY
+
+    def test_battle_cog_default_creation_level(self):
+        assert self.bc.entity.level == self.bc.level == self.level
+
+    def test_battle_cog_default_creation_relative_level(self):
+        assert self.bc.entity.relative_level == self.bc.relative_level == self.relative_level
+
+    def test_battle_cog_default_creation_type(self):
+        assert isinstance(self.bc, BattleCog)
+        assert isinstance(self.bc, BattleEntity)
+        assert isinstance(self.bc.entity, Cog)
+        assert isinstance(self.bc.entity, Entity)
+
+    def test_battle_cog_lure(self):
+        """Verify BattleCog instances don't share the `is_lured` property"""
         bc1 = BattleCog(battle_id=BATTLE_ID + 1, entity=Cog(key=KEY))
-        assert bc != bc1
-        assert bc1.battle_id == bc.battle_id + 1
+        assert self.bc != bc1
+        assert bc1.battle_id == self.bc.battle_id + 1
 
-        bc.is_lured = True
-        assert bc.is_lured and not bc1.is_lured
+        self.bc.is_lured = True
+        assert self.bc.is_lured and not bc1.is_lured
 
-    def test_battle_cog_creation_nondefault_rel_lvl(self):
-        hp = 12
-        level = 2
-        relative_level = 1
 
-        cog = Cog(key=KEY, relative_level=relative_level)
-        bc = BattleCog(battle_id=BATTLE_ID, entity=cog)
-        assert bc.battle_id == BATTLE_ID
-        assert bc.name == NAME
-        assert bc.hp == hp
-        assert bc.entity.key == KEY
-        assert bc.entity.level == level
-        assert bc.entity.relative_level == relative_level
-        assert isinstance(bc, BattleCog)
-        assert isinstance(bc, BattleEntity)
-        assert isinstance(bc.entity, Cog)
-        assert isinstance(bc.entity, Entity)
+class TestBattleCogCreation:
+    hp = 12
+    level = 2
+    relative_level = 1
 
-        bc1 = BattleCog(battle_id=BATTLE_ID + 1, entity=Cog(key=KEY, relative_level=relative_level))
-        assert bc != bc1
-        assert bc1.battle_id == bc.battle_id + 1
+    cog = Cog(key=KEY, relative_level=relative_level)
+    bc = BattleCog(battle_id=BATTLE_ID, entity=cog)
 
-        bc.is_lured = True
-        assert bc.is_lured and not bc1.is_lured
+    def test_battle_cog_default_creation_battle_id(self):
+        assert self.bc.battle_id == BATTLE_ID
+
+    def test_battle_cog_default_creation_hp(self):
+        assert self.bc.hp == self.hp
+
+    def test_battle_cog_default_creation_name(self):
+        assert self.bc.name == NAME
+
+    def test_battle_cog_default_creation_key(self):
+        assert self.bc.entity.key == self.bc.key == KEY
+
+    def test_battle_cog_default_creation_level(self):
+        assert self.bc.entity.level == self.bc.level == self.level
+
+    def test_battle_cog_default_creation_relative_level(self):
+        assert self.bc.entity.relative_level == self.bc.relative_level == self.relative_level
+
+    def test_battle_cog_default_creation_type(self):
+        assert isinstance(self.bc, BattleCog)
+        assert isinstance(self.bc, BattleEntity)
+        assert isinstance(self.bc.entity, Cog)
+        assert isinstance(self.bc.entity, Entity)
