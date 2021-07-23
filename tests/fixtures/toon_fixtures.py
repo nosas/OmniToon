@@ -1,0 +1,10 @@
+import pytest
+
+from ...Toon import Toon
+from ...ToonGlobals import ASTRO_HP, ASTRO_NAME
+
+
+@pytest.fixture
+def toon_astro(inventory_astro):
+    astro = Toon(name=ASTRO_NAME, hp=ASTRO_HP, inventory=inventory_astro)
+    return astro

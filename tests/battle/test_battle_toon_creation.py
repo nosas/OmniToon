@@ -1,8 +1,10 @@
+
 from ...Battle import BattleToon
 from ...Entity import BattleEntity, Entity
 from ...Gag import Gag, get_default_gags
 from ...GagGlobals import GAG
-from ...Toon import DEFAULT_HP, Inventory, Toon
+from ...Toon import Inventory, Toon
+from ...ToonGlobals import ASTRO_NAME, ASTRO_HP, DEFAULT_HP
 
 BATTLE_ID = 1
 NAME = 'Mickey'
@@ -10,19 +12,19 @@ TOON = Toon(name=NAME)
 BT = BattleToon(battle_id=BATTLE_ID, entity=TOON)
 
 
-class TestBattleToonCreation:
+class TestBattleToonDefaultCreation:
 
-    def test_battle_toon_creation_default_name(self):
+    def test_battle_toon_default_name(self):
         assert BT.name == NAME == BT.entity.name
 
-    def test_battle_toon_creation_default_hp(self):
+    def test_battle_toon_default_hp(self):
         assert BT.hp == DEFAULT_HP == BT.entity.hp
 
-    def test_battle_toon_creation_default_inventory(self):
+    def test_battle_toon_default_inventory(self):
         assert BT.entity.inventory == Inventory()
         assert BT.entity.inventory.has_gags() is False
 
-    def test_battle_toon_creation_default_gags(self):
+    def test_battle_toon_default_gags(self):
         assert BT.entity.inventory.gags.gags == BT.entity.gags.gags == get_default_gags()
         assert BT.entity.inventory.gags.available_gags == BT.entity.gags.available_gags == []
         assert len(BT.entity.inventory.gags.unlocked_gags) == len(BT.entity.gags.unlocked_gags) == 2
@@ -32,11 +34,32 @@ class TestBattleToonCreation:
         ]
         assert BT.entity.inventory.gags.unlocked_gags == default_unlocked_gags
 
-    def test_battle_toon_creation_default_battle_id(self):
+    def test_battle_toon_default_battle_id(self):
         assert BT.battle_id == BATTLE_ID
 
-    def test_battle_toon_creation_default_type(self):
+    def test_battle_toon_default_type(self):
         assert isinstance(BT, BattleToon)
         assert isinstance(BT, BattleEntity)
         assert isinstance(BT.entity, Toon)
         assert isinstance(BT.entity, Entity)
+
+
+class TestBattleToonCreation:
+
+    def test_battle_toon_name(self, bt_astro: BattleToon, toon_astro: Toon):
+        assert bt_astro.name == ASTRO_NAME == toon_astro.name
+
+    def test_battle_toon_hp(self, bt_astro: BattleToon, toon_astro: Toon):
+        assert bt_astro.hp == ASTRO_HP == toon_astro.hp
+
+    def test_battle_toon_entity(self, bt_astro: BattleToon, toon_astro: Toon):
+        assert bt_astro.entity == toon_astro
+
+    def test_battle_toon_battle_id(self, bt_astro: BattleToon, toon_astro: Toon):
+        assert bt_astro.battle_id == BATTLE_ID
+
+    def test_battle_toon_type(self, bt_astro: BattleToon, toon_astro: Toon):
+        assert isinstance(bt_astro, BattleToon)
+        assert isinstance(bt_astro, BattleEntity)
+        assert isinstance(bt_astro.entity, Toon)
+        assert isinstance(bt_astro.entity, Entity)

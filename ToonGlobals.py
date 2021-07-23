@@ -1,0 +1,24 @@
+
+# Toon-specific default variables
+DEFAULT_BEAN_COUNT = 0
+DEFAULT_BEAN_LIMIT = 40
+DEFAULT_HP = 15
+
+# Astro-specific default variables
+ASTRO_NAME = "Astro"
+ASTRO_HP = 65
+ASTRO_TRACK_EXPS = [7421, 0, 10101, 9443, 8690, 6862, 191]
+ASTRO_GAG_COUNT = [[0,   0,  0,  5,  5,  3, -1],  # 0 Toon-up
+                   [-1, -1, -1, -1, -1, -1, -1],  # 1 Trap (locked)
+                   [0,   0,  0,  0,  5,  3,  1],  # 2 Lure
+                   [0,   0,  0,  0,  5,  3, -1],  # 3 Sound
+                   [0,   2,  1,  4,  4,  2, -1],  # 4 Throw
+                   [0,   0,  0,  5,  5,  3, -1],  # 5 Squirt
+                   [0,   9,  5, -1, -1, -1, -1]]  # 6 Drop
+ASTRO_GAG_LIMIT = 70
+# Astro-specific expected values
+ASTRO_EXPECTED_TRACK_LEVELS = [5, -1, 6, 5, 5, 5, 2]
+# TODO: Replace with list of Gags intead of an int
+ASTRO_EXPECTED_UNLOCKED_GAGS = 34
+# TODO: Replace with list of Gags intead of an int
+ASTRO_EXPECTED_AVAILABLE_GAGS = 18

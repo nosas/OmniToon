@@ -2,58 +2,81 @@
 from ...Gag import Gag, Gags
 from ...GagGlobals import (DEFAULT_GAG_COUNT, DEFAULT_TRACK_EXPS_CURRENT,
                            DEFAULT_TRACK_LEVELS, GAG, TRACK)
+from ...ToonGlobals import (ASTRO_EXPECTED_AVAILABLE_GAGS,
+                            ASTRO_EXPECTED_TRACK_LEVELS,
+                            ASTRO_EXPECTED_UNLOCKED_GAGS, ASTRO_GAG_COUNT,
+                            ASTRO_TRACK_EXPS)
 
 EXP = 0
 LEVEL = 0
 HEAL_TRACK = TRACK.HEAL  # same as 0
 
-# Astro-specific global variable
-TRACK_EXPS = [7421, 0, 10101, 9443, 8690, 6862, 191]
-GAG_COUNTS = [[0,   0,  0,  5,  5,  3, -1],  # 0 TOON-UP
-              [-1, -1, -1, -1, -1, -1, -1],  # 1 TRAP (LOCKED)
-              [0,   0,  0,  0,  5,  3,  1],  # 2 LURE
-              [0,   0,  0,  0,  5,  3, -1],  # 3 SOUND
-              [0,   2,  1,  4,  4,  2, -1],  # 4 THROW
-              [0,   0,  0,  5,  5,  3, -1],  # 5 SQUIRT
-              [0,   9,  5, -1, -1, -1, -1]]  # 6 DROP
-EXPECTED_TRACK_LEVELS = [5, -1, 6, 5, 5, 5, 2]
-EXPECTED_UNLOCKED_GAGS = 34
-EXPECTED_AVAILABLE_GAGS = 18
-
 
 class TestGagCreation:
+    gag = Gag(exp=EXP, level=LEVEL, track=HEAL_TRACK)
+    expected_gag = GAG.from_tuple((gag.track, gag.level))
 
-    def test_gag_creation(self):
-        g = Gag(exp=EXP, level=LEVEL, track=HEAL_TRACK)
-        expected_gag = GAG.from_tuple((g.track, g.level))
+    def test_gag_type(self):
+        assert isinstance(self.gag, Gag)
 
-        assert isinstance(g, Gag)
-        assert g.exp == EXP
-        assert g.track == HEAL_TRACK == expected_gag.track
-        assert g.level == LEVEL == expected_gag .level
-        assert g.name == expected_gag.name
-        assert g.track.name == expected_gag.track.name
+    def test_gag_exp(self):
+        assert self.gag.exp == EXP
+
+    def test_gag_track(self):
+        assert self.gag.track == HEAL_TRACK == self.expected_gag.track
+
+    def test_gag_level(self):
+        assert self.gag.level == LEVEL == self.expected_gag .level
+
+    def test_gag_name(self):
+        assert self.gag.name == self.expected_gag.name
+
+    def test_gag_track_name(self):
+        assert self.gag.track.name == self.expected_gag.track.name
+
+
+class TestGagsDefaultCreation:
+    gags = Gags(gag_count=DEFAULT_GAG_COUNT, track_exps=DEFAULT_TRACK_EXPS_CURRENT)
+
+    def test_gags_type(self):
+        assert all([isinstance(gag, Gag) for gag in self.gags])
+
+    def test_gags_total_number_of_gags(self):
+        assert len([gag for gag in self.gags]) == 7*7
+
+    def test_gags_unlocked_gags(self):
+        assert len(self.gags.unlocked_gags) == 2
+
+    def test_gags_available_gags(self):
+        assert len(self.gags.available_gags) == 0
+
+    def test_gags_gag_count(self):
+        assert self.gags.gag_count == DEFAULT_GAG_COUNT
+
+    def test_gags_track_exps(self):
+        assert self.gags.track_exps == DEFAULT_TRACK_EXPS_CURRENT
+
+    def test_gags_track_levels(self):
+        assert self.gags.track_levels == DEFAULT_TRACK_LEVELS
 
 
 class TestGagsCreation:
+    gags = Gags(gag_count=ASTRO_GAG_COUNT, track_exps=ASTRO_TRACK_EXPS)
 
-    def test_gags_default_creation(self):
-        gs = Gags(gag_count=DEFAULT_GAG_COUNT, track_exps=DEFAULT_TRACK_EXPS_CURRENT)
+    def test_gags_total_number_of_gags(self):
+        assert len([gag for gag in self.gags]) == 7*7
 
-        assert all([isinstance(gag, Gag) for gag in gs])
-        assert len([gag for gag in gs]) == 7*7
-        assert len(gs.unlocked_gags) == 2
-        assert len(gs.available_gags) == 0
-        assert gs.gag_count == DEFAULT_GAG_COUNT
-        assert gs.track_exps == DEFAULT_TRACK_EXPS_CURRENT
-        assert gs.track_levels == DEFAULT_TRACK_LEVELS
+    def test_gags_unlocked_gags(self):
+        assert len(self.gags.unlocked_gags) == ASTRO_EXPECTED_UNLOCKED_GAGS
 
-    def test_gags_astro_creation(self):
-        gs = Gags(gag_count=GAG_COUNTS, track_exps=TRACK_EXPS)
+    def test_gags_available_gags(self):
+        assert len(self.gags.available_gags) == ASTRO_EXPECTED_AVAILABLE_GAGS
 
-        assert len([gag for gag in gs]) == 7*7
-        assert len(gs.unlocked_gags) == EXPECTED_UNLOCKED_GAGS
-        assert len(gs.available_gags) == EXPECTED_AVAILABLE_GAGS
-        assert gs.gag_count == GAG_COUNTS
-        assert gs.track_exps == TRACK_EXPS
-        assert gs.track_levels == EXPECTED_TRACK_LEVELS
+    def test_gags_gag_count(self):
+        assert self.gags.gag_count == ASTRO_GAG_COUNT
+
+    def test_gags_track_exps(self):
+        assert self.gags.track_exps == ASTRO_TRACK_EXPS
+
+    def test_gags_track_levels(self):
+        assert self.gags.track_levels == ASTRO_EXPECTED_TRACK_LEVELS

@@ -6,10 +6,7 @@ from typing import Optional
 from .Entity import Entity
 from .Gag import Gags
 from .GagGlobals import DEFAULT_GAG_LIMIT
-
-DEFAULT_BEAN_COUNT = 0
-DEFAULT_BEAN_LIMIT = 40
-DEFAULT_HP = 15
+from .ToonGlobals import DEFAULT_BEAN_COUNT, DEFAULT_BEAN_LIMIT, DEFAULT_HP
 
 
 @dataclass
