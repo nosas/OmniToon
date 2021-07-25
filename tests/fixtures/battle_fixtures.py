@@ -12,6 +12,12 @@ def bt_astro(toon_astro: Toon):
 
 
 @pytest.fixture
+def bt_trapa(toon_trapa: Toon):
+    bt_trapa = BattleToon(battle_id=1, entity=toon_trapa)
+    return bt_trapa
+
+
+@pytest.fixture
 def bc_random_lured():
     """Return a random, lured BattleCog with battle_id == 1"""
     bc = BattleCog(battle_id=1, entity=get_random_cog())
@@ -40,6 +46,30 @@ def bc_lured(request):
         raise TypeError(f"What the heck did you request? {request.param}")
 
     bc.is_lured = True
+    return bc
+
+
+@pytest.fixture
+def bc_trapped(request):
+    """Given a Cog object, or a (key, rel_lvl) tuple, return a trapped BattleCog
+
+    Args:
+        cog (Cog): Cog object
+        key_rel_lvl (Tuple[str, int]): Cog's key and relative_level in a tuple
+
+    Returns:
+        BattleCog: A trapped BattleCog
+    """
+    if isinstance(request.param, tuple):
+        key, relative_level = request.param
+        cog = Cog(key=key, relative_level=relative_level)
+        bc = BattleCog(battle_id=1, entity=cog)
+    elif isinstance(request.param, Cog):
+        bc = BattleCog(battle_id=1, entity=request.param)
+    else:
+        raise TypeError(f"What the heck did you request? {request.param}")
+
+    bc.is_trapped = True
     return bc
 
 

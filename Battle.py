@@ -371,6 +371,7 @@ class BattleToon(BattleEntity):
         impossible_rules = [
             gag.track == TRACK.HEAL,
             target.is_lured and gag.track == TRACK.LURE and gag.target == GROUP.SINGLE,
+            target.is_lured and gag.track == TRACK.TRAP and gag.target == GROUP.SINGLE,
             target.is_trapped and gag.track == TRACK.TRAP and gag.target == GROUP.SINGLE,
         ]
         return any(impossible_rules) is False
@@ -394,17 +395,17 @@ class BattleToon(BattleEntity):
         ]
         return any(unviable_rules) is False
 
-    def get_possible_attacks(self, target: BattleCog) -> List[Gag]:
+    def get_possible_attacks(self, target: BattleCog) -> List[ToonAttack]:
         """Return a list of possible attacks against a BattleCog target, ignore EXP reward
 
-        Trap Gags are not returned against a Trapped Cog.
+        Trap Gags are not returned against a Lured/Trapped Cog.
         Lure Gags are not returned against a Lured Cog.
 
         Args:
             target (BattleCog): BattleCog to be attacked
 
         Returns:
-            List[Gag]: List of possible attacks againt target, ignores EXP reward
+            List[ToonAttack]: List of possible attacks againt target, ignores EXP reward
         """
         possible_attacks = []
         for gag in self.available_gags:
@@ -414,17 +415,17 @@ class BattleToon(BattleEntity):
 
         return possible_attacks
 
-    def get_viable_attacks(self, target: BattleCog) -> List[Gag]:
+    def get_viable_attacks(self, target: BattleCog) -> List[ToonAttack]:
         """Return a list of viable attacks against a BattleCog target, weigh EXP rewards
 
-        Trap Gags are not returned against a Trapped Cog.
+        Trap Gags are not returned against a Lured/Trapped Cog.
         Lure Gags are not returned against a Lured Cog.
 
         Args:
             target (BattleCog): BattleCog to be attacked
 
         Returns:
-            List[Gag]: List of viable attacks againt target, weigh EXP rewards
+            List[ToonAttack]: List of viable attacks againt target, weigh EXP rewards
         """
         possible_attacks = self.get_possible_attacks(target=target)
         return [attack for attack in possible_attacks if attack.gag.level < target.level]

@@ -4,7 +4,8 @@ from ...Entity import BattleEntity, Entity
 from ...Gag import Gag, get_default_gags
 from ...GagGlobals import GAG
 from ...Toon import Inventory, Toon
-from ...ToonGlobals import ASTRO_NAME, ASTRO_HP, DEFAULT_HP
+from ...ToonGlobals import (ASTRO_HP, ASTRO_NAME, DEFAULT_HP, TRAPA_HP,
+                            TRAPA_NAME)
 
 BATTLE_ID = 1
 NAME = 'Mickey'
@@ -44,7 +45,7 @@ class TestBattleToonDefaultCreation:
         assert isinstance(BT.entity, Entity)
 
 
-class TestBattleToonCreation:
+class TestBattleToonAstroCreation:
 
     def test_battle_toon_name(self, bt_astro: BattleToon, toon_astro: Toon):
         assert bt_astro.name == ASTRO_NAME == toon_astro.name
@@ -55,11 +56,32 @@ class TestBattleToonCreation:
     def test_battle_toon_entity(self, bt_astro: BattleToon, toon_astro: Toon):
         assert bt_astro.entity == toon_astro
 
-    def test_battle_toon_battle_id(self, bt_astro: BattleToon, toon_astro: Toon):
+    def test_battle_toon_battle_id(self, bt_astro: BattleToon):
         assert bt_astro.battle_id == BATTLE_ID
 
-    def test_battle_toon_type(self, bt_astro: BattleToon, toon_astro: Toon):
+    def test_battle_toon_type(self, bt_astro: BattleToon):
         assert isinstance(bt_astro, BattleToon)
         assert isinstance(bt_astro, BattleEntity)
         assert isinstance(bt_astro.entity, Toon)
         assert isinstance(bt_astro.entity, Entity)
+
+
+class TestBattleToonTrapaCreation:
+
+    def test_battle_toon_name(self, bt_trapa: BattleToon, toon_trapa: Toon):
+        assert bt_trapa.name == TRAPA_NAME == toon_trapa.name
+
+    def test_battle_toon_hp(self, bt_trapa: BattleToon, toon_trapa: Toon):
+        assert bt_trapa.hp == TRAPA_HP == toon_trapa.hp
+
+    def test_battle_toon_entity(self, bt_trapa: BattleToon, toon_trapa: Toon):
+        assert bt_trapa.entity == toon_trapa
+
+    def test_battle_toon_battle_id(self, bt_trapa: BattleToon):
+        assert bt_trapa.battle_id == BATTLE_ID
+
+    def test_battle_toon_type(self, bt_trapa: BattleToon):
+        assert isinstance(bt_trapa, BattleToon)
+        assert isinstance(bt_trapa, BattleEntity)
+        assert isinstance(bt_trapa.entity, Toon)
+        assert isinstance(bt_trapa.entity, Entity)
