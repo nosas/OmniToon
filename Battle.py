@@ -56,6 +56,15 @@ class BattleCog(BattleEntity):
 
     @is_lured.setter
     def is_lured(self, new_is_lured: bool) -> None:
+        """Set the Cog's is_lured flag to True or False
+
+        Args:
+            new_is_lured (bool): True or False value to be set as the Cog's is_lured flag
+
+        Raises:
+            TypeError: `new_is_lured` is not a boolean value
+            CogLuredError: The Cog is already lured and `new_is_lured` is True
+        """
         if not isinstance(new_is_lured, bool):
             raise TypeError
 
@@ -70,6 +79,20 @@ class BattleCog(BattleEntity):
 
     @is_trapped.setter
     def is_trapped(self, new_is_trapped: bool) -> None:
+        """Set the Cog's is_trapped flag to True or False
+
+        A Cog cannot be trapped when...
+            - the Cog is lured
+            - the Cog is trapped
+
+        Args:
+            new_is_trapped (bool): True or False value to be set as the Cog's is_trapped flag
+
+        Raises:
+            TypeError: `new_is_trapped` is not a boolean value
+            CogAlreadyTrappedError: The Cog is already trapped and `new_is_trapped` is True
+            CogLuredError: The Cog is lured and `new_is_trapped` is True
+        """
         if not isinstance(new_is_trapped, bool):
             raise TypeError
         print(f"                [>] is_trapped : {self.is_trapped} -> "
