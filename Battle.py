@@ -193,7 +193,6 @@ class BattleCog(BattleEntity):
         attack_hit = Entity.do_attack(self, target=target, attack=attack)
         return attack_hit
 
-
     """
         # # TODO (??) Create CogStates
         # _is_lured: bool = field(init=False, default=False)
@@ -497,8 +496,8 @@ class Battle:
     countdown_timer = 99
 
     def __init__(self, first_cog: BattleCog, first_toon: BattleToon):
-        # self._reward = [0]*7
-        self._rewards = {first_toon: [0]*7}
+        # self._reward = [0] * 7
+        self._rewards = {first_toon: [0] * 7}
         self._states = []
         self._context = BattleContext(state=ToonAttackState(),
                                       cogs=[first_cog],
@@ -529,7 +528,7 @@ class Battle:
     def add_toon(self, new_toon: BattleToon):
         try:
             self.context.add_toon(new_toon)
-            self._rewards[new_toon] = [0]*7
+            self._rewards[new_toon] = [0] * 7
         except TooManyToonsError as e:
             print(f"    [!] ERROR : Too many Toons battling, can't add Toon "
                   f"{new_toon}")
@@ -562,7 +561,7 @@ class Battle:
             print(f"    [+] `calculate_rewards()` for Toon {toon}")
             # If Toon is defeated, no rewards are given
             if toon.is_defeated:
-                self._rewards[toon] = [0]*7
+                self._rewards[toon] = [0] * 7
                 continue
             print(f"        [-] Total rewards for Toon {toon} : "
                   f"{self._rewards[toon]}")
@@ -882,7 +881,7 @@ class LoseState(WinLoseState):
                     # the Gag locked
                     toon.gags[track_idx][gag_idx] = 0 if gag != -1 else -1
 
-        self.context.reward = [0]*7
+        self.context.reward = [0] * 7
         self.context.transition_to(new_state=EndState())
 
 

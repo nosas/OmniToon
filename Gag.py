@@ -294,7 +294,7 @@ class Gags:
         gag = self._get_gag(track=track, level=level)
         if gag.count == 0:
             raise NotEnoughGagsError(gag)
-        if self.gags[track] == [-1]*7:
+        if self.gags[track] == [-1] * 7:
             raise LockedGagTrackError(track=track)
         if gag.count == -1:
             raise LockedGagError(level=level)

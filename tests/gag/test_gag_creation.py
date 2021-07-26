@@ -42,7 +42,7 @@ class TestGagsDefaultCreation:
         assert all([isinstance(gag, Gag) for gag in self.gags])
 
     def test_gags_total_number_of_gags(self):
-        assert len([gag for gag in self.gags]) == 7*7
+        assert len([gag for gag in self.gags]) == 7 * 7
 
     def test_gags_unlocked_gags(self):
         assert len(self.gags.unlocked_gags) == 2
@@ -62,7 +62,7 @@ class TestGagsDefaultCreation:
 
 class TestGagsCreation:
     def test_gags_total_number_of_gags(self, gags_astro):
-        assert len([gag for gag in gags_astro]) == 7*7
+        assert len([gag for gag in gags_astro]) == 7 * 7
 
     def test_gags_unlocked_gags(self, gags_astro):
         assert len(gags_astro.unlocked_gags) == ASTRO_EXPECTED_UNLOCKED_GAGS

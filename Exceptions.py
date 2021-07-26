@@ -63,8 +63,8 @@ class NotEnoughGagsError(GagCountError):
         err_msg = f'{self.gag.count} -> {self.message}'
         if self.gag:
             err_msg = f"Insufficient number of Gags: \"{self.gag.name}\","\
-                    f"lvl {self.gag.level} {self.gag.track_name} count = "\
-                    f" {self.gag.count}"
+                      f"lvl {self.gag.level} {self.gag.track_name} count = "\
+                      f" {self.gag.count}"
         return err_msg
 
 

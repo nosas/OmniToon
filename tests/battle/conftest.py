@@ -1,1 +1,2 @@
-from ..fixtures.battle_fixtures import bt_astro, bt_trapa, bc_lured  # noqa to suppress unused import
+from ..fixtures.battle_fixtures import (  # noqa to suppress unused import
+    bc_lured, bc_trapped, bt_astro, bt_trapa)

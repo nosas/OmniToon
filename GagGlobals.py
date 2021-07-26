@@ -157,9 +157,9 @@ DEFAULT_TRACK_EXPS_CURRENT = DEFAULT_TRACK_LEVELS
 # NOTE: The EXP value is the required to level up the Gag
 # DEFAULT_TRACK_EXPS_NEXT = [0, 0, 0, 0, 10, 10, 0]
 DEFAULT_TRACK_EXPS_NEXT = [
-    LEVELS[track_idx][level+1] for
+    LEVELS[track_idx][level + 1] for
     track_idx, level in enumerate(DEFAULT_TRACK_LEVELS)
-    ]
+]
 # DEFAULT_EXPS = [0, 0, 0, 0, 10, 10, 0]
 DEFAULT_GAG_COUNT = [[-1, -1, -1, -1, -1, -1, -1],  # Toon-Up
                      [-1, -1, -1, -1, -1, -1, -1],  # Trap
@@ -281,4 +281,4 @@ MULTI_TARGET_GAGS = [
     'Small Magnet', 'Big Magnet', 'Hypno-goggles', 'Presentation',
     'Bike Horn', 'Whistle', 'Bugle', 'Aoogah', 'Elephant Trunk', 'Foghorn',
     'Opera Singer', 'Wedding Cake', 'Geyser', 'Toontanic'
-    ]
+]

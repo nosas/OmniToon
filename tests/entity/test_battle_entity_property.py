@@ -67,13 +67,13 @@ class TestBattleEntityPropertyTargets:
 
         battle_cog_list = []
         battle_cog_list.append(BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID))
-        battle_cog_list.append(BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID+1))
+        battle_cog_list.append(BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID + 1))
 
         BE.targets = battle_cog_list
         assert len(BE.targets) == 2
 
-        battle_cog_list.append(BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID+2))
-        battle_cog_list.append(BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID+3))
+        battle_cog_list.append(BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID + 2))
+        battle_cog_list.append(BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID + 3))
 
         BE.targets = battle_cog_list
         assert len(BE.targets) == 4
@@ -84,14 +84,14 @@ class TestBattleEntityPropertyTargets:
 
         battle_cog_list = []
         battle_cog_list.append(BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID))
-        battle_cog_list.append(BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID+1))
-        battle_cog_list.append(BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID+2))
-        battle_cog_list.append(BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID+3))
+        battle_cog_list.append(BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID + 1))
+        battle_cog_list.append(BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID + 2))
+        battle_cog_list.append(BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID + 3))
 
         BE.targets = battle_cog_list
         assert len(BE.targets) == 4
 
-        battle_cog_list.append(BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID+4))
+        battle_cog_list.append(BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID + 4))
         with pytest.raises(Exception):
             BE.targets = battle_cog_list
             assert len(BE.targets) == 4
@@ -113,7 +113,7 @@ class TestBattleEntityPropertyTargets:
     def test_battle_entity_targets_property_same_type_fail(self):
 
         with pytest.raises(InvalidTargetError):
-            BE.targets = BattleEntity(battle_id=BATTLE_ID+1, entity=ENTITY)
+            BE.targets = BattleEntity(battle_id=BATTLE_ID + 1, entity=ENTITY)
 
         with pytest.raises(InvalidTargetError):
             BE.targets = BE
