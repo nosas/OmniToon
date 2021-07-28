@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from random import choice as rand_choice
 from random import randint
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 from .Attack import Attack
 from .AttackGlobals import GROUP
@@ -12,7 +12,7 @@ from .Cog import Cog
 from .Entity import BattleEntity, Entity
 from .Exceptions import (CogAlreadyTrappedError, CogLuredError, Error,
                          InvalidCogAttackTarget, TooManyCogsError,
-                         TooManyGagsError, TooManyToonsError)
+                         TooManyToonsError)
 from .Gag import Gag, get_gag_track_name
 from .GagGlobals import TRACK
 from .Toon import Toon
@@ -356,7 +356,7 @@ class BattleToon(BattleEntity):
         Certain Gags cannot be used against BattleCogs. For example...
             - a Lure Gag cannot be used against a Lured Cog
                 UNLESS, there are other non-Lured Cogs in the Battle and a multi-Lure Gag was used
-            - a Trap Gag cannot be used against a Trapped Cog
+            - a Trap Gag cannot be used against a Lured/Trapped Cog
                 UNLESS, there are other non-Trapped Cogs in the Battle and a multi-Trap Gag was used
             - a Heal (Toon-Up) Gag cannot be used against a Cog
 
@@ -457,10 +457,6 @@ class ToonAttack(Attack):
             group=self.gag.target
         )
 
-        self.target_cogs = target_cogs
-        if isinstance(self.target_cogs, BattleCog):
-            self.target_cogs = [self.target_cogs]
-
         # Trap-specific attributes used for tracking EXP rewards
         self._is_attack = False
         self._is_setup = False
@@ -521,7 +517,7 @@ class Battle:
     def add_cog(self, new_cog: BattleCog):
         try:
             self.context.add_cog(new_cog)
-        except TooManyGagsError as e:
+        except TooManyCogsError as e:
             print(f"[!] ERROR : Cannot add Cog {new_cog}, too many Cogs")
             raise e
 

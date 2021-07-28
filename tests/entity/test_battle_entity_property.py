@@ -54,15 +54,18 @@ class TestBattleEntityPropertyAttack:
 class TestBattleEntityPropertyTargets:
 
     def test_battle_entity_targets_property_1battlecog_default(self):
+        """Verify the default BattleEntity's target is None"""
         assert BE.targets is None
 
     def test_battle_entity_targets_property_1battlecog_set(self):
+        """Verify setting a new value to BattleEntity.targets adds the BattleCog to the list"""
         BE.targets = BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID)
         assert isinstance(BE.targets, list)
         assert len(BE.targets) == 1
         BE._targets = None
 
     def test_battle_entity_targets_property_max_battlecogs(self):
+        """Verify the BattleEntity.target can reach the maximum of 4 targets"""
         assert BE.targets is None
 
         battle_cog_list = []
@@ -80,6 +83,7 @@ class TestBattleEntityPropertyTargets:
         BE._targets = None
 
     def test_battle_entity_targets_property_exceed_max_targets_fail(self):
+        """Verify the BattleEntity.target raises an Error when exceeding the maximum of 4 targets"""
         assert BE.targets is None
 
         battle_cog_list = []
@@ -98,6 +102,7 @@ class TestBattleEntityPropertyTargets:
         BE._targets = None
 
     def test_battle_entity_targets_property_wrong_type_fail(self):
+        """Verify BattleEntity.target raises InvalidTargetError when not targeting a BattleEntity"""
         assert BE.targets is None
 
         with pytest.raises(InvalidTargetError):
@@ -111,7 +116,7 @@ class TestBattleEntityPropertyTargets:
         assert BE.targets is None
 
     def test_battle_entity_targets_property_same_type_fail(self):
-
+        """Verify BattleEntity.target raises InvalidTargetError when not targeting a BattleEntity"""
         with pytest.raises(InvalidTargetError):
             BE.targets = BattleEntity(battle_id=BATTLE_ID + 1, entity=ENTITY)
 
@@ -121,6 +126,7 @@ class TestBattleEntityPropertyTargets:
         assert BE.targets is None
 
     def test_battle_entity_targets_property_defeated_fail(self):
+        """Verify BattleEntity.target raises TargetDefeatedError when targeting a defeated Entity"""
         bc = BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID)
         bc._get_attacked(amount=bc.hp)
 
