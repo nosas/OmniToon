@@ -489,8 +489,13 @@ class ToonAttack(Attack):
 class RewardCalculator:
 
     base_reward = [1, 2, 3, 4, 5, 6]
-    multiplier_floor: int = MULTIPLIER.FLOOR1
-    multiplier_invasion: int = MULTIPLIER.NO_INVASION
+    building_floor: int = 1
+    multiplier_invasion: float = MULTIPLIER.NO_INVASION
+
+    @property
+    def multiplier_building(self) -> float:
+        """Return the multipler value from being in a Cog Building"""
+        return MULTIPLIER.get_building_multiplier_from_floor(floor=self.building_floor)
 
     def get_multiplier(self) -> float:
         """Return the reward multiplier
@@ -498,7 +503,7 @@ class RewardCalculator:
         Returns:
             float: Value used to calculate a BattleToon's ToonAttack reward
         """
-        return ((0.5 * self.multiplier_floor) + 0.5) * self.multiplier_invasion
+        return self.multiplier_building * self.multiplier_invasion
 
     def get_base_reward(self, attack: ToonAttack) -> int:
         """Return the base reward of a Gag
