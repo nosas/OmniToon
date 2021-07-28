@@ -14,4 +14,5 @@ class MULTIPLIER(Enum):
     FLOOR3 = 3
     FLOOR4 = 4
     FLOOR5 = 5
+    NO_INVASION = 1
     INVASION = 2
