@@ -409,7 +409,7 @@ class BattleToon(BattleEntity):
         possible_attacks = []
         for gag in self.available_gags:
             if self._gag_is_possible(gag=gag, target=target):
-                attack = ToonAttack(gag=gag, target_cogs=target)
+                attack = ToonAttack(gag=gag, target_cog=target)
                 possible_attacks.append(attack)
 
         return possible_attacks
@@ -448,7 +448,7 @@ class CogAttack(Attack):
 @dataclass(init=False)
 class ToonAttack(Attack):
 
-    def __init__(self, gag: Gag, target_cogs: Union[BattleEntity, List[BattleEntity]]):
+    def __init__(self, gag: Gag, target_cog: BattleEntity):
         self.gag = gag
         super().__init__(
             name=self.gag.name,
