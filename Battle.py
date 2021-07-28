@@ -485,6 +485,51 @@ class ToonAttack(Attack):
         self._is_setup = new_is_setup
 
 
+@dataclass
+class RewardCalculator:
+
+    base_reward = [1, 2, 3, 4, 5, 6]
+    multiplier_floor: int = MULTIPLIER.FLOOR1
+    multiplier_invasion: int = MULTIPLIER.NO_INVASION
+
+    def get_multiplier(self) -> float:
+        """Return the reward multiplier
+
+        Returns:
+            float: Value used to calculate a BattleToon's ToonAttack reward
+        """
+        return ((0.5 * self.multiplier_floor) + 0.5) * self.multiplier_invasion
+
+    def get_base_reward(self, attack: ToonAttack) -> int:
+        """Return the base reward of a Gag
+
+        Args:
+            attack (ToonAttack): BattleToon Attack containing that Gag and target BattleCog
+
+        Returns:
+            int: Base reward of a ToonAttack
+        """
+        return self.base_reward[attack.gag.level]
+
+    def calculate_reward(self, attack: ToonAttack) -> int:
+        """Calculate the BattleToon's reward, given a ToonAttack
+
+        Return -1 if the Gag's level exceeds the target BattleCog's level, meaning the Gag is
+        possible, but not viable.
+        Return ((gag.level + 1) * multiplier) if the Gag's level is lower than the target's level.
+
+        Args:
+            attack (ToonAttack): BattleToon Attack containing that Gag and target BattleCog
+
+        Returns:
+            int: Skill points awarded for successfully landing the ToonAttack
+        """
+        if attack.gag.level >= attack.target.level:
+            return -1
+        # Round upwards because the reward could be x.5
+        return round(self.get_base_reward(gag=attack.gag) * self.get_multiplier())
+
+
 # TODO class RewardTracker, remove `calculate_rewards` from Battle
 # TODO Battle should only have addition of Cogs/Toons and updating the Battle
 class Battle:
