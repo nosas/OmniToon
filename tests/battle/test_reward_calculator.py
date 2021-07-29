@@ -67,6 +67,7 @@ class TestRewardCalculatorBuilding:
                          (5, MULTIPLIER.FLOOR5)])
 class TestRewardCalculatorBuildingInvasion:
     """Test creating RewardCalculator with non-default building and invasion values"""
+
     def test_reward_calculator(self, building_floor: int, expected_building_multiplier: float):
         rc_building_invasion = RewardCalculator(building_floor=building_floor,
                                                 multiplier_invasion=MULTIPLIER.INVASION)
