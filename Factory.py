@@ -1,6 +1,7 @@
+from .Battle import BattleCog
 from .Cog import Cog
 from .Entity import BattleEntity, Entity
-from .Battle import BattleCog
+from .Toon import Toon
 
 
 class EntityFactory:
@@ -25,6 +26,10 @@ class BattleEntityFactory:
     def get_battle_entity(self, battle_id: int, entity: Entity) -> BattleEntity:
         if isinstance(entity, Cog):
             return BattleCogFactory.get_battle_entity(battle_id=battle_id, entity=entity)
+        if isinstance(entity, Toon):
+            raise NotImplementedError
+        elif isinstance(entity, Entity):
+            return BattleEntity(battle_id=battle_id, entity=entity)
 
 
 class BattleCogFactory:
