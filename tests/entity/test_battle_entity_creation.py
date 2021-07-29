@@ -36,11 +36,13 @@ class TestBattleEntityCreation:
 
     def test_battle_entity_is_defeated_false(self):
         assert not self.be.is_defeated
+        assert self.be.hp != 0
         assert self.be.is_defeated == self.be.entity.is_defeated == self.e.is_defeated
 
     def test_battle_entity_is_defeated_true(self):
         self.be._get_attacked(amount=HP)
         assert self.be.is_defeated
+        assert self.be.hp == 0
         assert self.be.is_defeated == self.be.entity.is_defeated == self.e.is_defeated
 
 
@@ -71,9 +73,11 @@ class TestBattleEntityFactoryCreation:
 
     def test_battle_entity_is_defeated_false(self):
         assert not self.be.is_defeated
+        assert self.be.hp != 0
         assert self.be.is_defeated == self.be.entity.is_defeated == self.e.is_defeated
 
     def test_battle_entity_is_defeated_true(self):
         self.be._get_attacked(amount=HP)
         assert self.be.is_defeated
+        assert self.be.hp == 0
         assert self.be.is_defeated == self.be.entity.is_defeated == self.e.is_defeated
