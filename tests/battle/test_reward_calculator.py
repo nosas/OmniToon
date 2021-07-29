@@ -12,6 +12,7 @@ BUILDING_MULTIPLIERS = [MULTIPLIER.FLOOR1, MULTIPLIER.FLOOR2, MULTIPLIER.FLOOR3,
 
 
 class TestRewardCalculatorDefault:
+    """Test creating RewardCalculator with default building and invasion values"""
     rc = RewardCalculator()
 
     def test_reward_calculator(self):
@@ -29,6 +30,7 @@ class TestRewardCalculatorDefault:
 
 
 class TestRewardCalculatorInvasion:
+    """Test creating RewardCalculator with non-default invasion values"""
     rc_invasion = RewardCalculator(multiplier_invasion=MULTIPLIER.INVASION)
 
     def test_reward_calculator(self):
@@ -46,6 +48,7 @@ class TestRewardCalculatorInvasion:
                          (4, MULTIPLIER.FLOOR4),
                          (5, MULTIPLIER.FLOOR5)])
 class TestRewardCalculatorBuilding:
+    """Test creating RewardCalculator with non-default building values"""
 
     def test_reward_calculator(self, building_floor: int, expected_building_multiplier: float):
         rc_building = RewardCalculator(building_floor=building_floor)
@@ -63,7 +66,7 @@ class TestRewardCalculatorBuilding:
                          (4, MULTIPLIER.FLOOR4),
                          (5, MULTIPLIER.FLOOR5)])
 class TestRewardCalculatorBuildingInvasion:
-
+    """Test creating RewardCalculator with non-default building and invasion values"""
     def test_reward_calculator(self, building_floor: int, expected_building_multiplier: float):
         rc_building_invasion = RewardCalculator(building_floor=building_floor,
                                                 multiplier_invasion=MULTIPLIER.INVASION)
