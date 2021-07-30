@@ -2,6 +2,7 @@ import pytest
 
 from ...Battle import BattleCog, BattleToon
 from ...Cog import Cog, get_random_cog
+from ...Factory import LuredBattleCogFactory
 from ...Toon import Toon
 
 
@@ -20,9 +21,7 @@ def bt_trapa(toon_trapa: Toon):
 @pytest.fixture
 def bc_random_lured():
     """Return a random, lured BattleCog with battle_id == 1"""
-    bc = BattleCog(battle_id=1, entity=get_random_cog())
-    bc.is_lured = True
-    return bc
+    return LuredBattleCogFactory(battle_id=1, entity=get_random_cog())
 
 
 @pytest.fixture
