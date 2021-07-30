@@ -2,7 +2,7 @@ import pytest
 
 from ...Battle import BattleCog, BattleToon
 from ...Cog import Cog, get_random_cog
-from ...Factory import LuredBattleCogFactory
+from ...Factory import BattleCogFactory
 from ...Toon import Toon
 
 
@@ -21,7 +21,7 @@ def bt_trapa(toon_trapa: Toon):
 @pytest.fixture
 def bc_random_lured():
     """Return a random, lured BattleCog with battle_id == 1"""
-    return LuredBattleCogFactory(battle_id=1, entity=get_random_cog())
+    return BattleCogFactory(battle_id=1, entity=get_random_cog(), lured=True)
 
 
 @pytest.fixture
@@ -36,16 +36,13 @@ def bc_lured(request):
         BattleCog: A lured BattleCog
     """
     if isinstance(request.param, tuple):
-        key, relative_level = request.param
-        cog = Cog(key=key, relative_level=relative_level)
-        bc = BattleCog(battle_id=1, entity=cog)
+        cog = Cog(request.param[0], request.param[1])
     elif isinstance(request.param, Cog):
-        bc = BattleCog(battle_id=1, entity=request.param)
+        cog = request.param
     else:
         raise TypeError(f"What the heck did you request? {request.param}")
 
-    bc.is_lured = True
-    return bc
+    return BattleCogFactory.get_battle_cog(battle_id=1, entity=cog, lured=True)
 
 
 @pytest.fixture
@@ -60,16 +57,13 @@ def bc_trapped(request):
         BattleCog: A trapped BattleCog
     """
     if isinstance(request.param, tuple):
-        key, relative_level = request.param
-        cog = Cog(key=key, relative_level=relative_level)
-        bc = BattleCog(battle_id=1, entity=cog)
+        cog = Cog(request.param[0], request.param[1])
     elif isinstance(request.param, Cog):
-        bc = BattleCog(battle_id=1, entity=request.param)
+        cog = request.param
     else:
         raise TypeError(f"What the heck did you request? {request.param}")
 
-    bc.is_trapped = True
-    return bc
+    return BattleCogFactory.get_battle_cog(battle_id=1, entity=cog, trapped=True)
 
 
 @pytest.fixture
