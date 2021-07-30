@@ -122,12 +122,20 @@ class TestBattleCogFactoryCreation:
         assert isinstance(self.bc.entity, Cog)
         assert isinstance(self.bc.entity, Entity)
 
-    def test_lured_battle_cog_creation(self):
+    def test_battle_cog_is_not_lured(self):
+        assert self.bc.is_lured is False
+
+    def test_battle_cog_is_not_trapped(self):
+        assert self.bc.is_trapped is False
+
+    def test_lured_battle_cog_is_lured(self):
         lured_battle_cog = self.lc_factory.get_battle_cog(battle_id=BATTLE_ID,
                                                           entity=self.cog)
         assert lured_battle_cog.is_lured is True
+        assert lured_battle_cog.is_trapped is False
 
-    def test_trapped_battle_cog_creation(self):
+    def test_trapped_battle_cog_is_trapped(self):
         trapped_battle_cog = self.tc_factory.get_battle_cog(battle_id=BATTLE_ID,
                                                             entity=self.cog)
         assert trapped_battle_cog.is_trapped is True
+        assert trapped_battle_cog.is_lured is False
