@@ -25,6 +25,12 @@ def bc_random_lured():
 
 
 @pytest.fixture
+def bc_random_trapped():
+    """Return a random, trapped BattleCog with battle_id == 1"""
+    return BattleCogFactory(battle_id=1, entity=get_random_cog(), trapped=True)
+
+
+@pytest.fixture
 def bc_lured(request):
     """Given a Cog object, or a (key, rel_lvl) tuple, return a lured BattleCog
 
@@ -56,17 +62,9 @@ def bc_trapped(request):
                                            trapped=True)
 
 
-@pytest.fixture
-def bc_random_trapped():
-    """Return a random, trapped BattleCog with battle_id == 1"""
-    bc = BattleCog(battle_id=1, entity=get_random_cog())
-    bc.is_trapped = True
-    return bc
-
-
 def get_cog_from_request_param(request_param) -> Cog:
     if isinstance(request_param, tuple):
-        return Cog(request_param[0], request_param[1])
+        return Cog(key=request_param[0], relative_level=request_param[1])
     elif isinstance(request_param, Cog):
         return request_param
     else:
