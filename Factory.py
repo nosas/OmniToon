@@ -34,6 +34,7 @@ class BattleEntityFactory:
 
 class BattleCogFactory:
 
+    @staticmethod
     def get_battle_cog(battle_id: int, entity: Entity) -> BattleCog:
         return BattleCog(battle_id=battle_id, entity=entity)
 

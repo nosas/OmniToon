@@ -1,7 +1,8 @@
 from ...Battle import BattleCog
 from ...Cog import Cog
 from ...Entity import BattleEntity, Entity
-from ...Factory import BattleEntityFactory, CogFactory, LuredBattleCogFactory
+from ...Factory import (BattleEntityFactory, CogFactory, LuredBattleCogFactory,
+                        TrappedBattleCogFactory)
 
 BATTLE_ID = 1
 KEY = 'f'
@@ -92,6 +93,7 @@ class TestBattleCogFactoryCreation:
     c_factory = CogFactory()
     bc_factory = BattleEntityFactory()
     lc_factory = LuredBattleCogFactory()
+    tc_factory = TrappedBattleCogFactory()
 
     cog = c_factory.get_cog(key=KEY, relative_level=relative_level)
     bc = bc_factory.get_battle_entity(battle_id=BATTLE_ID, entity=cog)
@@ -124,3 +126,8 @@ class TestBattleCogFactoryCreation:
         lured_battle_cog = self.lc_factory.get_battle_cog(battle_id=BATTLE_ID,
                                                           entity=self.cog)
         assert lured_battle_cog.is_lured is True
+
+    def test_trapped_battle_cog_creation(self):
+        trapped_battle_cog = self.tc_factory.get_battle_cog(battle_id=BATTLE_ID,
+                                                            entity=self.cog)
+        assert trapped_battle_cog.is_trapped is True
