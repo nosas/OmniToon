@@ -80,12 +80,16 @@ class TestRewardCalculatorInvasion:
         assert self.rc_invasion.calculate_reward(attack=toon_attack) == expected_reward
 
 
-@pytest.mark.parametrize('building_floor,expected_building_multiplier', [
-                         (1, MULTIPLIER.FLOOR1),
-                         (2, MULTIPLIER.FLOOR2),
-                         (3, MULTIPLIER.FLOOR3),
-                         (4, MULTIPLIER.FLOOR4),
-                         (5, MULTIPLIER.FLOOR5)])
+@pytest.fixture(params=[1, 2, 3, 4, 5])
+def building_floor(request):
+    return request.param
+
+
+@pytest.fixture
+def expected_building_multiplier(building_floor) -> float:
+    return MULTIPLIER.get_building_multiplier_from_floor(floor=building_floor)
+
+
 class TestRewardCalculatorBuilding:
     """Test creating RewardCalculator with non-default building values"""
 
@@ -98,23 +102,17 @@ class TestRewardCalculatorBuilding:
         assert rc_building.get_multiplier() == expected_building_multiplier
 
     @pytest.mark.parametrize('toon_attack', [0, 1, 2, 3, 4, 5, 6], indirect=['toon_attack'])
-    def test_get_base_reward(self, toon_attack, building_floor: int, expected_building_multiplier: float):
+    def test_get_base_reward(self, toon_attack, building_floor: int):
         rc_building = RewardCalculator(building_floor=building_floor)
         assert rc_building.get_base_reward(attack=toon_attack) == toon_attack.gag.level + 1
 
     @pytest.mark.parametrize('toon_attack', [0, 1, 2, 3, 4, 5, 6], indirect=['toon_attack'])
-    def test_calculate_reward(self, toon_attack, building_floor: int, expected_building_multiplier: float):
+    def test_calculate_reward(self, toon_attack, building_floor: int):
         rc_building = RewardCalculator(building_floor=building_floor)
         expected_reward = get_expected_reward(toon_attack=toon_attack, rc=rc_building)
         assert rc_building.calculate_reward(attack=toon_attack) == expected_reward
 
 
-@pytest.mark.parametrize('building_floor,expected_building_multiplier', [
-                         (1, MULTIPLIER.FLOOR1),
-                         (2, MULTIPLIER.FLOOR2),
-                         (3, MULTIPLIER.FLOOR3),
-                         (4, MULTIPLIER.FLOOR4),
-                         (5, MULTIPLIER.FLOOR5)])
 class TestRewardCalculatorBuildingInvasion:
     """Test creating RewardCalculator with non-default building and invasion values"""
 
@@ -132,13 +130,13 @@ class TestRewardCalculatorBuildingInvasion:
         assert rc_building_invasion.get_multiplier() == expected_multiplier
 
     @pytest.mark.parametrize('toon_attack', [0, 1, 2, 3, 4, 5, 6], indirect=['toon_attack'])
-    def test_get_base_reward(self, toon_attack, building_floor: int, expected_building_multiplier: float):
+    def test_get_base_reward(self, toon_attack, building_floor: int):
         rc_building_invasion = RewardCalculator(building_floor=building_floor,
                                                 multiplier_invasion=MULTIPLIER.INVASION)
         assert rc_building_invasion.get_base_reward(attack=toon_attack) == toon_attack.gag.level + 1
 
     @pytest.mark.parametrize('toon_attack', [0, 1, 2, 3, 4, 5, 6], indirect=['toon_attack'])
-    def test_calculate_reward(self, toon_attack, building_floor: int, expected_building_multiplier: float):
+    def test_calculate_reward(self, toon_attack, building_floor: int):
         rc_building_invasion = RewardCalculator(building_floor=building_floor,
                                                 multiplier_invasion=MULTIPLIER.INVASION)
         expected_reward = get_expected_reward(toon_attack=toon_attack, rc=rc_building_invasion)
