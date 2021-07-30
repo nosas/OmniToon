@@ -35,14 +35,9 @@ def bc_lured(request):
     Returns:
         BattleCog: A lured BattleCog
     """
-    if isinstance(request.param, tuple):
-        cog = Cog(request.param[0], request.param[1])
-    elif isinstance(request.param, Cog):
-        cog = request.param
-    else:
-        raise TypeError(f"What the heck did you request? {request.param}")
-
-    return BattleCogFactory.get_battle_cog(battle_id=1, entity=cog, lured=True)
+    return BattleCogFactory.get_battle_cog(battle_id=1,
+                                           entity=get_cog_from_request_param(request.param),
+                                           lured=True)
 
 
 @pytest.fixture
@@ -56,14 +51,9 @@ def bc_trapped(request):
     Returns:
         BattleCog: A trapped BattleCog
     """
-    if isinstance(request.param, tuple):
-        cog = Cog(request.param[0], request.param[1])
-    elif isinstance(request.param, Cog):
-        cog = request.param
-    else:
-        raise TypeError(f"What the heck did you request? {request.param}")
-
-    return BattleCogFactory.get_battle_cog(battle_id=1, entity=cog, trapped=True)
+    return BattleCogFactory.get_battle_cog(battle_id=1,
+                                           entity=get_cog_from_request_param(request.param),
+                                           trapped=True)
 
 
 @pytest.fixture
@@ -72,3 +62,12 @@ def bc_random_trapped():
     bc = BattleCog(battle_id=1, entity=get_random_cog())
     bc.is_trapped = True
     return bc
+
+
+def get_cog_from_request_param(request_param) -> Cog:
+    if isinstance(request_param, tuple):
+        return Cog(request_param[0], request_param[1])
+    elif isinstance(request_param, Cog):
+        return request_param
+    else:
+        raise TypeError(f"What the heck did you request? {request_param}")
