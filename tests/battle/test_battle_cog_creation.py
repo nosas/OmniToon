@@ -1,8 +1,7 @@
 from ...Battle import BattleCog
 from ...Cog import Cog
 from ...Entity import BattleEntity, Entity
-from ...Factory import (BattleEntityFactory, CogFactory, LuredBattleCogFactory,
-                        TrappedBattleCogFactory)
+from ...Factory import BattleCogFactory, BattleEntityFactory, CogFactory
 
 BATTLE_ID = 1
 KEY = 'f'
@@ -91,12 +90,13 @@ class TestBattleCogFactoryCreation:
     relative_level = 0
 
     c_factory = CogFactory()
-    bc_factory = BattleEntityFactory()
-    lc_factory = LuredBattleCogFactory()
-    tc_factory = TrappedBattleCogFactory()
+    be_factory = BattleEntityFactory()  # To create BattleCog/BattleToons
+    bc_factory = BattleCogFactory()  # To create Lured/Trapped BattleCogs
 
     cog = c_factory.get_cog(key=KEY, relative_level=relative_level)
-    bc = bc_factory.get_battle_entity(battle_id=BATTLE_ID, entity=cog)
+    bc = be_factory.get_battle_entity(battle_id=BATTLE_ID, entity=cog)
+    lc = bc_factory.get_battle_cog(battle_id=BATTLE_ID, entity=cog, lured=True)
+    tc = bc_factory.get_battle_cog(battle_id=BATTLE_ID, entity=cog, trapped=True)
 
     def test_battle_cog_battle_id(self):
         assert self.bc.battle_id == BATTLE_ID
@@ -129,13 +129,9 @@ class TestBattleCogFactoryCreation:
         assert self.bc.is_trapped is False
 
     def test_lured_battle_cog_is_lured(self):
-        lured_battle_cog = self.lc_factory.get_battle_cog(battle_id=BATTLE_ID,
-                                                          entity=self.cog)
-        assert lured_battle_cog.is_lured is True
-        assert lured_battle_cog.is_trapped is False
+        assert self.lc.is_lured is True
+        assert self.lc.is_trapped is False
 
     def test_trapped_battle_cog_is_trapped(self):
-        trapped_battle_cog = self.tc_factory.get_battle_cog(battle_id=BATTLE_ID,
-                                                            entity=self.cog)
-        assert trapped_battle_cog.is_trapped is True
-        assert trapped_battle_cog.is_lured is False
+        assert self.tc.is_trapped is True
+        assert self.tc.is_lured is False
