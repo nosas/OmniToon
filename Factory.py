@@ -40,15 +40,17 @@ class BattleCogFactory:
 
 class LuredBattleCogFactory(BattleCogFactory):
 
-    def get_battle_entity(battle_id: int, entity: Entity) -> BattleCog:
-        bc = super().get_battle_cog(battle_id=battle_id, entity=entity)
+    @staticmethod
+    def get_battle_cog(battle_id: int, entity: Entity) -> BattleCog:
+        bc = BattleCog(battle_id=battle_id, entity=entity)
         bc.is_lured = True
         return bc
 
 
 class TrappedBattleCogFactory(BattleCogFactory):
 
-    def get_battle_entity(battle_id: int, entity: Entity) -> BattleCog:
-        bc = super().get_battle_cog(battle_id=battle_id, entity=entity)
+    @staticmethod
+    def get_battle_cog(battle_id: int, entity: Entity) -> BattleCog:
+        bc = BattleCog(battle_id=battle_id, entity=entity)
         bc.is_trapped = True
         return bc
