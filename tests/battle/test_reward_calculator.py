@@ -1,7 +1,7 @@
 import pytest
 
 from ...AttackGlobals import MULTIPLIER
-from ...Battle import RewardCalculator
+from ...Battle import RewardCalculator, ToonAttack
 from ...Factory import (BattleCogFactory, CogFactory, GagFactory,
                         ToonAttackFactory)
 from ...Gag import TRACK
@@ -20,6 +20,24 @@ TATK_FACTORY = ToonAttackFactory()
 BC_FACTORY = BattleCogFactory()
 
 
+@pytest.fixture
+def toon_attack(request) -> ToonAttack:
+    gag_level = request.param if request else 0
+    target_cog = CogFactory().get_cog(key=KEY_FLUNKY, relative_level=0)
+
+    return TATK_FACTORY.get_toon_attack(
+        gag=GAG_FACTORY.get_gag(track=TRACK.THROW, level=gag_level),
+        target_cog=BC_FACTORY.get_battle_cog(battle_id=1, entity=target_cog)
+        )
+
+
+def get_expected_reward(toon_attack: ToonAttack, rc: RewardCalculator) -> int:
+    if toon_attack.gag.level >= toon_attack.target_cog.level:
+        return -1
+    else:
+        return rc.get_base_reward(attack=toon_attack) * rc.get_multiplier()
+
+
 class TestRewardCalculatorDefault:
     """Test creating RewardCalculator with default building and invasion values"""
     rc = RewardCalculator()
@@ -31,22 +49,14 @@ class TestRewardCalculatorDefault:
     def test_get_multiplier(self):
         assert self.rc.get_multiplier() == EXPECTED_DEFAULT_MULTIPLIER
 
-    def test_get_base_reward(self, gag_level=0):  # TODO Parametrize with all Gag levels
-        toon_atk = TATK_FACTORY.get_toon_attack(
-            gag=GAG_FACTORY.get_gag(track=TRACK.THROW, level=gag_level),
-            target_cog=BC_FACTORY.get_battle_cog(battle_id=1,
-                                                 entity=CogFactory().get_cog(key=KEY_FLUNKY)))
+    @pytest.mark.parametrize('toon_attack', [0, 1, 2, 3, 4, 5, 6], indirect=True)
+    def test_get_base_reward(self, toon_attack):  # TODO Parametrize with all Gag levels
+        assert self.rc.get_base_reward(attack=toon_attack) == toon_attack.gag.level + 1
 
-        assert self.rc.get_base_reward(attack=toon_atk) == toon_atk.gag.level + 1
-
-    def test_calculate_reward(self, gag_level=0):  # TODO Parametrize with all Gag levels
-        toon_atk = TATK_FACTORY.get_toon_attack(
-            gag=GAG_FACTORY.get_gag(track=TRACK.THROW, level=gag_level),
-            target_cog=BC_FACTORY.get_battle_cog(battle_id=1,
-                                                 entity=CogFactory().get_cog(key=KEY_FLUNKY)))
-
-        expected_reward = self.rc.get_base_reward(attack=toon_atk) * self.rc.get_multiplier()
-        assert self.rc.calculate_reward(attack=toon_atk) == expected_reward
+    @pytest.mark.parametrize('toon_attack', [0, 1, 2, 3, 4, 5, 6], indirect=True)
+    def test_calculate_reward(self, toon_attack):  # TODO Parametrize with all Gag levels
+        expected_reward = get_expected_reward(toon_attack=toon_attack, rc=self.rc)
+        assert self.rc.calculate_reward(attack=toon_attack) == expected_reward
 
 
 class TestRewardCalculatorInvasion:
