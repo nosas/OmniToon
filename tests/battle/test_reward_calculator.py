@@ -22,6 +22,7 @@ BC_FACTORY = BattleCogFactory()
 
 @pytest.fixture(params=[0, 1, 2, 3, 4, 5, 6])
 def toon_attack(request) -> ToonAttack:
+    """Given a Gag level, return a ToonAttack with target_cog == lvl 1 Flunky"""
     target_cog = CogFactory().get_cog(key=KEY_FLUNKY, relative_level=0)
 
     return TATK_FACTORY.get_toon_attack(
@@ -32,15 +33,18 @@ def toon_attack(request) -> ToonAttack:
 
 @pytest.fixture(params=[1, 2, 3, 4, 5])
 def building_floor(request):
+    """Return all possible building floor values, one at a time"""
     return request.param
 
 
 @pytest.fixture
 def expected_building_multiplier(building_floor) -> float:
+    """Given a building_floor value, return the expected building_multiplier value"""
     return MULTIPLIER.get_building_multiplier_from_floor(floor=building_floor)
 
 
 def get_expected_reward(toon_attack: ToonAttack, rc: RewardCalculator) -> int:
+    """Given a ToonAttack and RewardCalculator, return the expected reward value"""
     if toon_attack.gag.level >= toon_attack.target_cog.level:
         return -1
     else:
