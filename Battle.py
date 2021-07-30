@@ -452,6 +452,8 @@ class ToonAttack(Attack):
 
     def __init__(self, gag: Gag, target_cog: BattleEntity):
         self.gag = gag
+        self.target_cog = target_cog
+
         super().__init__(
             name=self.gag.name,
             damage=self.gag.damage,
@@ -529,10 +531,10 @@ class RewardCalculator:
         Returns:
             int: Skill points awarded for successfully landing the ToonAttack
         """
-        if attack.gag.level >= attack.target.level:
+        if attack.gag.level >= attack.target_cog.level:
             return -1
         # Round upwards because the reward could be x.5
-        return round(self.get_base_reward(gag=attack.gag) * self.get_multiplier())
+        return round(self.get_base_reward(attack=attack) * self.get_multiplier())
 
 
 # TODO class RewardTracker, remove `calculate_rewards` from Battle
