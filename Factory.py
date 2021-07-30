@@ -25,7 +25,7 @@ class BattleEntityFactory:
     # TODO : Increment battle_id for each new BattleCog
     def get_battle_entity(self, battle_id: int, entity: Entity) -> BattleEntity:
         if isinstance(entity, Cog):
-            return BattleCogFactory.get_battle_entity(battle_id=battle_id, entity=entity)
+            return BattleCogFactory.get_battle_cog(battle_id=battle_id, entity=entity)
         if isinstance(entity, Toon):
             raise NotImplementedError
         elif isinstance(entity, Entity):
@@ -34,14 +34,14 @@ class BattleEntityFactory:
 
 class BattleCogFactory:
 
-    def get_battle_entity(battle_id: int, entity: Entity) -> BattleCog:
+    def get_battle_cog(battle_id: int, entity: Entity) -> BattleCog:
         return BattleCog(battle_id=battle_id, entity=entity)
 
 
 class LuredBattleCogFactory(BattleCogFactory):
 
     def get_battle_entity(battle_id: int, entity: Entity) -> BattleCog:
-        bc = super().get_battle_entity(battle_id=battle_id, entity=entity)
+        bc = super().get_battle_cog(battle_id=battle_id, entity=entity)
         bc.is_lured = True
         return bc
 
@@ -49,6 +49,6 @@ class LuredBattleCogFactory(BattleCogFactory):
 class TrappedBattleCogFactory(BattleCogFactory):
 
     def get_battle_entity(battle_id: int, entity: Entity) -> BattleCog:
-        bc = super().get_battle_entity(battle_id=battle_id, entity=entity)
+        bc = super().get_battle_cog(battle_id=battle_id, entity=entity)
         bc.is_trapped = True
         return bc
