@@ -20,7 +20,7 @@ TATK_FACTORY = ToonAttackFactory()
 BC_FACTORY = BattleCogFactory()
 
 
-@pytest.fixture
+@pytest.fixture(params=[0, 1, 2, 3, 4, 5, 6])
 def toon_attack(request) -> ToonAttack:
     gag_level = request.param if request else 0
     target_cog = CogFactory().get_cog(key=KEY_FLUNKY, relative_level=0)
@@ -59,11 +59,9 @@ class TestRewardCalculatorDefault:
     def test_get_multiplier(self):
         assert self.rc.get_multiplier() == EXPECTED_DEFAULT_MULTIPLIER
 
-    @pytest.mark.parametrize('toon_attack', [0, 1, 2, 3, 4, 5, 6], indirect=['toon_attack'])
     def test_get_base_reward(self, toon_attack):
         assert self.rc.get_base_reward(attack=toon_attack) == toon_attack.gag.level + 1
 
-    @pytest.mark.parametrize('toon_attack', [0, 1, 2, 3, 4, 5, 6], indirect=['toon_attack'])
     def test_calculate_reward(self, toon_attack):
         expected_reward = get_expected_reward(toon_attack=toon_attack, rc=self.rc)
         assert self.rc.calculate_reward(attack=toon_attack) == expected_reward
@@ -80,11 +78,9 @@ class TestRewardCalculatorInvasion:
     def test_get_multiplier(self):
         assert self.rc_invasion.get_multiplier() == MULTIPLIER.INVASION
 
-    @pytest.mark.parametrize('toon_attack', [0, 1, 2, 3, 4, 5, 6], indirect=['toon_attack'])
     def test_get_base_reward(self, toon_attack):
         assert self.rc_invasion.get_base_reward(attack=toon_attack) == toon_attack.gag.level + 1
 
-    @pytest.mark.parametrize('toon_attack', [0, 1, 2, 3, 4, 5, 6], indirect=['toon_attack'])
     def test_calculate_reward(self, toon_attack):
         expected_reward = get_expected_reward(toon_attack=toon_attack, rc=self.rc_invasion)
         assert self.rc_invasion.calculate_reward(attack=toon_attack) == expected_reward
@@ -101,12 +97,10 @@ class TestRewardCalculatorBuilding:
         rc_building = RewardCalculator(building_floor=building_floor)
         assert rc_building.get_multiplier() == expected_building_multiplier
 
-    @pytest.mark.parametrize('toon_attack', [0, 1, 2, 3, 4, 5, 6], indirect=['toon_attack'])
     def test_get_base_reward(self, toon_attack, building_floor: int):
         rc_building = RewardCalculator(building_floor=building_floor)
         assert rc_building.get_base_reward(attack=toon_attack) == toon_attack.gag.level + 1
 
-    @pytest.mark.parametrize('toon_attack', [0, 1, 2, 3, 4, 5, 6], indirect=['toon_attack'])
     def test_calculate_reward(self, toon_attack, building_floor: int):
         rc_building = RewardCalculator(building_floor=building_floor)
         expected_reward = get_expected_reward(toon_attack=toon_attack, rc=rc_building)
@@ -129,13 +123,11 @@ class TestRewardCalculatorBuildingInvasion:
         expected_multiplier = expected_building_multiplier * MULTIPLIER.INVASION
         assert rc_building_invasion.get_multiplier() == expected_multiplier
 
-    @pytest.mark.parametrize('toon_attack', [0, 1, 2, 3, 4, 5, 6], indirect=['toon_attack'])
     def test_get_base_reward(self, toon_attack, building_floor: int):
         rc_building_invasion = RewardCalculator(building_floor=building_floor,
                                                 multiplier_invasion=MULTIPLIER.INVASION)
         assert rc_building_invasion.get_base_reward(attack=toon_attack) == toon_attack.gag.level + 1
 
-    @pytest.mark.parametrize('toon_attack', [0, 1, 2, 3, 4, 5, 6], indirect=['toon_attack'])
     def test_calculate_reward(self, toon_attack, building_floor: int):
         rc_building_invasion = RewardCalculator(building_floor=building_floor,
                                                 multiplier_invasion=MULTIPLIER.INVASION)
