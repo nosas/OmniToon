@@ -22,11 +22,10 @@ BC_FACTORY = BattleCogFactory()
 
 @pytest.fixture(params=[0, 1, 2, 3, 4, 5, 6])
 def toon_attack(request) -> ToonAttack:
-    gag_level = request.param if request else 0
     target_cog = CogFactory().get_cog(key=KEY_FLUNKY, relative_level=0)
 
     return TATK_FACTORY.get_toon_attack(
-        gag=GAG_FACTORY.get_gag(track=TRACK.THROW, level=gag_level),
+        gag=GAG_FACTORY.get_gag(track=TRACK.THROW, level=request.param),
         target_cog=BC_FACTORY.get_battle_cog(battle_id=1, entity=target_cog)
         )
 
