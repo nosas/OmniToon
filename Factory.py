@@ -35,7 +35,14 @@ class BattleEntityFactory:
 class BattleCogFactory:
 
     @staticmethod
-    def get_battle_cog(battle_id: int, entity: Entity) -> BattleCog:
+    def get_battle_cog(battle_id: int, entity: Entity,
+                       lured: bool = False, trapped: bool = False) -> BattleCog:
+        if lured and trapped:
+            raise TypeError("BattleCogs cannot be trapped and lured")
+        if lured:
+            return LuredBattleCogFactory.get_battle_cog(battle_id=battle_id, entity=entity)
+        if trapped:
+            return TrappedBattleCogFactory.get_battle_cog(battle_id=battle_id, entity=entity)
         return BattleCog(battle_id=battle_id, entity=entity)
 
 
