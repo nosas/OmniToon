@@ -38,6 +38,16 @@ def get_expected_reward(toon_attack: ToonAttack, rc: RewardCalculator) -> int:
         return round(rc.get_base_reward(attack=toon_attack) * rc.get_multiplier())
 
 
+@pytest.fixture(params=[1, 2, 3, 4, 5])
+def building_floor(request):
+    return request.param
+
+
+@pytest.fixture
+def expected_building_multiplier(building_floor) -> float:
+    return MULTIPLIER.get_building_multiplier_from_floor(floor=building_floor)
+
+
 class TestRewardCalculatorDefault:
     """Test creating RewardCalculator with default building and invasion values"""
     rc = RewardCalculator()
@@ -78,16 +88,6 @@ class TestRewardCalculatorInvasion:
     def test_calculate_reward(self, toon_attack):
         expected_reward = get_expected_reward(toon_attack=toon_attack, rc=self.rc_invasion)
         assert self.rc_invasion.calculate_reward(attack=toon_attack) == expected_reward
-
-
-@pytest.fixture(params=[1, 2, 3, 4, 5])
-def building_floor(request):
-    return request.param
-
-
-@pytest.fixture
-def expected_building_multiplier(building_floor) -> float:
-    return MULTIPLIER.get_building_multiplier_from_floor(floor=building_floor)
 
 
 class TestRewardCalculatorBuilding:
