@@ -31,13 +31,6 @@ def toon_attack(request) -> ToonAttack:
         )
 
 
-def get_expected_reward(toon_attack: ToonAttack, rc: RewardCalculator) -> int:
-    if toon_attack.gag.level >= toon_attack.target_cog.level:
-        return -1
-    else:
-        return round(rc.get_base_reward(attack=toon_attack) * rc.get_multiplier())
-
-
 @pytest.fixture(params=[1, 2, 3, 4, 5])
 def building_floor(request):
     return request.param
@@ -46,6 +39,13 @@ def building_floor(request):
 @pytest.fixture
 def expected_building_multiplier(building_floor) -> float:
     return MULTIPLIER.get_building_multiplier_from_floor(floor=building_floor)
+
+
+def get_expected_reward(toon_attack: ToonAttack, rc: RewardCalculator) -> int:
+    if toon_attack.gag.level >= toon_attack.target_cog.level:
+        return -1
+    else:
+        return round(rc.get_base_reward(attack=toon_attack) * rc.get_multiplier())
 
 
 class TestRewardCalculatorDefault:
