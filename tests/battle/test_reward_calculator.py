@@ -20,7 +20,7 @@ TATK_FACTORY = ToonAttackFactory()
 BC_FACTORY = BattleCogFactory()
 
 
-@pytest.fixture(params=[0, 1, 2, 3, 4, 5, 6])
+@pytest.fixture(params=[0, 1, 2, 3, 4, 5, 6], scope='module')
 def toon_attack(request) -> ToonAttack:
     """Given a Gag level, return a ToonAttack with target_cog == lvl 1 Flunky"""
     target_cog = CogFactory().get_cog(key=KEY_FLUNKY, relative_level=0)
@@ -31,13 +31,13 @@ def toon_attack(request) -> ToonAttack:
         )
 
 
-@pytest.fixture(params=[1, 2, 3, 4, 5])
-def building_floor(request):
+@pytest.fixture(params=[1, 2, 3, 4, 5], scope='module')
+def building_floor(request) -> int:
     """Return all possible building floor values, one at a time"""
     return request.param
 
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def expected_building_multiplier(building_floor) -> float:
     """Given a building_floor value, return the expected building_multiplier value"""
     return MULTIPLIER.get_building_multiplier_from_floor(floor=building_floor)
@@ -51,6 +51,12 @@ def get_expected_reward(toon_attack: ToonAttack, rc: RewardCalculator) -> int:
         return round(rc.get_base_reward(attack=toon_attack) * rc.get_multiplier())
 
 
+def get_reward_calculator(building_floor: int = 1, is_invasion: bool = False) -> RewardCalculator:
+    """Return a RewardCalculator, given a building_floor number and is_invasion boolean"""
+    multiplier_invasion = MULTIPLIER.INVASION if is_invasion else MULTIPLIER.NO_INVASION
+    return RewardCalculator(building_floor=building_floor, multiplier_invasion=multiplier_invasion)
+
+
 class TestRewardCalculatorDefault:
     """Test creating RewardCalculator with default building and invasion values"""
     rc = RewardCalculator()
@@ -62,77 +68,72 @@ class TestRewardCalculatorDefault:
     def test_get_multiplier(self):
         assert self.rc.get_multiplier() == EXPECTED_DEFAULT_MULTIPLIER
 
-    def test_get_base_reward(self, toon_attack):
+    def test_get_base_reward(self, toon_attack: ToonAttack):
         assert self.rc.get_base_reward(attack=toon_attack) == toon_attack.gag.level + 1
 
-    def test_calculate_reward(self, toon_attack):
+    def test_calculate_reward(self, toon_attack: ToonAttack):
         expected_reward = get_expected_reward(toon_attack=toon_attack, rc=self.rc)
         assert self.rc.calculate_reward(attack=toon_attack) == expected_reward
 
 
 class TestRewardCalculatorInvasion:
     """Test creating RewardCalculator with non-default invasion values"""
-    rc_invasion = RewardCalculator(multiplier_invasion=MULTIPLIER.INVASION)
+    rc = RewardCalculator(multiplier_invasion=MULTIPLIER.INVASION)
 
     def test_reward_calculator_mulitpliers(self):
-        assert self.rc_invasion.multiplier_building == EXPECTED_DEFAULT_FLOOR
-        assert self.rc_invasion.multiplier_invasion == MULTIPLIER.INVASION
+        assert self.rc.multiplier_building == EXPECTED_DEFAULT_FLOOR
+        assert self.rc.multiplier_invasion == MULTIPLIER.INVASION
 
     def test_get_multiplier(self):
-        assert self.rc_invasion.get_multiplier() == MULTIPLIER.INVASION
+        assert self.rc.get_multiplier() == MULTIPLIER.INVASION
 
-    def test_get_base_reward(self, toon_attack):
-        assert self.rc_invasion.get_base_reward(attack=toon_attack) == toon_attack.gag.level + 1
+    def test_get_base_reward(self, toon_attack: ToonAttack):
+        assert self.rc.get_base_reward(attack=toon_attack) == toon_attack.gag.level + 1
 
-    def test_calculate_reward(self, toon_attack):
-        expected_reward = get_expected_reward(toon_attack=toon_attack, rc=self.rc_invasion)
-        assert self.rc_invasion.calculate_reward(attack=toon_attack) == expected_reward
+    def test_calculate_reward(self, toon_attack: ToonAttack):
+        expected_reward = get_expected_reward(toon_attack=toon_attack, rc=self.rc)
+        assert self.rc.calculate_reward(attack=toon_attack) == expected_reward
 
 
 class TestRewardCalculatorBuilding:
     """Test creating RewardCalculator with non-default building values"""
 
-    def test_reward_calculator_mulitpliers(self, building_floor: int, expected_building_multiplier: float):  # noqa
-        rc_building = RewardCalculator(building_floor=building_floor)
-        assert rc_building.multiplier_building == expected_building_multiplier
+    @pytest.fixture(scope='class')
+    def rc(self, building_floor: int) -> RewardCalculator:
+        return get_reward_calculator(building_floor=building_floor)
 
-    def test_get_multiplier(self, building_floor: int, expected_building_multiplier: float):
-        rc_building = RewardCalculator(building_floor=building_floor)
-        assert rc_building.get_multiplier() == expected_building_multiplier
+    def test_reward_calculator_mulitpliers(self, rc: RewardCalculator, expected_building_multiplier: float):  # noqa
+        assert rc.multiplier_building == expected_building_multiplier
 
-    def test_get_base_reward(self, toon_attack, building_floor: int):
-        rc_building = RewardCalculator(building_floor=building_floor)
-        assert rc_building.get_base_reward(attack=toon_attack) == toon_attack.gag.level + 1
+    def test_get_multiplier(self, rc: RewardCalculator, expected_building_multiplier: float):
+        assert rc.get_multiplier() == expected_building_multiplier
 
-    def test_calculate_reward(self, toon_attack, building_floor: int):
-        rc_building = RewardCalculator(building_floor=building_floor)
-        expected_reward = get_expected_reward(toon_attack=toon_attack, rc=rc_building)
-        assert rc_building.calculate_reward(attack=toon_attack) == expected_reward
+    def test_get_base_reward(self, rc: RewardCalculator, toon_attack: ToonAttack):
+        assert rc.get_base_reward(attack=toon_attack) == toon_attack.gag.level + 1
+
+    def test_calculate_reward(self, rc: RewardCalculator, toon_attack: ToonAttack):
+        expected_reward = get_expected_reward(toon_attack=toon_attack, rc=rc)
+        assert rc.calculate_reward(attack=toon_attack) == expected_reward
 
 
 class TestRewardCalculatorBuildingInvasion:
     """Test creating RewardCalculator with non-default building and invasion values"""
 
-    def test_reward_calculator_mulitpliers(self, building_floor: int, expected_building_multiplier: float):  # noqa
-        rc_building_invasion = RewardCalculator(building_floor=building_floor,
-                                                multiplier_invasion=MULTIPLIER.INVASION)
-        assert rc_building_invasion.multiplier_invasion == MULTIPLIER.INVASION
-        assert rc_building_invasion.multiplier_building == expected_building_multiplier
+    @pytest.fixture(scope='class')
+    def rc(self, building_floor: int) -> RewardCalculator:
+        return get_reward_calculator(building_floor=building_floor, is_invasion=True)
 
-    def test_get_multiplier(self, building_floor: int, expected_building_multiplier: float):
-        rc_building_invasion = RewardCalculator(building_floor=building_floor,
-                                                multiplier_invasion=MULTIPLIER.INVASION)
+    def test_reward_calculator_mulitpliers(self, rc: RewardCalculator, expected_building_multiplier: float):  # noqa
+        assert rc.multiplier_invasion == MULTIPLIER.INVASION
+        assert rc.multiplier_building == expected_building_multiplier
 
+    def test_get_multiplier(self, rc: RewardCalculator, expected_building_multiplier: float):
         expected_multiplier = expected_building_multiplier * MULTIPLIER.INVASION
-        assert rc_building_invasion.get_multiplier() == expected_multiplier
+        assert rc.get_multiplier() == expected_multiplier
 
-    def test_get_base_reward(self, toon_attack, building_floor: int):
-        rc_building_invasion = RewardCalculator(building_floor=building_floor,
-                                                multiplier_invasion=MULTIPLIER.INVASION)
-        assert rc_building_invasion.get_base_reward(attack=toon_attack) == toon_attack.gag.level + 1
+    def test_get_base_reward(self, rc: RewardCalculator, toon_attack: ToonAttack):
+        assert rc.get_base_reward(attack=toon_attack) == toon_attack.gag.level + 1
 
-    def test_calculate_reward(self, toon_attack, building_floor: int):
-        rc_building_invasion = RewardCalculator(building_floor=building_floor,
-                                                multiplier_invasion=MULTIPLIER.INVASION)
-        expected_reward = get_expected_reward(toon_attack=toon_attack, rc=rc_building_invasion)
-        assert rc_building_invasion.calculate_reward(attack=toon_attack) == expected_reward
+    def test_calculate_reward(self, rc: RewardCalculator, toon_attack: ToonAttack):
+        expected_reward = get_expected_reward(toon_attack=toon_attack, rc=rc)
+        assert rc.calculate_reward(attack=toon_attack) == expected_reward
