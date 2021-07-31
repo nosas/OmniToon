@@ -451,14 +451,15 @@ class CogAttack(Attack):
 class ToonAttack(Attack):
 
     def __init__(self, gag: Gag, target_cog: BattleEntity):
+        """Can't do a dataclass because pylances raises a Warning due to dataclass MRO"""
         self.gag = gag
         self.target_cog = target_cog
 
         super().__init__(
-            name=self.gag.name,
-            damage=self.gag.damage,
-            accuracy=self.gag.accuracy,
-            group=self.gag.target
+            name=gag.to_attack.name,
+            damage=gag.to_attack.damage,
+            accuracy=gag.to_attack.accuracy,
+            group=gag.to_attack.group
         )
 
         # Trap-specific attributes used for tracking EXP rewards

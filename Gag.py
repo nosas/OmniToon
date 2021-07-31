@@ -17,6 +17,7 @@ from dataclasses import dataclass, field
 from math import floor as math_floor
 from typing import List, Optional
 
+from .Attack import Attack
 from .AttackGlobals import GROUP
 from .Exceptions import (GagCountError, LockedGagError, LockedGagTrackError,
                          NotEnoughGagsError)
@@ -97,6 +98,15 @@ class Gag:
     @property
     def damage(self) -> int:
         return get_gag_damage(track=self.track, level=self.level, exp=self.exp)
+
+    @property
+    def to_attack(self) -> Attack:
+        return Attack(
+            name=self.name,
+            damage=self.damage,
+            accuracy=self.accuracy,
+            group=self.target
+        )
 
     @property
     def track(self) -> TRACK:
