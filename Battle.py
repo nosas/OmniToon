@@ -357,9 +357,9 @@ class BattleToon(BattleEntity):
 
         Certain Gags cannot be used against BattleCogs. For example...
             - a Lure Gag cannot be used against a Lured Cog
-                UNLESS, there are other non-Lured Cogs in the Battle and a multi-Lure Gag was used
+                UNLESS, there are other non-Lured Cogs in the Battle
             - a Trap Gag cannot be used against a Lured/Trapped Cog
-                UNLESS, there are other non-Trapped Cogs in the Battle and a multi-Trap Gag was used
+                UNLESS, there are other non-Trapped Cogs in the Battle
             - a Heal (Toon-Up) Gag cannot be used against a Cog
 
         Args:
@@ -371,9 +371,9 @@ class BattleToon(BattleEntity):
         """
         impossible_rules = [
             gag.track == TRACK.HEAL,
-            target.is_lured and gag.track == TRACK.LURE and gag.target == GROUP.SINGLE,
-            target.is_lured and gag.track == TRACK.TRAP and gag.target == GROUP.SINGLE,
-            target.is_trapped and gag.track == TRACK.TRAP and gag.target == GROUP.SINGLE,
+            target.is_lured and gag.track == TRACK.LURE,
+            target.is_lured and gag.track == TRACK.TRAP,
+            target.is_trapped and gag.track == TRACK.TRAP,
         ]
         return any(impossible_rules) is False
 
