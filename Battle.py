@@ -436,6 +436,10 @@ class BattleToon(BattleEntity):
     def choose_targets(self):
         return super().choose_targets()
 
+    def update_reward_multiplier(self):
+        """Update the BattleToon's reward multiplier when Battle pushes a notification"""
+        self._reward_multiplier = self.battle.get_multiplier()
+
 
 @dataclass
 class CogAttack(Attack):
@@ -560,6 +564,7 @@ class Battle:
                                       toons=[first_toon],
                                       rewards=self._rewards)
         self.is_battling = True
+        self.reward_calculator = RewardCalculator()
 
     @property
     def context(self):
@@ -584,6 +589,7 @@ class Battle:
     def add_toon(self, new_toon: BattleToon):
         try:
             self.context.add_toon(new_toon)
+            self.register(new_toon)
             self._rewards[new_toon] = [0] * 7
         except TooManyToonsError as e:
             print(f"    [!] ERROR : Too many Toons battling, can't add Toon "
@@ -624,6 +630,23 @@ class Battle:
         print("    [-] `calculate_rewards()` all rewards ... ")
         # pp.pprint(self._rewards)
         return self._rewards
+
+    def get_multiplier(self) -> float:
+        return self.reward_calculator.get_multiplier()
+
+    def notify(self):
+        """Notify all observers of changes to RewardCalculator.multiplier"""
+        for battle_toon in self.toons:
+            battle_toon.update_reward_multiplier()
+
+    def register(self, toon: BattleToon):
+        """Register an observer Toon"""
+        self.toons.append(toon)
+        toon.update_reward_multiplier()  # Update the Toon's reward multiplier
+
+    def unregister(self, toon: BattleToon):
+        """Unregister an observer Toon"""
+        self.toons.remove(toon)
 
     def update(self):
         self.context.update()
