@@ -495,6 +495,10 @@ class RewardCalculator:
     multiplier_invasion: float = MULTIPLIER.NO_INVASION
 
     @property
+    def reward_table(self) -> List[int]:
+        return [round(reward * self.get_multiplier()) for reward in self.base_reward]
+
+    @property
     def multiplier_building(self) -> float:
         """Return the multipler value from being in a Cog Building"""
         return MULTIPLIER.get_building_multiplier_from_floor(floor=self.building_floor)
@@ -534,7 +538,7 @@ class RewardCalculator:
         if attack.gag.level >= attack.target_cog.level:
             return -1
         # Round upwards because the reward could be x.5
-        return round(self.get_base_reward(attack=attack) * self.get_multiplier())
+        return self.reward_table[attack.gag.level]
 
 
 # TODO class RewardTracker, remove `calculate_rewards` from Battle
