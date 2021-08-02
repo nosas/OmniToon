@@ -494,7 +494,7 @@ class ToonAttack(Attack):
 class RewardCalculator:
 
     building_floor: int = 1
-    multiplier_invasion: float = MULTIPLIER.NO_INVASION
+    is_invasion: bool = False
 
     @property
     def base_reward(self) -> List[int]:
@@ -508,6 +508,11 @@ class RewardCalculator:
     def multiplier_building(self) -> float:
         """Return the multipler value from being in a Cog Building"""
         return MULTIPLIER.get_building_multiplier_from_floor(floor=self.building_floor)
+
+    @property
+    def multiplier_invasion(self) -> float:
+        """Return the multipler value from being in a Cog Building"""
+        return MULTIPLIER.get_invasion_multiplier_from_bool(is_invasion=self.is_invasion)
 
     def get_multiplier(self) -> float:
         """Return the reward multiplier
@@ -565,10 +570,6 @@ class Battle:
         self._toons = []
 
     @property
-    def cogs(self):
-        return self.cogs
-
-    @property
     def toons(self) -> list[BattleEntity]:
         return self._toons
 
@@ -585,9 +586,6 @@ class Battle:
             print(f"    [!] ERROR : Too many Toons battling, can't add Toon "
                   f"{new_toon}")
             raise TooManyToonsError(new_toon)
-
-        self._toons.append(new_toon)
-        self.add_toon(new_toon)
         self.register(new_toon)
 
     def get_multiplier(self) -> float:
@@ -600,12 +598,12 @@ class Battle:
 
     def register(self, toon: BattleToon):
         """Register an observer Toon"""
-        self.toons.append(toon)
+        self._toons.append(toon)
         toon.update_reward_multiplier()  # Update the Toon's reward multiplier
 
     def unregister(self, toon: BattleToon):
         """Unregister an observer Toon"""
-        self.toons.remove(toon)
+        self._toons.remove(toon)
 
     def update(self):
         self.update()

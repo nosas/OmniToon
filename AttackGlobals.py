@@ -25,5 +25,9 @@ class MULTIPLIER:
         #         MULTIPLIER.FLOOR4, MULTIPLIER.FLOOR5][floor - 1]
         return ((0.5 * floor) + 0.5)
 
+    @classmethod
+    def get_invasion_multiplier_from_bool(cls, is_invasion: bool) -> float:
+        return cls.INVASION if is_invasion else cls.NO_INVASION
+
 
 MULTIPLIER_DEFAULT = int(MULTIPLIER.FLOOR1 * MULTIPLIER.NO_INVASION)

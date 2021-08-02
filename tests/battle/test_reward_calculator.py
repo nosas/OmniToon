@@ -38,7 +38,7 @@ def building_floor(request) -> int:
 
 
 @pytest.fixture(scope='module')
-def expected_building_multiplier(building_floor) -> float:
+def expected_building_multiplier(building_floor: int) -> float:
     """Given a building_floor value, return the expected building_multiplier value"""
     return MULTIPLIER.get_building_multiplier_from_floor(floor=building_floor)
 
@@ -53,8 +53,7 @@ def get_expected_reward(toon_attack: ToonAttack, rc: RewardCalculator) -> int:
 
 def get_reward_calculator(building_floor: int = 1, is_invasion: bool = False) -> RewardCalculator:
     """Return a RewardCalculator, given a building_floor number and is_invasion boolean"""
-    multiplier_invasion = MULTIPLIER.INVASION if is_invasion else MULTIPLIER.NO_INVASION
-    return RewardCalculator(building_floor=building_floor, multiplier_invasion=multiplier_invasion)
+    return RewardCalculator(building_floor=building_floor, is_invasion=is_invasion)
 
 
 class TestRewardCalculatorDefault:
@@ -78,7 +77,7 @@ class TestRewardCalculatorDefault:
 
 class TestRewardCalculatorInvasion:
     """Test creating RewardCalculator with non-default invasion values"""
-    rc = RewardCalculator(multiplier_invasion=MULTIPLIER.INVASION)
+    rc = RewardCalculator(is_invasion=True)
 
     def test_reward_calculator_mulitpliers(self):
         assert self.rc.multiplier_building == EXPECTED_DEFAULT_FLOOR
