@@ -555,81 +555,40 @@ class Battle:
     # Cog[s] will attack if no Gag and Target is provided by the Toon[s]
     countdown_timer = 99
 
-    def __init__(self, first_cog: BattleCog, first_toon: BattleToon):
-        # self._reward = [0] * 7
-        self._rewards = {first_toon: [0] * 7}
-        self._states = []
-        self._context = BattleContext(state=ToonAttackState(),
-                                      cogs=[first_cog],
-                                      toons=[first_toon],
-                                      rewards=self._rewards)
-        self.is_battling = True
-        self.reward_calculator = RewardCalculator()
+    def __init__(self, first_cog: BattleCog, first_toon: BattleToon,
+                 building_floor: int = MULTIPLIER.FLOOR1, invasion: bool = False):
+        self.reward_calculator = RewardCalculator(building_floor=building_floor, invasion=invasion)
 
-    @property
-    def context(self):
-        return self._context
+        self.is_battling = True
+
+        self._states = []
+        self._toons = []
 
     @property
     def cogs(self):
-        return self.context.cogs
+        return self.cogs
 
     @property
-    def toons(self):
-        return self.context.toons
+    def toons(self) -> list[BattleEntity]:
+        return self._toons
 
-    # TODO #49, Create negative test for adding new Toon/Cog
-    def add_cog(self, new_cog: BattleCog):
-        try:
-            self.context.add_cog(new_cog)
-        except TooManyCogsError as e:
-            print(f"[!] ERROR : Cannot add Cog {new_cog}, too many Cogs")
-            raise e
+    @toons.setter
+    def toons(self, toons: list[BattleToon]) -> list[BattleToon]:
+        if len(toons) > 4:
+            raise TooManyToonsError
+        assert all([type(x) == BattleToon for x in toons])
+        self._toons = toons
 
-    def add_toon(self, new_toon: BattleToon):
-        try:
-            self.context.add_toon(new_toon)
-            self.register(new_toon)
-            self._rewards[new_toon] = [0] * 7
-        except TooManyToonsError as e:
+    def add_toon(self, new_toon: BattleToon) -> None:
+        assert type(new_toon) == BattleToon
+        if len(self._toons) >= 4:
             print(f"    [!] ERROR : Too many Toons battling, can't add Toon "
                   f"{new_toon}")
-            raise e
+            raise TooManyToonsError(new_toon)
 
-    def calculate_rewards(self) -> list:
-        # import pprint  # To make rewards output readable
-        # pp = pprint.PrettyPrinter(indent=1)
-        print("[$] `calculate_rewards()` for all Toons")
-        toon_attack_states = [
-            state for state in self.context._completed_states if
-            type(state) == ToonAttackState
-        ]
-
-        for attack_state in toon_attack_states:
-            for toon, cogs, gag, atk_hit in attack_state.attacks:
-                # TODO #51, Multiply reward by EXP multiplier
-                if atk_hit:
-                    eligible = any([cog for cog in cogs if cog.level >= gag.level])
-                    reward = gag.level + 1 if eligible else 0
-                    if gag.track == TRACK.TRAP:  # Don't reward for Trap setup
-                        reward = reward if gag.is_attack else 0
-                else:  # Attack missed
-                    reward = 0
-                self._rewards[toon][gag.track] += reward
-                print(f"    [>] {toon} {'+' if atk_hit else ''}{reward} {gag.track_name} exp ({gag}) against {cogs}")  # noqa
-
-        # Sum rewards for all Toons
-        for toon in self.toons:
-            print(f"    [+] `calculate_rewards()` for Toon {toon}")
-            # If Toon is defeated, no rewards are given
-            if toon.is_defeated:
-                self._rewards[toon] = [0] * 7
-                continue
-            print(f"        [-] Total rewards for Toon {toon} : "
-                  f"{self._rewards[toon]}")
-        print("    [-] `calculate_rewards()` all rewards ... ")
-        # pp.pprint(self._rewards)
-        return self._rewards
+        self._toons.append(new_toon)
+        self.add_toon(new_toon)
+        self.register(new_toon)
 
     def get_multiplier(self) -> float:
         return self.reward_calculator.get_multiplier()
@@ -649,8 +608,8 @@ class Battle:
         self.toons.remove(toon)
 
     def update(self):
-        self.context.update()
-        if type(self.context.state) == EndState:
+        self.update()
+        if type(self.state) == EndState:
             self.is_battling = False
 
 
