@@ -490,9 +490,12 @@ class ToonAttack(Attack):
 @dataclass
 class RewardCalculator:
 
-    base_reward = [1, 2, 3, 4, 5, 6, 7]
     building_floor: int = 1
     multiplier_invasion: float = MULTIPLIER.NO_INVASION
+
+    @property
+    def base_reward(self) -> List[int]:
+        return [1, 2, 3, 4, 5, 6, 7]
 
     @property
     def reward_table(self) -> List[int]:
