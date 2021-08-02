@@ -7,7 +7,7 @@ from random import randint
 from typing import List, Tuple
 
 from .Attack import Attack
-from .AttackGlobals import GROUP, MULTIPLIER
+from .AttackGlobals import GROUP, MULTIPLIER, MULTIPLIER_DEFAULT
 from .Cog import Cog
 from .Entity import BattleEntity, Entity
 from .Exceptions import (CogAlreadyTrappedError, CogLuredError, Error,
@@ -333,8 +333,7 @@ class BattleToon(BattleEntity):
 
     # Initialize default values for all properties
     _entity: Toon = field(init=False, repr=False)
-    _multiplier_floor = MULTIPLIER.FLOOR1
-    _multiplier_invasion = MULTIPLIER.NO_INVASION
+    _reward_multiplier = MULTIPLIER_DEFAULT
 
     @property
     def entity(self) -> Toon:
