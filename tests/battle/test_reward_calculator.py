@@ -1,6 +1,6 @@
 import pytest
 
-from ...AttackGlobals import MULTIPLIER
+from ...AttackGlobals import MULTIPLIER, MULTIPLIER_DEFAULT
 from ...Battle import RewardCalculator, ToonAttack
 from ...Factory import (BattleCogFactory, CogFactory, GagFactory,
                         ToonAttackFactory)
@@ -8,7 +8,7 @@ from ...Gag import TRACK
 
 EXPECTED_DEFAULT_FLOOR = MULTIPLIER.FLOOR1
 EXPECTED_DEFAULT_INVASION = MULTIPLIER.NO_INVASION
-EXPECTED_DEFAULT_MULTIPLIER = 1
+EXPECTED_DEFAULT_MULTIPLIER = MULTIPLIER_DEFAULT
 EXPECTED_BASE_REWARDS = [1, 2, 3, 4, 5, 6]
 BUILDING_MULTIPLIERS = [MULTIPLIER.FLOOR1, MULTIPLIER.FLOOR2, MULTIPLIER.FLOOR3,
                         MULTIPLIER.FLOOR4, MULTIPLIER.FLOOR5]

@@ -333,7 +333,18 @@ class BattleToon(BattleEntity):
 
     # Initialize default values for all properties
     _entity: Toon = field(init=False, repr=False)
-    _reward_multiplier = MULTIPLIER_DEFAULT
+    _reward_multiplier: List[int] = MULTIPLIER_DEFAULT
+    _battle: Battle = field(init=False)
+
+    @property
+    def battle(self) -> Battle:
+        return self._battle
+
+    def leave_battle(self) -> None:
+        self._battle = None
+
+    def join_battle(self, new_battle: Battle) -> None:
+        self._battle = new_battle
 
     @property
     def entity(self) -> Toon:
@@ -560,9 +571,9 @@ class Battle:
     # Cog[s] will attack if no Gag and Target is provided by the Toon[s]
     countdown_timer = 99
 
-    def __init__(self, first_cog: BattleCog, first_toon: BattleToon,
-                 building_floor: int = MULTIPLIER.FLOOR1, invasion: bool = False):
-        self.reward_calculator = RewardCalculator(building_floor=building_floor, invasion=invasion)
+    def __init__(self, building_floor: int = MULTIPLIER.FLOOR1, is_invasion: bool = False):
+        self.reward_calculator = RewardCalculator(building_floor=building_floor,
+                                                  is_invasion=is_invasion)
 
         self.is_battling = True
 
@@ -586,10 +597,16 @@ class Battle:
             print(f"    [!] ERROR : Too many Toons battling, can't add Toon "
                   f"{new_toon}")
             raise TooManyToonsError(new_toon)
-        self.register(new_toon)
+        self.attach(toon=new_toon)
+        self.register(toon=new_toon)
 
     def get_multiplier(self) -> float:
         return self.reward_calculator.get_multiplier()
+
+    def attach(self, toon: BattleToon):
+        """Set the Battle as the Toon's observable so the Toon can call `.get_multiplier()`"""
+        toon.join_battle(self)
+        toon.update_reward_multiplier()  # Update the Toon's reward multiplier
 
     def notify(self):
         """Notify all observers of changes to RewardCalculator.multiplier"""
@@ -599,7 +616,6 @@ class Battle:
     def register(self, toon: BattleToon):
         """Register an observer Toon"""
         self._toons.append(toon)
-        toon.update_reward_multiplier()  # Update the Toon's reward multiplier
 
     def unregister(self, toon: BattleToon):
         """Unregister an observer Toon"""
