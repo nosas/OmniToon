@@ -5,6 +5,7 @@ from ...Battle import RewardCalculator, ToonAttack
 from ...Factory import (BattleCogFactory, CogFactory, GagFactory,
                         ToonAttackFactory)
 from ...Gag import TRACK
+from ..fixtures.battle_fixtures import get_reward_calculator
 
 EXPECTED_DEFAULT_FLOOR = MULTIPLIER.FLOOR1
 EXPECTED_DEFAULT_INVASION = MULTIPLIER.NO_INVASION
@@ -31,29 +32,12 @@ def toon_attack(request) -> ToonAttack:
         )
 
 
-@pytest.fixture(params=[1, 2, 3, 4, 5], scope='module')
-def building_floor(request) -> int:
-    """Return all possible building floor values, one at a time"""
-    return request.param
-
-
-@pytest.fixture(scope='module')
-def expected_building_multiplier(building_floor: int) -> float:
-    """Given a building_floor value, return the expected building_multiplier value"""
-    return MULTIPLIER.get_building_multiplier_from_floor(floor=building_floor)
-
-
 def get_expected_reward(toon_attack: ToonAttack, rc: RewardCalculator) -> int:
     """Given a ToonAttack and RewardCalculator, return the expected reward value"""
     if toon_attack.gag.level >= toon_attack.target_cog.level:
         return -1
     else:
         return round(rc.get_base_reward(attack=toon_attack) * rc.get_multiplier())
-
-
-def get_reward_calculator(building_floor: int = 1, is_invasion: bool = False) -> RewardCalculator:
-    """Return a RewardCalculator, given a building_floor number and is_invasion boolean"""
-    return RewardCalculator(building_floor=building_floor, is_invasion=is_invasion)
 
 
 class TestRewardCalculatorDefault:

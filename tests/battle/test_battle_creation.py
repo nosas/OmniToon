@@ -42,3 +42,14 @@ class TestBattleCreation:
 
         battle.start_invasion()
         assert bt_astro._reward_multiplier == MULTIPLIER_DEFAULT == MULTIPLIER.NO_INVASION
+
+    def test_battle_building_multiplier(self, bt_astro: BattleToon, battle_building: Battle,
+                                        expected_building_multiplier: int):
+
+        assert battle_building.get_multiplier() == expected_building_multiplier
+
+        battle_building.start_invasion()
+        assert battle_building.get_multiplier() == expected_building_multiplier * MULTIPLIER.INVASION  # noqa
+
+        battle_building.stop_invasion()
+        assert battle_building.get_multiplier() == expected_building_multiplier
