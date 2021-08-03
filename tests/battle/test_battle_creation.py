@@ -45,11 +45,17 @@ class TestBattleCreation:
 
     def test_battle_building_multiplier(self, bt_astro: BattleToon, battle_building: Battle,
                                         expected_building_multiplier: int):
+        """Verify a BattleToon receives the building multiplier, even during an invasion"""
+        battle_building.add_toon(new_toon=bt_astro)
 
         assert battle_building.get_multiplier() == expected_building_multiplier
+        assert bt_astro._reward_multiplier == battle_building.get_multiplier()
 
         battle_building.start_invasion()
+
         assert battle_building.get_multiplier() == expected_building_multiplier * MULTIPLIER.INVASION  # noqa
+        assert bt_astro._reward_multiplier == expected_building_multiplier * MULTIPLIER.INVASION
 
         battle_building.stop_invasion()
         assert battle_building.get_multiplier() == expected_building_multiplier
+        assert bt_astro._reward_multiplier == expected_building_multiplier
