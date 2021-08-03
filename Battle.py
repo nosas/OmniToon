@@ -627,7 +627,7 @@ class Battle:
             battle_toon.update_reward_multiplier()
 
     def register(self, toon: BattleToon):
-        """Register an observer Toon"""
+        """Register an observer Toon, used by `self.add_toon`"""
         self._toons.append(toon)
 
     def unregister(self, toon: BattleToon):
