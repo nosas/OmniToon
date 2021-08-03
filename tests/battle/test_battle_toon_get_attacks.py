@@ -577,3 +577,59 @@ class TestBattleToonTrapaGetAttacksTrappedBattleCog:
         bt_trapa.entity.gags.gag_count[TRACK.SQUIRT][GAG.SQUIRTING_FLOWER.level] = 0
         bt_trapa.entity.gags.gag_count[TRACK.LURE][GAG.SMALL_MAGNET.level] = 0
         bt_trapa.entity.gags.gag_count[TRACK.HEAL][GAG.FEATHER.level] = 0
+
+
+class TestBattleToonAstroGetAttacksRewards:
+
+    @pytest.mark.parametrize('bc', [COG_LVL1, COG_LVL7], indirect=['bc'])
+    def test_possible_attack_rewards(self, bc: BattleCog, bt_astro: BattleToon):
+        assert all([
+            attack.reward < 0
+            for attack in bt_astro.get_possible_attacks(target=bc)
+            if attack.gag.level >= bc.level
+        ])
+        assert all([
+            attack.reward > 0
+            for attack in bt_astro.get_possible_attacks(target=bc)
+            if attack.gag.level < bc.level
+        ])
+
+    @pytest.mark.parametrize('bc', [COG_LVL1, COG_LVL7], indirect=['bc'])
+    def test_viable_attack_rewards(self, bc: BattleCog, bt_astro: BattleToon):
+        assert all([
+            attack.reward > 0
+            for attack in bt_astro.get_viable_attacks(target=bc)
+        ])
+
+
+class TestBattleToonAstroGetAttacksRewardsBuilding:
+
+    @pytest.mark.parametrize('bc', [COG_LVL1, COG_LVL7], indirect=['bc'])
+    def test_possible_attack_rewards(self, bc: BattleCog, bt_astro: BattleToon):
+        pass
+
+    @pytest.mark.parametrize('bc', [COG_LVL1, COG_LVL7], indirect=['bc'])
+    def test_viable_attack_rewards(self, bc: BattleCog, bt_astro: BattleToon):
+        pass
+
+
+class TestBattleToonAstroGetAttacksRewardsInvasion:
+
+    @pytest.mark.parametrize('bc', [COG_LVL1, COG_LVL7], indirect=['bc'])
+    def test_possible_attack_rewards(self, bc: BattleCog, bt_astro: BattleToon):
+        pass
+
+    @pytest.mark.parametrize('bc', [COG_LVL1, COG_LVL7], indirect=['bc'])
+    def test_viable_attack_rewards(self, bc: BattleCog, bt_astro: BattleToon):
+        pass
+
+
+class TestBattleToonAstroGetAttacksRewardsBuildingInvasion:
+
+    @pytest.mark.parametrize('bc', [COG_LVL1, COG_LVL7], indirect=['bc'])
+    def test_possible_attack_rewards(self, bc: BattleCog, bt_astro: BattleToon):
+        pass
+
+    @pytest.mark.parametrize('bc', [COG_LVL1, COG_LVL7], indirect=['bc'])
+    def test_viable_attack_rewards(self, bc: BattleCog, bt_astro: BattleToon):
+        pass

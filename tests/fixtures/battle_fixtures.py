@@ -25,8 +25,14 @@ def bt_trapa(toon_trapa: Toon):
 
 
 @pytest.fixture
+def bc(request):
+    """Return a BattleCog with battle_id == 1"""
+    return BattleCogFactory.get_battle_cog(battle_id=1, entity=request.param)
+
+
+@pytest.fixture
 def bc_random():
-    """Return a random, lured BattleCog with battle_id == 1"""
+    """Return a random BattleCog with battle_id == 1"""
     return BattleCogFactory.get_battle_cog(battle_id=1, entity=get_random_cog())
 
 
