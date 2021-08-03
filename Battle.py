@@ -421,7 +421,8 @@ class BattleToon(BattleEntity):
         possible_attacks = []
         for gag in self.available_gags:
             if self._gag_is_possible(gag=gag, target=target):
-                attack = ToonAttack(gag=gag, target_cog=target)
+                attack = ToonAttack(gag=gag, target_cog=target,
+                                    reward_multiplier=self._reward_multiplier)
                 possible_attacks.append(attack)
 
         return possible_attacks
@@ -464,9 +465,13 @@ class CogAttack(Attack):
 @dataclass(init=False)
 class ToonAttack(Attack):
 
-    def __init__(self, gag: Gag, target_cog: BattleEntity):
+    def __init__(self, gag: Gag, target_cog: BattleEntity,
+                 reward_multiplier: float = MULTIPLIER_DEFAULT):
         self.gag = gag
         self.target_cog = target_cog
+
+        self.reward_multiplier = reward_multiplier
+        self.weight = gag.level
 
         super().__init__(
             name=self.gag.name,
@@ -478,6 +483,10 @@ class ToonAttack(Attack):
         # Trap-specific attributes used for tracking EXP rewards
         self._is_attack = False
         self._is_setup = False
+
+    @property
+    def reward(self) -> float:
+        return max(-1, RewardCalculator().calculate_reward(attack=self) * self.reward_multiplier)
 
     @property
     def is_attack(self) -> bool:

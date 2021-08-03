@@ -1,6 +1,6 @@
 import pytest
 
-from ...Battle import BattleCog, BattleToon
+from ...Battle import BattleCog, BattleToon, RewardCalculator
 from ...Cog import Cog
 from ...GagGlobals import GAG, TRACK
 from ...Toon import Toon
@@ -56,6 +56,9 @@ class TestBattleToonDefaultGetAttacks:
 
         possible_attacks = BT.get_possible_attacks(target=BC)
         assert len(possible_attacks) == 2
+        assert all([
+            atk.reward == RewardCalculator().get_base_reward(atk) for atk in possible_attacks
+        ])
 
         BT.entity.gags.gag_count[TRACK.THROW][GAG.CUPCAKE.level] = 0
         BT.entity.gags.gag_count[TRACK.SQUIRT][GAG.SQUIRTING_FLOWER.level] = 0
@@ -70,7 +73,7 @@ class TestBattleToonDefaultGetAttacks:
 
         viable_attacks = BT.get_viable_attacks(target=BC)
         assert len(viable_attacks) == 2
-
+        assert all([atk.reward >= 1 for atk in viable_attacks])
         BT.entity.gags.gag_count[TRACK.THROW][GAG.CUPCAKE.level] = 0
         BT.entity.gags.gag_count[TRACK.SQUIRT][GAG.SQUIRTING_FLOWER.level] = 0
 
@@ -134,6 +137,7 @@ class TestBattleToonAstroGetAttacks:
         possible_attacks = bt_astro.get_possible_attacks(target=BC)
         for attack in possible_attacks:
             assert attack.gag.track != TRACK.HEAL
+            assert attack.reward == RewardCalculator().calculate_reward(attack=attack)
         assert len(possible_attacks) == 17
 
         bt_astro.entity.gags.gag_count[TRACK.THROW][GAG.CUPCAKE.level] = 0
@@ -155,6 +159,8 @@ class TestBattleToonAstroGetAttacks:
         viable_attacks = bt_astro.get_viable_attacks(target=BC)
         for attack in viable_attacks:
             assert attack.gag.track != TRACK.HEAL
+            assert attack.reward == RewardCalculator().calculate_reward(attack=attack)
+            assert attack.reward >= 1
         assert len(viable_attacks) == 2
 
         bt_astro.entity.gags.gag_count[TRACK.THROW][GAG.CUPCAKE.level] = 0
