@@ -577,7 +577,6 @@ class Battle:
 
         self.is_battling = True
 
-        self._states = []
         self._toons = []
 
     @property
@@ -602,6 +601,20 @@ class Battle:
 
     def get_multiplier(self) -> float:
         return self.reward_calculator.get_multiplier()
+
+    def start_invasion(self) -> None:
+        self.reward_calculator = RewardCalculator(
+            building_floor=self.reward_calculator.building_floor,
+            is_invasion=True
+        )
+        self.notify()
+
+    def stop_invasion(self) -> None:
+        self.reward_calculator = RewardCalculator(
+            building_floor=self.reward_calculator.building_floor,
+            is_invasion=False
+        )
+        self.notify()
 
     def attach(self, toon: BattleToon):
         """Set the Battle as the Toon's observable so the Toon can call `.get_multiplier()`"""
