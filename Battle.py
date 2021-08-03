@@ -462,16 +462,24 @@ class CogAttack(Attack):
         return str(self.__dict__)
 
 
-@dataclass(init=False)
+@dataclass
 class ToonAttack(Attack):
 
-    def __init__(self, gag: Gag, target_cog: BattleEntity,
-                 reward_multiplier: float = MULTIPLIER_DEFAULT):
-        self.gag = gag
-        self.target_cog = target_cog
+    gag: Gag
+    target_cog: BattleCog
 
-        self.reward_multiplier = reward_multiplier
-        self.weight = gag.level
+    reward_multiplier: float = field(default=MULTIPLIER_DEFAULT)
+    name: str = field(init=False)
+    damage: int = field(init=False)
+    accuracy: int = field(init=False)
+    group: GROUP = field(init=False)
+
+    # Trap-specific attributes used for tracking EXP rewards
+    _is_attack: bool = field(default=False, repr=False)
+    _is_setup: bool = field(default=False, repr=False)
+
+    def __post_init__(self):
+        self.weight = self.gag.level
 
         super().__init__(
             name=self.gag.name,
@@ -479,10 +487,6 @@ class ToonAttack(Attack):
             accuracy=self.gag.accuracy,
             group=self.gag.target
         )
-
-        # Trap-specific attributes used for tracking EXP rewards
-        self._is_attack = False
-        self._is_setup = False
 
     @property
     def reward(self) -> float:
