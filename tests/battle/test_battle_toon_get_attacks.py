@@ -580,99 +580,116 @@ class TestBattleToonTrapaGetAttacksTrappedBattleCog:
         bt_trapa.entity.gags.gag_count[TRACK.HEAL][GAG.FEATHER.level] = 0
 
 
+def verify_all_attack_reward_values(rc: RewardCalculator, toon: BattleToon, target: BattleCog):
+    """Verify all attack.reward values are equivalent to the expected attack reward"""
+    assert all([
+        attack.reward == get_expected_reward(toon_attack=attack, rc=rc)
+        for attack in toon.get_possible_attacks(target=target)
+    ])
+
+
+def verify_possible_attack_reward_levels(toon: BattleToon, target: BattleCog):
+    """Verify, based on the possible attack's level, if the reward is less/greater than 0"""
+    for attack in toon.get_possible_attacks(target=target):
+        if attack.gag.level >= attack.target_cog.level:
+            assert attack.reward < 0
+        else:
+            assert attack.reward > 0
+
+
+def verify_viable_attack_reward_levels(toon: BattleToon, target: BattleCog):
+    """Verify all viable attack.reward greater than 0"""
+    assert all([
+        attack.reward > 0
+        for attack in toon.get_viable_attacks(target=target)
+    ])
+
+
 class TestBattleToonAstroGetAttacksRewards:
     """Verify attack rewards for Toons in a default Battle"""
 
-    @staticmethod
-    def verify_all_attack_reward_values(rc: RewardCalculator, toon: BattleToon, target: BattleCog):
-        """Verify all attack.reward values are equivalent to the expected attack reward"""
-        assert all([
-            attack.reward == get_expected_reward(toon_attack=attack, rc=rc)
-            for attack in toon.get_possible_attacks(target=target)
-        ])
-
-    @staticmethod
-    def verify_possible_attack_reward_levels(toon: BattleToon, target: BattleCog):
-        """Verify, based on the possible attack's level, if the reward is less/greater than 0"""
-        for attack in toon.get_possible_attacks(target=target):
-            if attack.gag.level >= attack.target_cog.level:
-                assert attack.reward < 0
-            else:
-                assert attack.reward > 0
-
-    @staticmethod
-    def verify_viable_attack_reward_levels(toon: BattleToon, target: BattleCog):
-        """Verify all viable attack.reward greater than 0"""
-        assert all([
-            attack.reward > 0
-            for attack in toon.get_viable_attacks(target=target)
-        ])
-
-    @pytest.fixture
-    def battle(self, bt_astro: BattleToon) -> Battle:
+    @pytest.fixture(params=[BC_LVL1, BC_LVL7])
+    def battle(self, bt_astro: BattleToon, request: BattleCog) -> Battle:
         battle = Battle()
         battle.add_toon(new_toon=bt_astro)
+        battle.add_cog(new_cog=request.param)
         return battle
 
-    @pytest.mark.parametrize('bc', [COG_LVL1, COG_LVL7], indirect=['bc'])
-    def test_all_attack_reward_values(self, bc: BattleCog, battle: Battle):
-        for toon in battle.toons:
-            self.verify_all_attack_reward_values(rc=battle.reward_calculator, toon=toon, target=bc)
+    @staticmethod
+    def verify_all_attack_reward_values(battle: Battle):
+        """Verify all attack.reward values are equivalent to the expected attack reward"""
+        assert battle.cogs != []
+        assert battle.toons != []
 
-    @pytest.mark.parametrize('bc', [COG_LVL1, COG_LVL7], indirect=['bc'])
-    def test_possible_attack_rewards(self, bc: BattleCog, battle: Battle):
         for toon in battle.toons:
-            self.verify_possible_attack_reward_levels(toon=toon, target=bc)
+            for target in battle.cogs:
+                verify_all_attack_reward_values(rc=battle.reward_calculator,
+                                                toon=toon, target=target)
 
-    @pytest.mark.parametrize('bc', [COG_LVL1, COG_LVL7], indirect=['bc'])
-    def test_viable_attack_rewards(self, bc: BattleCog, battle: Battle):
+    @staticmethod
+    def verify_possible_attack_reward_levels(battle: Battle):
+        """Verify, based on the possible attack's level, if the reward is less/greater than 0"""
+        assert battle.cogs != []
+        assert battle.toons != []
+
         for toon in battle.toons:
-            self.verify_viable_attack_reward_levels(toon=toon, target=bc)
+            for target in battle.cogs:
+                verify_possible_attack_reward_levels(toon=toon, target=target)
+
+    @staticmethod
+    def verify_viable_attack_reward_levels(battle: Battle):
+        """Verify all viable attack.reward greater than 0"""
+        assert battle.cogs != []
+        assert battle.toons != []
+
+        for toon in battle.toons:
+            for target in battle.cogs:
+                verify_viable_attack_reward_levels(toon=toon, target=target)
+
+    def test_all_attack_reward_values(self, battle: Battle):
+        self.verify_all_attack_reward_values(battle=battle)
+
+    def test_possible_attack_rewards(self, battle: Battle):
+        self.verify_possible_attack_reward_levels(battle=battle)
+
+    def test_viable_attack_rewards(self, battle: Battle):
+        self.verify_viable_attack_reward_levels(battle=battle)
 
 
 class TestBattleToonAstroGetAttacksRewardsBuilding(TestBattleToonAstroGetAttacksRewards):
     """Verify attack rewards for Toons in Battle within a building"""
 
-    @pytest.fixture
-    def battle(self, bt_astro: BattleToon, battle_building: Battle) -> Battle:
+    @pytest.fixture(params=[BC_LVL1, BC_LVL7])
+    def battle(self, bt_astro: BattleToon, battle_building: Battle, request: BattleCog) -> Battle:
         battle_building.add_toon(new_toon=bt_astro)
+        battle_building.add_cog(new_cog=request.param)
         return battle_building
 
-    @pytest.mark.parametrize('bc', [COG_LVL1, COG_LVL7], indirect=['bc'])
-    def test_all_attack_reward_values(self, bc: BattleCog, battle: Battle):
-        for toon in battle.toons:
-            self.verify_all_attack_reward_values(rc=battle.reward_calculator, toon=toon, target=bc)
+    def test_all_attack_reward_values(self, battle: Battle):
+        self.verify_all_attack_reward_values(battle=battle)
 
-    @pytest.mark.parametrize('bc', [COG_LVL1, COG_LVL7], indirect=['bc'])
-    def test_possible_attack_rewards(self, bc: BattleCog, battle: Battle):
-        for toon in battle.toons:
-            self.verify_possible_attack_reward_levels(toon=toon, target=bc)
+    def test_possible_attack_rewards(self, battle: Battle):
+        self.verify_possible_attack_reward_levels(battle=battle)
 
-    @pytest.mark.parametrize('bc', [COG_LVL1, COG_LVL7], indirect=['bc'])
-    def test_viable_attack_rewards(self, bc: BattleCog, battle: Battle):
-        for toon in battle.toons:
-            self.verify_viable_attack_reward_levels(toon=toon, target=bc)
+    def test_viable_attack_rewards(self, battle: Battle):
+        self.verify_viable_attack_reward_levels(battle=battle)
 
 
 class TestBattleToonAstroGetAttacksRewardsBuildingInvasion(TestBattleToonAstroGetAttacksRewards):
     """Verify attack rewards for Toons in Battle within a building during an invasion"""
 
-    @pytest.fixture
-    def battle(self, bt_astro: BattleToon, battle_building_invasion: Battle) -> Battle:
+    @pytest.fixture(params=[BC_LVL1, BC_LVL7])
+    def battle(self, bt_astro: BattleToon, battle_building_invasion: Battle,
+               request: BattleCog) -> Battle:
         battle_building_invasion.add_toon(new_toon=bt_astro)
+        battle_building_invasion.add_cog(new_cog=request.param)
         return battle_building_invasion
 
-    @pytest.mark.parametrize('bc', [COG_LVL1, COG_LVL7], indirect=['bc'])
-    def test_all_attack_reward_values(self, bc: BattleCog, battle: Battle):
-        for toon in battle.toons:
-            self.verify_all_attack_reward_values(rc=battle.reward_calculator, toon=toon, target=bc)
+    def test_all_attack_reward_values(self, battle: Battle):
+        self.verify_all_attack_reward_values(battle=battle)
 
-    @pytest.mark.parametrize('bc', [COG_LVL1, COG_LVL7], indirect=['bc'])
-    def test_possible_attack_rewards(self, bc: BattleCog, battle: Battle):
-        for toon in battle.toons:
-            self.verify_possible_attack_reward_levels(toon=toon, target=bc)
+    def test_possible_attack_rewards(self, battle: Battle):
+        self.verify_possible_attack_reward_levels(battle=battle)
 
-    @pytest.mark.parametrize('bc', [COG_LVL1, COG_LVL7], indirect=['bc'])
-    def test_viable_attack_rewards(self, bc: BattleCog, battle: Battle):
-        for toon in battle.toons:
-            self.verify_viable_attack_reward_levels(toon=toon, target=bc)
+    def test_viable_attack_rewards(self, battle: Battle):
+        self.verify_viable_attack_reward_levels(battle=battle)
