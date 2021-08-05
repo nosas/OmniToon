@@ -5,7 +5,8 @@ from ...Battle import RewardCalculator, ToonAttack
 from ...Factory import (BattleCogFactory, CogFactory, GagFactory,
                         ToonAttackFactory)
 from ...Gag import TRACK
-from ..fixtures.battle_fixtures import get_reward_calculator
+from ..fixtures.battle_fixtures import (get_expected_reward,
+                                        get_reward_calculator)
 
 EXPECTED_DEFAULT_FLOOR = MULTIPLIER.FLOOR1
 EXPECTED_DEFAULT_INVASION = MULTIPLIER.NO_INVASION
@@ -30,14 +31,6 @@ def toon_attack(request) -> ToonAttack:
         gag=GAG_FACTORY.get_gag(track=TRACK.THROW, level=request.param),
         target_cog=BC_FACTORY.get_battle_cog(battle_id=1, entity=target_cog)
         )
-
-
-def get_expected_reward(toon_attack: ToonAttack, rc: RewardCalculator) -> int:
-    """Given a ToonAttack and RewardCalculator, return the expected reward value"""
-    if toon_attack.gag.level >= toon_attack.target_cog.level:
-        return -1
-    else:
-        return round(rc.get_base_reward(attack=toon_attack) * rc.get_multiplier())
 
 
 class TestRewardCalculatorDefault:

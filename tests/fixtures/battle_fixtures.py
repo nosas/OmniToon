@@ -1,7 +1,7 @@
 import pytest
 
 from ...AttackGlobals import MULTIPLIER
-from ...Battle import Battle, BattleToon, RewardCalculator
+from ...Battle import Battle, BattleToon, RewardCalculator, ToonAttack
 from ...Cog import Cog, get_random_cog
 from ...Factory import BattleCogFactory
 from ...Toon import Toon
@@ -10,6 +10,17 @@ from ...Toon import Toon
 @pytest.fixture
 def battle_building(building_floor: int) -> Battle:
     return Battle(building_floor=building_floor)
+
+
+@pytest.fixture
+def battle_invasion() -> Battle:
+    return Battle(is_invasion=True)
+
+
+@pytest.fixture
+def battle_building_invasion(building_floor: int) -> Battle:
+    battle = Battle(building_floor=building_floor, is_invasion=True)
+    return battle
 
 
 @pytest.fixture
@@ -107,6 +118,14 @@ def get_cog_from_request_param(request_param) -> Cog:
         return request_param
     else:
         raise TypeError(f"What the heck did you request? {request_param}")
+
+
+def get_expected_reward(toon_attack: ToonAttack, rc: RewardCalculator) -> int:
+    """Given a ToonAttack and RewardCalculator, return the expected reward value"""
+    if toon_attack.gag.level >= toon_attack.target_cog.level:
+        return -1
+    else:
+        return round(rc.get_base_reward(attack=toon_attack) * rc.get_multiplier())
 
 
 def get_reward_calculator(building_floor: int = 1, is_invasion: bool = False) -> RewardCalculator:

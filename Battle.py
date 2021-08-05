@@ -490,7 +490,8 @@ class ToonAttack(Attack):
 
     @property
     def reward(self) -> float:
-        return max(-1, RewardCalculator().calculate_reward(attack=self) * self.reward_multiplier)
+        reward = round(RewardCalculator().calculate_reward(attack=self) * self.reward_multiplier)
+        return max(-1, reward)
 
     @property
     def is_attack(self) -> bool:
