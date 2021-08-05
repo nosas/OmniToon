@@ -20,7 +20,7 @@ class TestBattleCreation:
 
     def test_battle_add_cog(self, battle: Battle, c_random: Cog = get_random_cog()):
         battle.add_cog(new_cog=c_random)
-        assert battle.cogs == [BattleCog(battle_id=1, entity=c_random)]
+        assert battle.cogs == [BattleCog(battle_id=0, entity=c_random)]
 
     def test_battle_add_toon(self, battle: Battle, toon_astro: Toon):
         battle.add_toon(new_toon=toon_astro)

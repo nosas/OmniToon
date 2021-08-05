@@ -25,38 +25,38 @@ def battle_building_invasion(building_floor: int) -> Battle:
 
 @pytest.fixture
 def bt_astro(toon_astro: Toon):
-    bt_astro = BattleToon(battle_id=1, entity=toon_astro)
+    bt_astro = BattleToon(battle_id=0, entity=toon_astro)
     return bt_astro
 
 
 @pytest.fixture
 def bt_trapa(toon_trapa: Toon):
-    bt_trapa = BattleToon(battle_id=1, entity=toon_trapa)
+    bt_trapa = BattleToon(battle_id=0, entity=toon_trapa)
     return bt_trapa
 
 
 @pytest.fixture
 def bc(request):
     """Return a BattleCog with battle_id == 1"""
-    return BattleCogFactory.get_battle_cog(battle_id=1, entity=request.param)
+    return BattleCogFactory.get_battle_cog(battle_id=0, entity=request.param)
 
 
 @pytest.fixture
 def bc_random():
     """Return a random BattleCog with battle_id == 1"""
-    return BattleCogFactory.get_battle_cog(battle_id=1, entity=get_random_cog())
+    return BattleCogFactory.get_battle_cog(battle_id=0, entity=get_random_cog())
 
 
 @pytest.fixture
 def bc_random_lured():
     """Return a random, lured BattleCog with battle_id == 1"""
-    return BattleCogFactory.get_battle_cog(battle_id=1, entity=get_random_cog(), lured=True)
+    return BattleCogFactory.get_battle_cog(battle_id=0, entity=get_random_cog(), lured=True)
 
 
 @pytest.fixture
 def bc_random_trapped():
     """Return a random, trapped BattleCog with battle_id == 1"""
-    return BattleCogFactory.get_battle_cog(battle_id=1, entity=get_random_cog(), trapped=True)
+    return BattleCogFactory.get_battle_cog(battle_id=0, entity=get_random_cog(), trapped=True)
 
 
 @pytest.fixture
@@ -70,7 +70,7 @@ def bc_lured(request):
     Returns:
         BattleCog: A lured BattleCog
     """
-    return BattleCogFactory.get_battle_cog(battle_id=1,
+    return BattleCogFactory.get_battle_cog(battle_id=0,
                                            entity=get_cog_from_request_param(request.param),
                                            lured=True)
 
@@ -86,7 +86,7 @@ def bc_trapped(request):
     Returns:
         BattleCog: A trapped BattleCog
     """
-    return BattleCogFactory.get_battle_cog(battle_id=1,
+    return BattleCogFactory.get_battle_cog(battle_id=0,
                                            entity=get_cog_from_request_param(request.param),
                                            trapped=True)
 

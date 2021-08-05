@@ -7,7 +7,7 @@ from ...Toon import Inventory, Toon
 from ...ToonGlobals import (ASTRO_HP, ASTRO_NAME, DEFAULT_HP, TRAPA_HP,
                             TRAPA_NAME)
 
-BATTLE_ID = 1
+BATTLE_ID = 0
 NAME = 'Mickey'
 TOON = Toon(name=NAME)
 BT = BattleToon(battle_id=BATTLE_ID, entity=TOON)

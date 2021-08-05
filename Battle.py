@@ -334,7 +334,7 @@ class BattleToon(BattleEntity):
     # Initialize default values for all properties
     _entity: Toon = field(init=False, repr=False)
     _reward_multiplier: List[int] = MULTIPLIER_DEFAULT
-    _battle: Battle = field(init=False, repr=False)
+    _battle: Battle = field(default=None, init=False, repr=False)
 
     @property
     def battle(self) -> Battle:
@@ -592,8 +592,8 @@ class Battle:
 
         self._cogs = []
         self._toons = []
-        self._cog_battle_id = 1
-        self._toon_battle_id = 1
+        self._cog_battle_id = 0
+        self._toon_battle_id = 0
 
     @property
     def toons(self) -> List[BattleToon]:
