@@ -610,9 +610,9 @@ class TestBattleToonAstroGetAttacksRewards:
     """Verify attack rewards for Toons in a default Battle"""
 
     @pytest.fixture(params=[COG_LVL1, COG_LVL7])
-    def battle(self, bt_astro: BattleToon, request: Cog) -> Battle:
+    def battle(self, toon_astro: Toon, request: Cog) -> Battle:
         battle = Battle()
-        battle.add_toon(new_toon=bt_astro)
+        battle.add_toon(new_toon=toon_astro)
         battle.add_cog(new_cog=request.param)
         return battle
 
@@ -661,8 +661,8 @@ class TestBattleToonAstroGetAttacksRewardsBuilding(TestBattleToonAstroGetAttacks
     """Verify attack rewards for Toons in Battle within a building"""
 
     @pytest.fixture(params=[COG_LVL1, COG_LVL7])
-    def battle(self, bt_astro: BattleToon, battle_building: Battle, request: BattleCog) -> Battle:
-        battle_building.add_toon(new_toon=bt_astro)
+    def battle(self, toon_astro: Toon, battle_building: Battle, request: BattleCog) -> Battle:
+        battle_building.add_toon(new_toon=toon_astro)
         battle_building.add_cog(new_cog=request.param)
         return battle_building
 
@@ -680,9 +680,9 @@ class TestBattleToonAstroGetAttacksRewardsBuildingInvasion(TestBattleToonAstroGe
     """Verify attack rewards for Toons in Battle within a building during an invasion"""
 
     @pytest.fixture(params=[COG_LVL1, COG_LVL7])
-    def battle(self, bt_astro: BattleToon, battle_building_invasion: Battle,
+    def battle(self, toon_astro: Toon, battle_building_invasion: Battle,
                request: BattleCog) -> Battle:
-        battle_building_invasion.add_toon(new_toon=bt_astro)
+        battle_building_invasion.add_toon(new_toon=toon_astro)
         battle_building_invasion.add_cog(new_cog=request.param)
         return battle_building_invasion
 
