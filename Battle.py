@@ -578,7 +578,6 @@ class RewardCalculator:
 
 
 # TODO class RewardTracker, remove `calculate_rewards` from Battle
-# TODO Battle should only have addition of Cogs/Toons and updating the Battle
 class Battle:
 
     # Countdown timer for the Toon[s] to select a Gag and Target, or escape
@@ -601,13 +600,6 @@ class Battle:
     @property
     def cogs(self) -> List[BattleCog]:
         return self._cogs
-
-    @toons.setter
-    def toons(self, toons: List[BattleToon]) -> List[BattleToon]:
-        if len(toons) > 4:
-            raise TooManyToonsError
-        assert all([type(x) == BattleToon for x in toons])
-        self._toons = toons
 
     def add_cog(self, new_cog: BattleCog) -> None:
         assert type(new_cog) == BattleCog
@@ -646,7 +638,7 @@ class Battle:
     def attach(self, toon: BattleToon):
         """Set the Battle as the Toon's observable so the Toon can call `.get_multiplier()`"""
         toon.join_battle(self)
-        toon.update_reward_multiplier()  # Update the Toon's reward multiplier
+        toon.update_reward_multiplier()
 
     def notify(self):
         """Notify all observers of changes to RewardCalculator.multiplier"""
