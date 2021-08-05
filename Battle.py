@@ -591,18 +591,31 @@ class Battle:
 
         self.is_battling = True
 
+        self._cogs = []
         self._toons = []
 
     @property
-    def toons(self) -> list[BattleEntity]:
+    def toons(self) -> List[BattleToon]:
         return self._toons
 
+    @property
+    def cogs(self) -> List[BattleCog]:
+        return self._cogs
+
     @toons.setter
-    def toons(self, toons: list[BattleToon]) -> list[BattleToon]:
+    def toons(self, toons: List[BattleToon]) -> List[BattleToon]:
         if len(toons) > 4:
             raise TooManyToonsError
         assert all([type(x) == BattleToon for x in toons])
         self._toons = toons
+
+    def add_cog(self, new_cog: BattleCog) -> None:
+        assert type(new_cog) == BattleCog
+        if len(self._cogs) >= 4:
+            print(f"    [!] ERROR : Too many Cogs battling, can't add Cog "
+                  f"{new_cog}")
+            raise TooManyCogsError(new_cog)
+        self._cogs.append(new_cog)
 
     def add_toon(self, new_toon: BattleToon) -> None:
         assert type(new_toon) == BattleToon

@@ -1,7 +1,7 @@
 import pytest
 
 from ...AttackGlobals import MULTIPLIER, MULTIPLIER_DEFAULT
-from ...Battle import Battle, BattleToon
+from ...Battle import Battle, BattleCog, BattleToon
 
 
 class TestBattleCreation:
@@ -13,9 +13,14 @@ class TestBattleCreation:
 
     def test_battle_creation(self, battle: Battle):
         assert battle.get_multiplier() == MULTIPLIER_DEFAULT
+        assert battle.cogs == []
+        assert battle.toons == []
+
+    def test_battle_add_cog(self, battle: Battle, bc_random: BattleCog):
+        battle.add_cog(new_cog=bc_random)
+        assert battle.cogs == [bc_random]
 
     def test_battle_add_toon(self, battle: Battle, bt_astro: BattleToon):
-        assert battle.toons == []
         battle.add_toon(new_toon=bt_astro)
         assert battle.toons == [bt_astro]
         assert bt_astro._reward_multiplier == battle.get_multiplier()
