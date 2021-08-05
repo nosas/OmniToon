@@ -40,7 +40,7 @@ class TestBattleCreation:
         assert bt_astro._reward_multiplier == battle.get_multiplier()
         assert bt_astro._reward_multiplier == MULTIPLIER_DEFAULT == MULTIPLIER.NO_INVASION
 
-    def test_battle_unregister_toon(self, battle: Battle, toon_astro: Toon):
+    def test_battle_remove_battle_toon(self, battle: Battle, toon_astro: Toon):
         """
         Verify a BattleToon can be removed from the Battle.toons list and no longer receives updates
         """
@@ -52,6 +52,11 @@ class TestBattleCreation:
 
         battle.start_invasion()
         assert bt_astro._reward_multiplier == MULTIPLIER_DEFAULT == MULTIPLIER.NO_INVASION
+
+    def test_battle_remove_battle_cog(self, battle: Battle, c_random: Cog = get_random_cog()):
+        battle.add_cog(new_cog=c_random)
+        battle.remove_battle_cog(battle.cogs[0])
+        assert battle.cogs == []
 
     def test_battle_building_multiplier(self, toon_astro: Toon, battle_building: Battle,
                                         expected_building_multiplier: int):
