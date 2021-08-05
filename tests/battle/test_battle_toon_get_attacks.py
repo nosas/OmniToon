@@ -1,6 +1,7 @@
 import pytest
 
 from ...Battle import Battle, BattleCog, BattleToon, RewardCalculator
+from ...Cog import Cog
 from ...Factory import BattleCogFactory, CogFactory
 from ...GagGlobals import GAG, TRACK
 from ...Toon import Toon
@@ -608,8 +609,8 @@ def verify_viable_attack_reward_levels(toon: BattleToon, target: BattleCog):
 class TestBattleToonAstroGetAttacksRewards:
     """Verify attack rewards for Toons in a default Battle"""
 
-    @pytest.fixture(params=[BC_LVL1, BC_LVL7])
-    def battle(self, bt_astro: BattleToon, request: BattleCog) -> Battle:
+    @pytest.fixture(params=[COG_LVL1, COG_LVL7])
+    def battle(self, bt_astro: BattleToon, request: Cog) -> Battle:
         battle = Battle()
         battle.add_toon(new_toon=bt_astro)
         battle.add_cog(new_cog=request.param)
@@ -659,7 +660,7 @@ class TestBattleToonAstroGetAttacksRewards:
 class TestBattleToonAstroGetAttacksRewardsBuilding(TestBattleToonAstroGetAttacksRewards):
     """Verify attack rewards for Toons in Battle within a building"""
 
-    @pytest.fixture(params=[BC_LVL1, BC_LVL7])
+    @pytest.fixture(params=[COG_LVL1, COG_LVL7])
     def battle(self, bt_astro: BattleToon, battle_building: Battle, request: BattleCog) -> Battle:
         battle_building.add_toon(new_toon=bt_astro)
         battle_building.add_cog(new_cog=request.param)
@@ -678,7 +679,7 @@ class TestBattleToonAstroGetAttacksRewardsBuilding(TestBattleToonAstroGetAttacks
 class TestBattleToonAstroGetAttacksRewardsBuildingInvasion(TestBattleToonAstroGetAttacksRewards):
     """Verify attack rewards for Toons in Battle within a building during an invasion"""
 
-    @pytest.fixture(params=[BC_LVL1, BC_LVL7])
+    @pytest.fixture(params=[COG_LVL1, COG_LVL7])
     def battle(self, bt_astro: BattleToon, battle_building_invasion: Battle,
                request: BattleCog) -> Battle:
         battle_building_invasion.add_toon(new_toon=bt_astro)

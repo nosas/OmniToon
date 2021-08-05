@@ -2,6 +2,7 @@ import pytest
 
 from ...AttackGlobals import MULTIPLIER, MULTIPLIER_DEFAULT
 from ...Battle import Battle, BattleCog, BattleToon
+from ...Cog import get_random_cog
 
 
 class TestBattleCreation:
@@ -16,9 +17,9 @@ class TestBattleCreation:
         assert battle.cogs == []
         assert battle.toons == []
 
-    def test_battle_add_cog(self, battle: Battle, bc_random: BattleCog):
-        battle.add_cog(new_cog=bc_random)
-        assert battle.cogs == [bc_random]
+    def test_battle_add_cog(self, battle: Battle, c_random: BattleCog = get_random_cog()):
+        battle.add_cog(new_cog=c_random)
+        assert battle.cogs == [BattleCog(battle_id=1, entity=c_random)]
 
     def test_battle_add_toon(self, battle: Battle, bt_astro: BattleToon):
         battle.add_toon(new_toon=bt_astro)

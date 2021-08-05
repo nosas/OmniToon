@@ -32,6 +32,8 @@ class BattleEntityFactory:
             raise NotImplementedError
         elif isinstance(entity, Entity):
             return BattleEntity(battle_id=battle_id, entity=entity)
+        else:
+            raise TypeError
 
 
 class BattleCogFactory:
