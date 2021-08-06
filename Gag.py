@@ -64,7 +64,7 @@ class Gag:
     """Attack/Heal used by a Toon during Battle
 
     Args:
-        exp (int): EXP of the Gag Track
+        exp (int): EXP of the Gag Track <-1-10499>
         level (int): Level of the Gag <0-6>
         track (int): Index of the Gag Track <0-6>
         count (int, optional): Current quantity of the Gag. Defaults to 0.
