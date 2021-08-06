@@ -7,7 +7,7 @@ from random import randint
 from typing import List, Tuple
 
 from .Attack import Attack
-from .AttackGlobals import GROUP
+from .AttackGlobals import GROUP, MULTIPLIER, MULTIPLIER_DEFAULT
 from .Cog import Cog
 from .Entity import BattleEntity, Entity
 from .Exceptions import (CogAlreadyTrappedError, CogLuredError, Error,
@@ -333,6 +333,18 @@ class BattleToon(BattleEntity):
 
     # Initialize default values for all properties
     _entity: Toon = field(init=False, repr=False)
+    _reward_multiplier: List[int] = MULTIPLIER_DEFAULT
+    _battle: Battle = field(default=None, init=False, repr=False)
+
+    @property
+    def battle(self) -> Battle:
+        return self._battle
+
+    def leave_battle(self) -> None:
+        self._battle = None
+
+    def join_battle(self, new_battle: Battle) -> None:
+        self._battle = new_battle
 
     @property
     def entity(self) -> Toon:
@@ -355,9 +367,9 @@ class BattleToon(BattleEntity):
 
         Certain Gags cannot be used against BattleCogs. For example...
             - a Lure Gag cannot be used against a Lured Cog
-                UNLESS, there are other non-Lured Cogs in the Battle and a multi-Lure Gag was used
+                UNLESS, there are other non-Lured Cogs in the Battle
             - a Trap Gag cannot be used against a Lured/Trapped Cog
-                UNLESS, there are other non-Trapped Cogs in the Battle and a multi-Trap Gag was used
+                UNLESS, there are other non-Trapped Cogs in the Battle
             - a Heal (Toon-Up) Gag cannot be used against a Cog
 
         Args:
@@ -369,9 +381,9 @@ class BattleToon(BattleEntity):
         """
         impossible_rules = [
             gag.track == TRACK.HEAL,
-            target.is_lured and gag.track == TRACK.LURE and gag.target == GROUP.SINGLE,
-            target.is_lured and gag.track == TRACK.TRAP and gag.target == GROUP.SINGLE,
-            target.is_trapped and gag.track == TRACK.TRAP and gag.target == GROUP.SINGLE,
+            target.is_lured and gag.track == TRACK.LURE,
+            target.is_lured and gag.track == TRACK.TRAP,
+            target.is_trapped and gag.track == TRACK.TRAP,
         ]
         return any(impossible_rules) is False
 
@@ -409,7 +421,8 @@ class BattleToon(BattleEntity):
         possible_attacks = []
         for gag in self.available_gags:
             if self._gag_is_possible(gag=gag, target=target):
-                attack = ToonAttack(gag=gag, target_cogs=target)
+                attack = ToonAttack(gag=gag, target_cog=target,
+                                    reward_multiplier=self._reward_multiplier)
                 possible_attacks.append(attack)
 
         return possible_attacks
@@ -435,6 +448,10 @@ class BattleToon(BattleEntity):
     def choose_targets(self):
         return super().choose_targets()
 
+    def update_reward_multiplier(self):
+        """Update the BattleToon's reward multiplier when Battle pushes a notification"""
+        self._reward_multiplier = self.battle.get_multiplier()
+
 
 @dataclass
 class CogAttack(Attack):
@@ -445,11 +462,25 @@ class CogAttack(Attack):
         return str(self.__dict__)
 
 
-@dataclass(init=False)
+@dataclass
 class ToonAttack(Attack):
 
-    def __init__(self, gag: Gag, target_cogs: Union[BattleEntity, List[BattleEntity]]):
-        self.gag = gag
+    gag: Gag
+    target_cog: BattleCog
+
+    reward_multiplier: float = field(default=MULTIPLIER_DEFAULT)
+    name: str = field(init=False)
+    damage: int = field(init=False)
+    accuracy: int = field(init=False)
+    group: GROUP = field(init=False)
+
+    # Trap-specific attributes used for tracking EXP rewards
+    _is_attack: bool = field(default=False, repr=False)
+    _is_setup: bool = field(default=False, repr=False)
+
+    def __post_init__(self):
+        self.weight = self.gag.level
+
         super().__init__(
             name=self.gag.name,
             damage=self.gag.damage,
@@ -457,9 +488,10 @@ class ToonAttack(Attack):
             group=self.gag.target
         )
 
-        # Trap-specific attributes used for tracking EXP rewards
-        self._is_attack = False
-        self._is_setup = False
+    @property
+    def reward(self) -> float:
+        reward = round(RewardCalculator().calculate_reward(attack=self) * self.reward_multiplier)
+        return max(-1, reward)
 
     @property
     def is_attack(self) -> bool:
@@ -483,91 +515,152 @@ class ToonAttack(Attack):
         self._is_setup = new_is_setup
 
 
+@dataclass
+class RewardCalculator:
+
+    building_floor: int = 1
+    is_invasion: bool = False
+
+    @property
+    def base_reward(self) -> List[int]:
+        return [1, 2, 3, 4, 5, 6, 7]
+
+    @property
+    def reward_table(self) -> List[int]:
+        return [round(reward * self.get_multiplier()) for reward in self.base_reward]
+
+    @property
+    def multiplier_building(self) -> float:
+        """Return the multipler value from being in a Cog Building"""
+        return MULTIPLIER.get_building_multiplier_from_floor(floor=self.building_floor)
+
+    @property
+    def multiplier_invasion(self) -> float:
+        """Return the multipler value from being in a Cog Building"""
+        return MULTIPLIER.get_invasion_multiplier_from_bool(is_invasion=self.is_invasion)
+
+    def get_multiplier(self) -> float:
+        """Return the reward multiplier
+
+        Returns:
+            float: Value used to calculate a BattleToon's ToonAttack reward
+        """
+        return self.multiplier_building * self.multiplier_invasion
+
+    def get_base_reward(self, attack: ToonAttack) -> int:
+        """Return the base reward of a Gag
+
+        Args:
+            attack (ToonAttack): BattleToon Attack containing that Gag and target BattleCog
+
+        Returns:
+            int: Base reward of a ToonAttack
+        """
+        return self.base_reward[attack.gag.level]
+
+    def calculate_reward(self, attack: ToonAttack) -> int:
+        """Calculate the BattleToon's reward, given a ToonAttack
+
+        Return -1 if the Gag's level exceeds the target BattleCog's level, meaning the Gag is
+        possible, but not viable.
+        Return ((gag.level + 1) * multiplier) if the Gag's level is lower than the target's level.
+
+        Args:
+            attack (ToonAttack): BattleToon Attack containing that Gag and target BattleCog
+
+        Returns:
+            int: Skill points awarded for successfully landing the ToonAttack
+        """
+        if attack.gag.level >= attack.target_cog.level:
+            return -1
+        # Round upwards because the reward could be x.5
+        return self.reward_table[attack.gag.level]
+
+
 # TODO class RewardTracker, remove `calculate_rewards` from Battle
-# TODO Battle should only have addition of Cogs/Toons and updating the Battle
 class Battle:
 
     # Countdown timer for the Toon[s] to select a Gag and Target, or escape
     # Cog[s] will attack if no Gag and Target is provided by the Toon[s]
     countdown_timer = 99
 
-    def __init__(self, first_cog: BattleCog, first_toon: BattleToon):
-        # self._reward = [0] * 7
-        self._rewards = {first_toon: [0] * 7}
-        self._states = []
-        self._context = BattleContext(state=ToonAttackState(),
-                                      cogs=[first_cog],
-                                      toons=[first_toon],
-                                      rewards=self._rewards)
+    def __init__(self, building_floor: int = MULTIPLIER.FLOOR1, is_invasion: bool = False):
+        self.reward_calculator = RewardCalculator(building_floor=building_floor,
+                                                  is_invasion=is_invasion)
+
         self.is_battling = True
 
-    @property
-    def context(self):
-        return self._context
+        self._cogs = []
+        self._toons = []
+        self._cog_battle_id = 0
+        self._toon_battle_id = 0
 
     @property
-    def cogs(self):
-        return self.context.cogs
+    def toons(self) -> List[BattleToon]:
+        return self._toons
 
     @property
-    def toons(self):
-        return self.context.toons
+    def cogs(self) -> List[BattleCog]:
+        return self._cogs
 
-    # TODO #49, Create negative test for adding new Toon/Cog
-    def add_cog(self, new_cog: BattleCog):
-        try:
-            self.context.add_cog(new_cog)
-        except TooManyCogsError as e:
-            print(f"[!] ERROR : Cannot add Cog {new_cog}, too many Cogs")
-            raise e
+    def add_cog(self, new_cog: Cog) -> None:
+        assert type(new_cog) == Cog
+        if len(self._cogs) >= 4:
+            print(f"    [!] ERROR : Too many Cogs battling, can't add Cog "
+                  f"{new_cog}")
+            raise TooManyCogsError(new_cog)
+        self._cogs.append(BattleCog(battle_id=self._cog_battle_id, entity=new_cog))
+        self._cog_battle_id += 1
 
-    def add_toon(self, new_toon: BattleToon):
-        try:
-            self.context.add_toon(new_toon)
-            self._rewards[new_toon] = [0] * 7
-        except TooManyToonsError as e:
+    def add_toon(self, new_toon: Toon) -> None:
+        """Register an observer Toon, used by `self.add_toon`"""
+        assert type(new_toon) == Toon
+        if len(self._toons) >= 4:
             print(f"    [!] ERROR : Too many Toons battling, can't add Toon "
                   f"{new_toon}")
-            raise e
+            raise TooManyToonsError(new_toon)
+        battle_toon = BattleToon(battle_id=self._toon_battle_id, entity=new_toon)
+        self.attach(btoon=battle_toon)
+        self._toons.append(battle_toon)
+        self._toon_battle_id += 1
 
-    def calculate_rewards(self) -> list:
-        # import pprint  # To make rewards output readable
-        # pp = pprint.PrettyPrinter(indent=1)
-        print("[$] `calculate_rewards()` for all Toons")
-        toon_attack_states = [
-            state for state in self.context._completed_states if
-            type(state) == ToonAttackState
-        ]
+    def get_multiplier(self) -> float:
+        return self.reward_calculator.get_multiplier()
 
-        for attack_state in toon_attack_states:
-            for toon, cogs, gag, atk_hit in attack_state.attacks:
-                # TODO #51, Multiply reward by EXP multiplier
-                if atk_hit:
-                    eligible = any([cog for cog in cogs if cog.level >= gag.level])
-                    reward = gag.level + 1 if eligible else 0
-                    if gag.track == TRACK.TRAP:  # Don't reward for Trap setup
-                        reward = reward if gag.is_attack else 0
-                else:  # Attack missed
-                    reward = 0
-                self._rewards[toon][gag.track] += reward
-                print(f"    [>] {toon} {'+' if atk_hit else ''}{reward} {gag.track_name} exp ({gag}) against {cogs}")  # noqa
+    def start_invasion(self) -> None:
+        self.reward_calculator = RewardCalculator(
+            building_floor=self.reward_calculator.building_floor,
+            is_invasion=True
+        )
+        self.notify()
 
-        # Sum rewards for all Toons
-        for toon in self.toons:
-            print(f"    [+] `calculate_rewards()` for Toon {toon}")
-            # If Toon is defeated, no rewards are given
-            if toon.is_defeated:
-                self._rewards[toon] = [0] * 7
-                continue
-            print(f"        [-] Total rewards for Toon {toon} : "
-                  f"{self._rewards[toon]}")
-        print("    [-] `calculate_rewards()` all rewards ... ")
-        # pp.pprint(self._rewards)
-        return self._rewards
+    def stop_invasion(self) -> None:
+        self.reward_calculator = RewardCalculator(
+            building_floor=self.reward_calculator.building_floor,
+            is_invasion=False
+        )
+        self.notify()
+
+    def attach(self, btoon: BattleToon):
+        """Set the Battle as the Toon's observable so the Toon can call `.get_multiplier()`"""
+        btoon.join_battle(self)
+        btoon.update_reward_multiplier()
+
+    def notify(self):
+        """Notify all observers of changes to RewardCalculator.multiplier"""
+        for battle_toon in self.toons:
+            battle_toon.update_reward_multiplier()
+
+    def remove_battle_cog(self, bcog: BattleCog):
+        self._cogs.remove(bcog)
+
+    def remove_battle_toon(self, btoon: BattleToon):
+        """Unregister an observer Toon"""
+        self._toons.remove(btoon)
 
     def update(self):
-        self.context.update()
-        if type(self.context.state) == EndState:
+        self.update()
+        if type(self.state) == EndState:
             self.is_battling = False
 
 

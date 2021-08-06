@@ -1,12 +1,11 @@
-from dataclasses import dataclass, field
-
-from .AttackGlobals import GROUP
+from abc import ABC
+from dataclasses import dataclass
 
 
 @dataclass
-class Attack():
+class Attack(ABC):
 
     name: str
     damage: int
     accuracy: int
-    group: int = field(default=GROUP.UNKNOWN)  # Multi or single-target attack
+    group: int  # Multi or single-target attack

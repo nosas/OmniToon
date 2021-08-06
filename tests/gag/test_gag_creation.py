@@ -1,7 +1,8 @@
 
+from ...AttackGlobals import GROUP
 from ...Gag import Gag, Gags
 from ...GagGlobals import (DEFAULT_GAG_COUNT, DEFAULT_TRACK_EXPS_CURRENT,
-                           DEFAULT_TRACK_LEVELS, GAG, TRACK)
+                           DEFAULT_TRACK_LEVELS, GAG, MULTI_TARGET_GAGS, TRACK)
 from ...ToonGlobals import (ASTRO_EXPECTED_AVAILABLE_GAGS,
                             ASTRO_EXPECTED_TRACK_LEVELS,
                             ASTRO_EXPECTED_UNLOCKED_GAGS, ASTRO_GAG_COUNT,
@@ -33,6 +34,16 @@ class TestGagCreation:
 
     def test_gag_track_name(self):
         assert self.gag.track.name == self.expected_gag.track.name
+
+    def test_multi_target_gag_creation(self):
+        """Verify multi-targeted Gags have the proper gag.target attribute value"""
+        mt_gags = [
+            Gag(exp=0, level=gag_enum.level, track=gag_enum.track)
+            for gag_enum in GAG
+            if gag_enum.name in MULTI_TARGET_GAGS
+        ]
+        assert len(mt_gags) == len(MULTI_TARGET_GAGS)
+        assert all([gag.target == GROUP.MULTI for gag in mt_gags])
 
 
 class TestGagsDefaultCreation:

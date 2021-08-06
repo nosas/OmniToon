@@ -277,8 +277,8 @@ GAG_CARRY_LIMITS = (((10, 0, 0, 0, 0, 0, 0),      # Toon-up
                      (30, 25, 20, 15, 7, 3, 1)))
 
 MULTI_TARGET_GAGS = [
-    'Megaphone', 'Bamboo Cane', 'Juggling Balls', 'High Dive', 'Railroad',
-    'Small Magnet', 'Big Magnet', 'Hypno-goggles', 'Presentation',
-    'Bike Horn', 'Whistle', 'Bugle', 'Aoogah', 'Elephant Trunk', 'Foghorn',
-    'Opera Singer', 'Wedding Cake', 'Geyser', 'Toontanic'
+    'MEGAPHONE', 'BAMBOO_CANE', 'JUGGLING_BALLS', 'HIGH_DIVE', 'RAILROAD',
+    'SMALL_MAGNET', 'BIG_MAGNET', 'HYPNO_GOGGLES', 'PRESENTATION', 'BIKE_HORN',
+    'WHISTLE', 'BUGLE', 'AOOGAH', 'ELEPHANT_TRUNK', 'FOGHORN', 'OPERA_SINGER',
+    'WEDDING_CAKE', 'GEYSER', 'TOONTANIC'
 ]

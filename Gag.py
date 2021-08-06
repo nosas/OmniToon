@@ -64,9 +64,9 @@ class Gag:
     """Attack/Heal used by a Toon during Battle
 
     Args:
-        track (int): Index of the Gag Track <0-6>
         exp (int): EXP of the Gag Track
         level (int): Level of the Gag <0-6>
+        track (int): Index of the Gag Track <0-6>
         count (int, optional): Current quantity of the Gag. Defaults to 0.
     """
     exp: int
@@ -121,7 +121,7 @@ class Gags:
     """Collection of Gags and Gag-related function
 
     Args:
-        gags (list, optional): 2-D list, ex: `gags[GAG_TRACK][GAG_LEVEL]`.
+        gag_count (list, optional): 2-D list, ex: `gags[GAG_TRACK][GAG_LEVEL]`.
             Defaults to DEFAULT_GAG_COUNTS.
             Example `gag_count` ::
                 gag_count = [[0,   0,  0,  5,  5,  3, -1],  # 0 Toon-up
@@ -164,22 +164,9 @@ class Gags:
     @property
     def gags(self):
         """Create a 2D list of Gag objects"""
-        all_gags = []
+        all_gags = [self._get_gag(level=gag_enum.level, track=gag_enum.track) for gag_enum in GAG]
 
-        gag_track_list = []
-        for gag_enum in GAG:
-            gag_track_list.append(
-                Gag(exp=self.track_exps[gag_enum.track],
-                    level=gag_enum.level,
-                    track=gag_enum.track,
-                    count=self.gag_count[gag_enum.track][gag_enum.level])
-            )
-
-            if gag_enum.level == 6:  # or gag_enum.index
-                all_gags.append(gag_track_list)
-                gag_track_list = []
-
-        return all_gags
+        return [all_gags[track*7:(track+1)*7] for track in TRACK]
 
     @property
     def unlocked_gags(self) -> List[Gag]:
@@ -236,28 +223,28 @@ class Gags:
         return count
 
     def _count_gag(self, track: int, level: int) -> int:
-        """Return Toon's current quantity of a Gag(gag_track, gag_level)
+        """Return Toon's current quantity of a Gag(track, level)
 
         Args:
-            gag_track (int): Index number of the Gag Track <0-6>
-            gag_level (int): Level of the Gag <0-6>
+            track (int): Index number of the Gag Track <0-6>
+            level (int): Level of the Gag <0-6>
 
         Returns:
             int: Current quantity of a Gag
         """
-        count = self.gags[track][level]
+        count = self.gag_count[track][level]
         return count
 
     def _count_gag_track(self, track: int) -> int:
         """Return Toon's current number of Gags in a Gag track
 
         Args:
-            gag_track (int): Index number of the Gag Track <0-6>
+            track (int): Index number of the Gag Track <0-6>
 
         Returns:
             int: Current quantity of a Gag track
         """
-        count = sum(self.gags[track], start=self.gags[track].count(-1))
+        count = sum(self.gag_count[track], start=self.gag_count[track].count(-1))
         return count
 
     def _get_gag(self, track: int, level: int) -> Gag:
@@ -294,7 +281,7 @@ class Gags:
         gag = self._get_gag(track=track, level=level)
         if gag.count == 0:
             raise NotEnoughGagsError(gag)
-        if self.gags[track] == [-1] * 7:
+        if self.gag_count[track] == [-1] * 7:
             raise LockedGagTrackError(track=track)
         if gag.count == -1:
             raise LockedGagError(level=level)
@@ -364,14 +351,7 @@ def count_all_gags(gag_count: list) -> int:
     Returns:
         int: Total number of Gags
     """
-    count = 0
-    for gag_track in gag_count:
-        # Summing the -1 values will result in a negative Gag count
-        # We can negate summing of -1 values by adding the count of -1 in the
-        # current Gag track list to the starting index of sum(gag_track)
-        count += sum(gag_track, start=gag_track.count(-1))
-
-    return count
+    return sum(sum(gag_track) for gag_track in gag_count)
 
 
 def get_gag_accuracy(track: int, level: int) -> int:

@@ -47,6 +47,7 @@ class Toon(Entity):
         hp (int, optional): Laff-o-Meter (health points) of a Toon.
             Defaults to DEFAULT_HP (15)
         inventory (Inventory): Toon's inventory, such as Gags, Jellybeans, SOS cards, etc.
+            Defaults to Inventory() factory with no gags, default limits, etc.
     """
 
     inventory: Inventory = field(default_factory=Inventory)
