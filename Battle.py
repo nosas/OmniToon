@@ -54,7 +54,7 @@ class Battle:
         self.is_battling = True
         self.rewards = {}  # TODO replace with RewardTracker
         self.state = ToonAttackState()
-        self.state.context = self
+        self.state.battle = self
 
         self._cogs = []
         self._toons = []
@@ -78,7 +78,6 @@ class Battle:
     def state(self, new_state: BattleState) -> None:
         # print(f"        [>] Setting new state: {new_state}")
         self._state = new_state
-
 
     def add_cog(self, new_cog: Cog) -> None:
         assert type(new_cog) == Cog
@@ -141,7 +140,7 @@ class Battle:
         self._completed_states.append(self.state)
         self.state = new_state
         print(f"        [-] `transition_to()` completed states : {[str(state) for state in self._completed_states]}")  # noqa
-        self.state.context = self
+        self.state.battle = self
 
     def update(self):
         print(f"[+] {self} `update()` pre-update state : {self.state}")
@@ -715,12 +714,12 @@ class RewardCalculator:
 class BattleState(ABC):
 
     @property
-    def context(self) -> BattleContext:
-        return self._context
+    def battle(self) -> BattleContext:
+        return self._battle
 
-    @context.setter
-    def context(self, context: BattleContext) -> None:
-        self._context = context
+    @battle.setter
+    def battle(self, battle: BattleContext) -> None:
+        self._battle = battle
 
     def __str__(self) -> str:
         return self.__class__.__name__
@@ -762,11 +761,11 @@ class ToonAttackState(AttackState):
 
     def handle_attacks(self):
         potential_attacks = {}
-        self.overdefeat_cogs = {cog: {} for cog in self.context.cogs}
+        self.overdefeat_cogs = {cog: {} for cog in self.battle.cogs}
 
         # #44, Group and order attacks by Gag.track rather than sequential
         # Select Targets and choose Gag Attacks
-        for toon in self.context.toons:
+        for toon in self.battle.toons:
             if toon.is_defeated:
                 continue
             # TODO #40, choose_target
@@ -778,7 +777,7 @@ class ToonAttackState(AttackState):
             3. Randomly pick one attack from the viable Gags list
             """
             alive_cogs = [
-                cog for cog in self.context.cogs if not cog.is_defeated]
+                cog for cog in self.battle.cogs if not cog.is_defeated]
 
             target_cogs, gag_atk = toon.choose_attack(targets=alive_cogs)
             print(f"            [-] BattleEntity {toon} targets BattleEntity {target_cogs}")
@@ -825,16 +824,16 @@ class ToonAttackState(AttackState):
 
                 self.attacks.append((toon, target_cogs, gag_atk, attack_hit))
 
-            for cog in self.context.cogs:
+            for cog in self.battle.cogs:
                 if cog.is_defeated:
-                    self.context.remove_cog(defeated_cog=cog)
+                    self.battle.remove_cog(defeated_cog=cog)
 
-        if all([cog.is_defeated for cog in self.context.cogs]):
+        if all([cog.is_defeated for cog in self.battle.cogs]):
             # ! First need to check if all cogs defeated, then battle is Won
             transition_state = WinState
         else:
             transition_state = CogAttackState
-        self.context.transition_to(new_state=transition_state())
+        self.battle.transition_to(new_state=transition_state())
 
 
 class CogAttackState(AttackState):
@@ -845,10 +844,10 @@ class CogAttackState(AttackState):
     def handle_attacks(self):
         transition_state = ToonAttackState
 
-        for cog in self.context.cogs:
+        for cog in self.battle.cogs:
             cog_atk = cog.manual_atk if cog.manual_atk is not None else cog.choose_attack()  # noqa
 
-            viable_toons = [toon for toon in self.context.toons
+            viable_toons = [toon for toon in self.battle.toons
                             if not toon.is_defeated]
             if cog_atk.target == GROUP.MULTI:
                 print(f"        [+] {self} BattleEntity {cog} targets all Toons "
@@ -872,11 +871,11 @@ class CogAttackState(AttackState):
                     print(f"            [-] BattleEntity {target_toon} is defeated")
                     # ! If all Toons defeated -> LoseState else ToonAtkState
 
-            if all([toon.is_defeated for toon in self.context.toons]):
+            if all([toon.is_defeated for toon in self.battle.toons]):
                 transition_state = LoseState
                 break
 
-        self.context.transition_to(new_state=transition_state())
+        self.battle.transition_to(new_state=transition_state())
 
 
 class WinState(WinLoseState):
@@ -897,11 +896,11 @@ class WinState(WinLoseState):
         # total_reward = sum(state.reward for state in self.reward)
         # print(f"[$] Total Reward = {total_reward}")
 
-        if all([cog.is_defeated for cog in self.context.cogs]):
+        if all([cog.is_defeated for cog in self.battle.cogs]):
             transition_state = EndState
         else:
             raise Error("We should be in EndState")
-        self.context.transition_to(new_state=transition_state())
+        self.battle.transition_to(new_state=transition_state())
 
 
 class LoseState(WinLoseState):
@@ -917,7 +916,7 @@ class LoseState(WinLoseState):
         # TODO Alternatively, make BattleEntity.is_defeated a property, strip all the
         # Gags in the setter method if BattleEntity.is_defeated is True
         defeated_toons = [
-            toon for toon in self.context._toons if toon.is_defeated]
+            toon for toon in self.battle._toons if toon.is_defeated]
 
         for toon in defeated_toons:
             print(f"        [-] Removing all Gags from BattleEntity {toon}")
@@ -927,8 +926,8 @@ class LoseState(WinLoseState):
                     # the Gag locked
                     toon.gags[track_idx][gag_idx] = 0 if gag != -1 else -1
 
-        self.context.reward = [0] * 7
-        self.context.transition_to(new_state=EndState())
+        self.battle.reward = [0] * 7
+        self.battle.transition_to(new_state=EndState())
 
 
 class EndState(BattleState):
