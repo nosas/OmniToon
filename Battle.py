@@ -27,17 +27,9 @@ from .Toon import Toon
 
 class AttackProcessor:
 
-    def get_all_attacks():
-        pass
-
-    def select_attacks():
-        pass
-
-    def group_attacks():
-        pass
-
-    def execute_attacks():
-        pass
+    def __init__(self, cogs: List[BattleCog], toons: List[BattleToon]):
+        self.cogs = cogs
+        self.toons = toons
 
 
 # TODO class RewardTracker, remove `calculate_rewards` from Battle
@@ -61,6 +53,10 @@ class Battle:
         self._cog_battle_id = 0
         self._toon_battle_id = 0
         self._completed_states = []
+
+    @property
+    def attack_processor(self) -> AttackProcessor:
+        return AttackProcessor(cogs=self.cogs, toons=self.toons)
 
     @property
     def cogs(self) -> List[BattleCog]:
@@ -273,7 +269,6 @@ class BattleCog(BattleEntity):
         print(f"                [>] self.trap : {self.trap} -> {toon_and_gag_trap} on {self}")
         self._trap = toon_and_gag_trap
 
-    # TODO #40, `choose_target` method to choose a target when vs 2+ toons
     # TODO #39, Need to write tests for this method
     def choose_attack(self, attack_name: str = '') -> CogAttack:
         """Return Attack obj containing Cog attack information from
@@ -576,8 +571,13 @@ class BattleToon(BattleEntity):
         possible_attacks = self.get_possible_attacks(target=target)
         return [attack for attack in possible_attacks if attack.gag.level < target.level]
 
-    def choose_attack(self):
-        return super().choose_attack()
+    # TODO Implement weights and bias in Strategy, have Strategy actually choose the attack
+    def choose_attack(self, target: BattleCog) -> List[ToonAttack]:
+        """Choose a random Attack, favoring attacks with rewards"""
+        potential_attacks = self.get_viable_attacks(target=BattleCog)
+        if potential_attacks == []:
+            potential_attacks = self.get_possible_attacks(target=target)
+        return rand_choice(potential_attacks)
 
     def choose_targets(self):
         return super().choose_targets()

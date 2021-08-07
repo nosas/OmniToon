@@ -97,11 +97,11 @@ class BattleEntity(ABC):
     def is_defeated(self) -> bool:
         return self.entity.is_defeated
 
-    @property
+    @property  # TODO Remove
     def targets(self) -> list[BattleEntity]:
         return self._targets
 
-    @targets.setter
+    @targets.setter  # TODO Remove
     def targets(self, new_targets: Union[BattleEntity | List[BattleEntity]]) -> None:
         # If passed in a single target, add the target to an empty list
         if isinstance(new_targets, BattleEntity):
