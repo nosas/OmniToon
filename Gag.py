@@ -20,25 +20,21 @@ from typing import List, Optional
 from .AttackGlobals import GROUP
 from .Exceptions import (GagCountError, LockedGagError, LockedGagTrackError,
                          NotEnoughGagsError)
-from .GagGlobals import (DEFAULT_GAG_COUNT, DEFAULT_TRACK_EXPS_CURRENT,
-                         DEFAULT_TRACK_EXPS_NEXT, GAG, GAG_CARRY_LIMITS,
-                         GAG_DAMAGE, GAG_LABELS, GAG_TRACK_LABELS, LEVELS,
-                         MULTI_TARGET_GAGS, TRACK)
+
+from .GagGlobals import (DEFAULT_GAG_COUNT, DEFAULT_TRACK_EXPS_CURRENT, GAG,
+                         GAG_CARRY_LIMITS, GAG_DAMAGE, GAG_LABELS,
+                         GAG_TRACK_LABELS, LEVELS, MULTI_TARGET_GAGS, TRACK)
 
 
-def get_default_gag_count():
+def get_default_gag_count() -> List[List[int]]:
     return DEFAULT_GAG_COUNT.copy()
 
 
-def get_default_exps_current():
+def get_default_exps_current() -> List[int]:
     return DEFAULT_TRACK_EXPS_CURRENT.copy()
 
 
-def get_default_exps_next():
-    return DEFAULT_TRACK_EXPS_NEXT.copy()
-
-
-def get_default_gags():
+def get_default_gags() -> List[List[Gag]]:
     """Create a 2D list of Gag objects with default Gag values"""
     default_gags = []
 
@@ -117,7 +113,6 @@ class Gag:
 
 @dataclass
 class Gags:
-    # """Collection of Gags and Gag-related functions"""
     """Collection of Gags and Gag-related function
 
     Args:
@@ -152,9 +147,6 @@ class Gags:
 
     gag_count: List[List[int]] = field(default_factory=get_default_gag_count)
     track_exps: Optional[List[int]] = field(default_factory=get_default_exps_current)
-    # TODO Turn this into a property
-    # track_exps_next: Optional[List[int]] = field(init=False,
-    #                                              default_factory=get_default_exps_next)
 
     @property
     def track_levels(self) -> List[int]:
@@ -165,19 +157,16 @@ class Gags:
     def gags(self):
         """Create a 2D list of Gag objects"""
         all_gags = [self._get_gag(level=gag_enum.level, track=gag_enum.track) for gag_enum in GAG]
-
         return [all_gags[track*7:(track+1)*7] for track in TRACK]
 
     @property
     def unlocked_gags(self) -> List[Gag]:
         """Return a flattened list of unlocked Gags"""
-
         return [gag for gag in self._flatten_gags() if gag.count != -1]
 
     @property
     def available_gags(self) -> List[Gag]:
         """Return a flattened list of available (unlocked, count > 0) Gags"""
-
         return [gag for gag in self.unlocked_gags if gag.count > 0]
 
     def __iter__(self):
@@ -232,8 +221,7 @@ class Gags:
         Returns:
             int: Current quantity of a Gag
         """
-        count = self.gag_count[track][level]
-        return count
+        return self.gag_count[track][level]
 
     def _count_gag_track(self, track: int) -> int:
         """Return Toon's current number of Gags in a Gag track
@@ -244,14 +232,13 @@ class Gags:
         Returns:
             int: Current quantity of a Gag track
         """
-        count = sum(self.gag_count[track], start=self.gag_count[track].count(-1))
-        return count
+        return sum(self.gag_count[track], start=self.gag_count[track].count(-1))
 
     def _get_gag(self, track: int, level: int) -> Gag:
-        count = self._count_gag(track=track, level=level)
         # count_max =  # ! TODO #42
-        exp = self.get_gag_exp(track=track)
-        return Gag(track=track, exp=exp, level=level, count=count)
+        return Gag(track=track, level=level,
+                   exp=self.get_gag_exp(track=track),
+                   count=self._count_gag(track=track, level=level))
 
     def _has_gag(self, track: int, level: int) -> bool:
         """True if Toon has the Gag, False if Toon doesn't have, or hasn't yet
