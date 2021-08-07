@@ -52,19 +52,33 @@ class Battle:
                                                   is_invasion=is_invasion)
 
         self.is_battling = True
+        self.rewards = {}  # TODO replace with RewardTracker
+        self.state = ToonAttackState()
+        self.state.context = self
 
         self._cogs = []
         self._toons = []
         self._cog_battle_id = 0
         self._toon_battle_id = 0
+        self._completed_states = []
+
+    @property
+    def cogs(self) -> List[BattleCog]:
+        return self._cogs
 
     @property
     def toons(self) -> List[BattleToon]:
         return self._toons
 
     @property
-    def cogs(self) -> List[BattleCog]:
-        return self._cogs
+    def state(self) -> BattleState:
+        return self._state
+
+    @state.setter
+    def state(self, new_state: BattleState) -> None:
+        # print(f"        [>] Setting new state: {new_state}")
+        self._state = new_state
+
 
     def add_cog(self, new_cog: Cog) -> None:
         assert type(new_cog) == Cog
@@ -696,31 +710,6 @@ class RewardCalculator:
             return -1
         # Round upwards because the reward could be x.5
         return self.reward_table[attack.gag.level]
-
-
-class BattleContext:
-
-    def __init__(self, state: BattleState, rewards: dict[BattleEntity:dict[int:int]]) -> None:
-        # ! Battle should always begin at ToonAttackState
-        print("\n[^] Initializing BattleContext...")
-        self.rewards = rewards
-
-        self._completed_states = []
-
-        self.state = state
-        self.state.context = self
-
-    def __str__(self) -> str:
-        return self.__class__.__name__
-
-    @property
-    def state(self) -> BattleState:
-        return self._state
-
-    @state.setter
-    def state(self, new_state: BattleState) -> None:
-        # print(f"        [>] Setting new state: {new_state}")
-        self._state = new_state
 
 
 class BattleState(ABC):
