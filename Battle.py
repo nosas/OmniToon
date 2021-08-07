@@ -17,13 +17,134 @@ from .Gag import Gag, get_gag_track_name
 from .GagGlobals import TRACK
 from .Toon import Toon
 
-# TODO Create BattleCogBuilding w/ constructor accepting multi-toon&cogs
 # TODO Look into Strategy design patterns for Toon decision making
 # TODO #38 Different strategies: max_reward, fast_win_ignore_reward, survive..
 # Pass: Clicking on PASS lets you skip your turn. Since Cogs will attack the
 # Toon who has done him the most damage, you are less likely to be attacked
 # if you choose Pass. This is a good strategy in a group battle if your Laff
 # points are dangerously low.
+
+
+class AttackProcessor:
+
+    def get_all_attacks():
+        pass
+
+    def select_attacks():
+        pass
+
+    def group_attacks():
+        pass
+
+    def execute_attacks():
+        pass
+
+
+# TODO class RewardTracker, remove `calculate_rewards` from Battle
+class Battle:
+
+    # Countdown timer for the Toon[s] to select a Gag and Target, or escape
+    # Cog[s] will attack if no Gag and Target is provided by the Toon[s]
+    countdown_timer = 99
+
+    def __init__(self, building_floor: int = MULTIPLIER.FLOOR1, is_invasion: bool = False):
+        self.reward_calculator = RewardCalculator(building_floor=building_floor,
+                                                  is_invasion=is_invasion)
+
+        self.is_battling = True
+
+        self._cogs = []
+        self._toons = []
+        self._cog_battle_id = 0
+        self._toon_battle_id = 0
+
+    @property
+    def toons(self) -> List[BattleToon]:
+        return self._toons
+
+    @property
+    def cogs(self) -> List[BattleCog]:
+        return self._cogs
+
+    def add_cog(self, new_cog: Cog) -> None:
+        assert type(new_cog) == Cog
+        if len(self._cogs) >= 4:
+            print(f"    [!] ERROR : Too many Cogs battling, can't add Cog "
+                  f"{new_cog}")
+            raise TooManyCogsError(new_cog)
+        self._cogs.append(BattleCog(battle_id=self._cog_battle_id, entity=new_cog))
+        self._cog_battle_id += 1
+
+    def add_toon(self, new_toon: Toon) -> None:
+        """Register an observer Toon, used by `self.add_toon`"""
+        assert type(new_toon) == Toon
+        if len(self._toons) >= 4:
+            print(f"    [!] ERROR : Too many Toons battling, can't add Toon "
+                  f"{new_toon}")
+            raise TooManyToonsError(new_toon)
+        battle_toon = BattleToon(battle_id=self._toon_battle_id, entity=new_toon)
+        self.attach(btoon=battle_toon)
+        self._toons.append(battle_toon)
+        self._toon_battle_id += 1
+
+    def get_multiplier(self) -> float:
+        return self.reward_calculator.get_multiplier()
+
+    def start_invasion(self) -> None:
+        self.reward_calculator = RewardCalculator(
+            building_floor=self.reward_calculator.building_floor,
+            is_invasion=True
+        )
+        self.notify()
+
+    def stop_invasion(self) -> None:
+        self.reward_calculator = RewardCalculator(
+            building_floor=self.reward_calculator.building_floor,
+            is_invasion=False
+        )
+        self.notify()
+
+    def attach(self, btoon: BattleToon):
+        """Set the Battle as the Toon's observable so the Toon can call `.get_multiplier()`"""
+        btoon.join_battle(self)
+        btoon.update_reward_multiplier()
+
+    def notify(self):
+        """Notify all observers of changes to RewardCalculator.multiplier"""
+        for battle_toon in self.toons:
+            battle_toon.update_reward_multiplier()
+
+    def remove_battle_cog(self, bcog: BattleCog):
+        """Remove a defeated BattleCog from Battle"""
+        self._cogs.remove(bcog)
+
+    def remove_battle_toon(self, btoon: BattleToon):
+        """Unregister an observer Toon"""
+        self._toons.remove(btoon)
+
+    def transition_to(self, new_state: BattleState):
+        print(f"    [+] `transition_to()` transition : {self.state} -> {new_state}")  # noqa
+        self._completed_states.append(self.state)
+        self.state = new_state
+        print(f"        [-] `transition_to()` completed states : {[str(state) for state in self._completed_states]}")  # noqa
+        self.state.context = self
+
+    def update(self):
+        print(f"[+] {self} `update()` pre-update state : {self.state}")
+
+        if issubclass(self.state.__class__, AttackState):
+            print(f"    [+] `handle_attacks()` {self.state} ")
+            self.state.handle_attacks()
+        elif issubclass(self.state.__class__, WinLoseState):
+            print(f"    [+] `handle_win_lose()` {self.state} ")
+            self.state.handle_win_lose()
+        elif type(self.state) == EndState:
+            print(f"    [$] Do we want to do anything in {self.state}?")
+            self.is_battling = False
+        else:
+            raise TypeError(self.state)
+
+        print(f"    [-] {self} `update()` post-update state : {self.state}")  # noqa
 
 
 @dataclass
@@ -577,101 +698,11 @@ class RewardCalculator:
         return self.reward_table[attack.gag.level]
 
 
-# TODO class RewardTracker, remove `calculate_rewards` from Battle
-class Battle:
-
-    # Countdown timer for the Toon[s] to select a Gag and Target, or escape
-    # Cog[s] will attack if no Gag and Target is provided by the Toon[s]
-    countdown_timer = 99
-
-    def __init__(self, building_floor: int = MULTIPLIER.FLOOR1, is_invasion: bool = False):
-        self.reward_calculator = RewardCalculator(building_floor=building_floor,
-                                                  is_invasion=is_invasion)
-
-        self.is_battling = True
-
-        self._cogs = []
-        self._toons = []
-        self._cog_battle_id = 0
-        self._toon_battle_id = 0
-
-    @property
-    def toons(self) -> List[BattleToon]:
-        return self._toons
-
-    @property
-    def cogs(self) -> List[BattleCog]:
-        return self._cogs
-
-    def add_cog(self, new_cog: Cog) -> None:
-        assert type(new_cog) == Cog
-        if len(self._cogs) >= 4:
-            print(f"    [!] ERROR : Too many Cogs battling, can't add Cog "
-                  f"{new_cog}")
-            raise TooManyCogsError(new_cog)
-        self._cogs.append(BattleCog(battle_id=self._cog_battle_id, entity=new_cog))
-        self._cog_battle_id += 1
-
-    def add_toon(self, new_toon: Toon) -> None:
-        """Register an observer Toon, used by `self.add_toon`"""
-        assert type(new_toon) == Toon
-        if len(self._toons) >= 4:
-            print(f"    [!] ERROR : Too many Toons battling, can't add Toon "
-                  f"{new_toon}")
-            raise TooManyToonsError(new_toon)
-        battle_toon = BattleToon(battle_id=self._toon_battle_id, entity=new_toon)
-        self.attach(btoon=battle_toon)
-        self._toons.append(battle_toon)
-        self._toon_battle_id += 1
-
-    def get_multiplier(self) -> float:
-        return self.reward_calculator.get_multiplier()
-
-    def start_invasion(self) -> None:
-        self.reward_calculator = RewardCalculator(
-            building_floor=self.reward_calculator.building_floor,
-            is_invasion=True
-        )
-        self.notify()
-
-    def stop_invasion(self) -> None:
-        self.reward_calculator = RewardCalculator(
-            building_floor=self.reward_calculator.building_floor,
-            is_invasion=False
-        )
-        self.notify()
-
-    def attach(self, btoon: BattleToon):
-        """Set the Battle as the Toon's observable so the Toon can call `.get_multiplier()`"""
-        btoon.join_battle(self)
-        btoon.update_reward_multiplier()
-
-    def notify(self):
-        """Notify all observers of changes to RewardCalculator.multiplier"""
-        for battle_toon in self.toons:
-            battle_toon.update_reward_multiplier()
-
-    def remove_battle_cog(self, bcog: BattleCog):
-        self._cogs.remove(bcog)
-
-    def remove_battle_toon(self, btoon: BattleToon):
-        """Unregister an observer Toon"""
-        self._toons.remove(btoon)
-
-    def update(self):
-        self.update()
-        if type(self.state) == EndState:
-            self.is_battling = False
-
-
 class BattleContext:
 
-    def __init__(self, state: BattleState, cogs: list[BattleEntity], toons: list[BattleEntity],
-                 rewards: dict[BattleEntity:dict[int:int]]) -> None:
+    def __init__(self, state: BattleState, rewards: dict[BattleEntity:dict[int:int]]) -> None:
         # ! Battle should always begin at ToonAttackState
         print("\n[^] Initializing BattleContext...")
-        self.cogs = cogs
-        self.toons = toons
         self.rewards = rewards
 
         self._completed_states = []
@@ -690,69 +721,6 @@ class BattleContext:
     def state(self, new_state: BattleState) -> None:
         # print(f"        [>] Setting new state: {new_state}")
         self._state = new_state
-
-    @property
-    def cogs(self) -> list:
-        return self._cogs
-
-    @cogs.setter
-    def cogs(self, cogs: list[BattleEntity]) -> None:
-        if len(cogs) > 4:
-            raise TooManyCogsError
-        assert all([type(x) == BattleEntity for x in cogs])
-        self._cogs = cogs
-
-    @property
-    def toons(self) -> list[BattleEntity]:
-        return self._toons
-
-    @toons.setter
-    def toons(self, toons: list[BattleEntity]) -> list:
-        if len(toons) > 4:
-            raise TooManyToonsError
-        assert all([type(x) == BattleEntity for x in toons])
-        self._toons = toons
-
-    def add_cog(self, new_cog: BattleEntity) -> None:
-        assert type(new_cog) == BattleEntity
-        if len(self._cogs) == 4:
-            raise TooManyCogsError(new_cog)
-        self._cogs.append(new_cog)
-
-    def add_toon(self, new_toon: BattleEntity) -> None:
-        assert type(new_toon) == BattleEntity
-        if len(self._toons) == 4:
-            raise TooManyToonsError(new_toon)
-        self._toons.append(new_toon)
-
-    def remove_cog(self, defeated_cog: BattleEntity) -> None:
-        assert type(defeated_cog) == BattleEntity
-        print(f"            [-] BattleEntity {defeated_cog} is defeated")
-        self.cogs.remove(defeated_cog)
-
-    def transition_to(self, new_state: BattleState):
-        print(f"    [+] `transition_to()` transition : {self.state} -> {new_state}")  # noqa
-        self._completed_states.append(self.state)
-        self.state = new_state
-        print(f"        [-] `transition_to()` completed states : {[str(state) for state in self._completed_states]}")  # noqa
-        self.state.context = self
-
-    def update(self):
-        print(f"[+] {self} `update()` pre-update state : {self.state}")
-
-        if issubclass(self.state.__class__, AttackState):
-            print(f"    [+] `handle_attacks()` {self.state} ")
-            self.state.handle_attacks()
-        elif issubclass(self.state.__class__, WinLoseState):
-            print(f"    [+] `handle_win_lose()` {self.state} ")
-            self.state.handle_win_lose()
-        elif type(self.state) == EndState:
-            print(f"    [$] Do we want to do anything in {self.state}?")
-            pass  # ? Do we want to do anything in EndState?
-        else:
-            raise TypeError(self.state)
-
-        print(f"    [-] {self} `update()` post-update state : {self.state}")  # noqa
 
 
 class BattleState(ABC):
