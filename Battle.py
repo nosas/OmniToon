@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from operator import attrgetter
 from random import choice as rand_choice
 from random import randint
 from typing import List, Tuple
@@ -11,8 +12,8 @@ from .AttackGlobals import GROUP, MULTIPLIER, MULTIPLIER_DEFAULT
 from .Cog import Cog
 from .Entity import BattleEntity, Entity
 from .Exceptions import (CogAlreadyTrappedError, CogLuredError, Error,
-                         InvalidCogAttackTarget, TooManyCogsError,
-                         TooManyToonsError)
+                         InvalidCogAttackTarget, NoValidAttacksError,
+                         TooManyCogsError, TooManyToonsError)
 from .Gag import Gag, get_gag_track_name
 from .GagGlobals import TRACK
 from .Toon import Toon
@@ -347,7 +348,7 @@ class BattleToon(BattleEntity):
         self._entity = new_entity
 
     @property
-    def available_gags(self) -> List[ToonAttack]:
+    def available_gags(self) -> List[Gag]:
         """Return a list of available Gags which can be used to attack a target"""
         return self.entity.gags.available_gags
 
@@ -433,12 +434,26 @@ class BattleToon(BattleEntity):
         return [attack for attack in possible_attacks if attack.gag.level < target.level]
 
     # TODO Implement weights and bias in Strategy, have Strategy actually choose the attack
-    def choose_attack(self, target: BattleCog) -> List[ToonAttack]:
-        """Choose a random Attack, favoring attacks with rewards"""
-        potential_attacks = self.get_viable_attacks(target=BattleCog)
+    def choose_attack(self, target: BattleCog) -> ToonAttack:
+        """Choose a ToonAttack against a target BattleCog, favoring attacks with higher rewards"""
+
+        def get_potential_attacks(target: BattleCog) -> List[ToonAttack]:
+            """Return a list of potential ToonAttacks against a target BattleCog"""
+            potential_attacks = self.get_viable_attacks(target=target)
+            if potential_attacks == []:
+                potential_attacks = self.get_possible_attacks(target=target)
+            return potential_attacks
+
+        def sort_attacks(potential_attacks: List[ToonAttack]) -> List[ToonAttack]:
+            """Sort potential ToonAttacks, sort descending from highest Attack's reward value"""
+            # attacks = sorted(potential_attacks, key=lambda attack: attack.reward)
+            # return sorted(attacks, key=lambda attack: attack.gag.track)
+            return sorted(potential_attacks, key=attrgetter('reward'), reverse=True)
+
+        potential_attacks = get_potential_attacks(target=target)
         if potential_attacks == []:
-            potential_attacks = self.get_possible_attacks(target=target)
-        return rand_choice(potential_attacks)
+            raise NoValidAttacksError(battle_toon=self, battle_cog=target)
+        return sort_attacks(potential_attacks)[0]
 
     def update_reward_multiplier(self):
         """Update the BattleToon's reward multiplier when Battle pushes a notification"""

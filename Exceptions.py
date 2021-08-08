@@ -19,6 +19,19 @@ class TooManyToonsError(CountError):
     pass
 
 
+class NoValidAttacksError(CountError):
+    """Raised when a Toon tries to choose an Attack against a BattleCog"""
+
+    def __init__(self, battle_toon, battle_cog, message="Toon has no valid attacks against target"):
+        self.battle_toon = battle_toon
+        self.battle_cog = battle_cog
+        self.message = message
+        super().__init__(self.message)
+
+    def __str__(self):
+        return f"{self.battle_toon} -> {self.message} {self.battle_cog}"
+
+
 class GagCountError(CountError):
     pass
 

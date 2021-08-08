@@ -24,6 +24,11 @@ def battle_building_invasion(building_floor: int) -> Battle:
 
 
 @pytest.fixture
+def bt(toon_default: Toon):
+    return BattleToon(battle_id=0, entity=toon_default)
+
+
+@pytest.fixture
 def bt_astro(toon_astro: Toon):
     bt_astro = BattleToon(battle_id=0, entity=toon_astro)
     return bt_astro
