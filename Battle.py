@@ -32,6 +32,51 @@ class AttackProcessor:
         self.cogs = cogs
         self.toons = toons
 
+        self.attacks: List[Tuple(BattleEntity, Attack)] = []
+
+    def choose_toon_attacks(self) -> None:
+        """
+        Choose 1 Attack for each Toon, given a list of Attacks for each Cog
+
+        Attacks are chosen by highest reward. If no Attacks offer rewards, because the Cog is too
+            low of a level, then the first available Attack is chosen.
+
+            Example: Against a lvl 1 Cog, BT Astro selects GAG(SOUND, 4) because it's the first
+                     available Attack.
+        """
+        for toon in self.toons:
+            potential_attacks = [toon.choose_attack(target=target_cog) for target_cog in self.cogs]
+            sorted_attacks = sorted(potential_attacks,
+                                    key=lambda attack: attack.reward, reverse=True)
+            self.attacks.append((toon, sorted_attacks[0]))
+
+    def do_toon_attacks(self) -> None:
+        def group_attacks(attacks: List[Tuple[BattleToon, ToonAttack]]):
+            """
+            Group attacks by Gag Track then by target Cog
+            toon_attacks = [(BattleToon1, ToonAttack1),
+                            (BattleToon2, ToonAttack2),
+                            (BattleToon3, ToonAttack3)]
+
+            # No multi-targeted Attacks
+            grouped_attacks = {
+                TRACK.THROW:  {Cog1: [(BattleToon1, ToonAttack1), (BattleToon2, ToonAttack2)]},
+                TRACK.SQUIRT: {Cog2: [(BattleToon3, ToonAttack3)]}
+            }
+
+            # Multi-targeted Attacks: BattleToon1 uses multi-targeted Throw
+            grouped_attacks = {
+                TRACK.THROW:  {Cog1: [(BattleToon1, ToonAttack1), (BattleToon2, ToonAttack2)],
+                               Cog2: [(BattleToon1, ToonAttack1),
+                               Cog3: [(BattleToon1, ToonAttack1]
+                               },
+                TRACK.SQUIRT: {Cog2: [(BattleToon3, ToonAttack3)]}
+            }
+
+            """
+            pass
+        pass
+
 
 # TODO class RewardTracker, remove `calculate_rewards` from Battle
 class Battle:
@@ -47,13 +92,19 @@ class Battle:
 
         self._cogs = []
         self._toons = []
+        self._attack_processor = AttackProcessor(cogs=self.cogs, toons=self.toons)
         self._cog_battle_id = 0
         self._toon_battle_id = 0
         self._completed_states = []
 
     @property
     def attack_processor(self) -> AttackProcessor:
-        return AttackProcessor(cogs=self.cogs, toons=self.toons)
+        return self._attack_processor
+
+    def _update_attack_processor(self) -> None:
+        """Update the AttackProcessor with the newly added/removed BattleToons/BattleCogs"""
+        self._attack_processor.cogs = self.cogs
+        self._attack_processor.toons = self.toons
 
     @property
     def cogs(self) -> List[BattleCog]:
@@ -80,6 +131,7 @@ class Battle:
             raise TooManyCogsError(new_cog)
         self._cogs.append(BattleCog(battle_id=self._cog_battle_id, entity=new_cog))
         self._cog_battle_id += 1
+        self._update_attack_processor()
 
     def add_toon(self, new_toon: Toon) -> None:
         """Register an observer Toon, used by `self.add_toon`"""
@@ -92,6 +144,7 @@ class Battle:
         self.attach(btoon=battle_toon)
         self._toons.append(battle_toon)
         self._toon_battle_id += 1
+        self._update_attack_processor()
 
     def get_multiplier(self) -> float:
         return self.reward_calculator.get_multiplier()
@@ -123,10 +176,12 @@ class Battle:
     def remove_battle_cog(self, bcog: BattleCog):
         """Remove a defeated BattleCog from Battle"""
         self._cogs.remove(bcog)
+        self._update_attack_processor()
 
     def remove_battle_toon(self, btoon: BattleToon):
         """Unregister an observer Toon"""
         self._toons.remove(btoon)
+        self._update_attack_processor()
 
     def transition_to(self, new_state: BattleState):
         print(f"    [+] `transition_to()` transition : {self.state} -> {new_state}")  # noqa
