@@ -50,31 +50,32 @@ class AttackProcessor:
                                     key=lambda attack: attack.reward, reverse=True)
             self.attacks.append((toon, sorted_attacks[0]))
 
+    def group_attacks(attacks: List[Tuple[BattleToon, ToonAttack]]):
+        """
+        Group attacks by Gag Track then by target Cog
+        toon_attacks = [(BattleToon1, ToonAttack1),
+                        (BattleToon2, ToonAttack2),
+                        (BattleToon3, ToonAttack3)]
+
+        # No multi-targeted Attacks
+        grouped_attacks = {
+            TRACK.THROW:  {Cog1: [(BattleToon1, ToonAttack1), (BattleToon2, ToonAttack2)]},
+            TRACK.SQUIRT: {Cog2: [(BattleToon3, ToonAttack3)]}
+        }
+
+        # Multi-targeted Attacks: BattleToon1 uses multi-targeted Throw
+        grouped_attacks = {
+            TRACK.THROW:  {Cog1: [(BattleToon1, ToonAttack1), (BattleToon2, ToonAttack2)],
+                           Cog2: [(BattleToon1, ToonAttack1),
+                           Cog3: [(BattleToon1, ToonAttack1]
+                            },
+            TRACK.SQUIRT: {Cog2: [(BattleToon3, ToonAttack3)]}
+        }
+
+        """
+        pass
+
     def do_toon_attacks(self) -> None:
-        def group_attacks(attacks: List[Tuple[BattleToon, ToonAttack]]):
-            """
-            Group attacks by Gag Track then by target Cog
-            toon_attacks = [(BattleToon1, ToonAttack1),
-                            (BattleToon2, ToonAttack2),
-                            (BattleToon3, ToonAttack3)]
-
-            # No multi-targeted Attacks
-            grouped_attacks = {
-                TRACK.THROW:  {Cog1: [(BattleToon1, ToonAttack1), (BattleToon2, ToonAttack2)]},
-                TRACK.SQUIRT: {Cog2: [(BattleToon3, ToonAttack3)]}
-            }
-
-            # Multi-targeted Attacks: BattleToon1 uses multi-targeted Throw
-            grouped_attacks = {
-                TRACK.THROW:  {Cog1: [(BattleToon1, ToonAttack1), (BattleToon2, ToonAttack2)],
-                               Cog2: [(BattleToon1, ToonAttack1),
-                               Cog3: [(BattleToon1, ToonAttack1]
-                               },
-                TRACK.SQUIRT: {Cog2: [(BattleToon3, ToonAttack3)]}
-            }
-
-            """
-            pass
         pass
 
 

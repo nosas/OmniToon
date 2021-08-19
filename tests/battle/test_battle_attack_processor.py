@@ -4,7 +4,7 @@ import pytest
 
 from ...Battle import Battle
 from ...Cog import Cog
-from ...Factory import BattleCogFactory, CogFactory
+from ...Factory import CogFactory
 from ...Gag import GAG, TRACK, Gag
 from ...Toon import Toon
 
