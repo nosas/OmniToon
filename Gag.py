@@ -157,7 +157,7 @@ class Gags:
     def gags(self):
         """Create a 2D list of Gag objects"""
         all_gags = [self._get_gag(level=gag_enum.level, track=gag_enum.track) for gag_enum in GAG]
-        return [all_gags[track*7:(track+1)*7] for track in TRACK]
+        return [all_gags[track * 7:(track + 1) * 7] for track in TRACK]
 
     @property
     def unlocked_gags(self) -> List[Gag]:

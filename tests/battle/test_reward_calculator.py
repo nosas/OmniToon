@@ -30,7 +30,7 @@ def toon_attack(request) -> ToonAttack:
     return TATK_FACTORY.get_toon_attack(
         gag=GAG_FACTORY.get_gag(track=TRACK.THROW, level=request.param),
         target_cog=BC_FACTORY.get_battle_cog(battle_id=0, entity=target_cog)
-        )
+    )
 
 
 class TestRewardCalculatorDefault:
