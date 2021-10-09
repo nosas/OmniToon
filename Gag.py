@@ -261,6 +261,10 @@ class Gags:
             track (int): Index number of the Gag Track <0-6>
             level (int): Level of the Gag <0-6>
 
+        Raises (ordered):
+            NotEnoughGagsError: gag.count == 0
+            LockedGagTrackError: self.gag_count[track] == [-1] * 7
+            LockedGagError: gag.count == -1
 
         Returns:
             Gag: Vital information about the Toon's Gag

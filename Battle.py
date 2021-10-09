@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from enum import Enum
 from operator import attrgetter
 from random import choice as rand_choice
 from random import randint
@@ -12,8 +13,9 @@ from .AttackGlobals import GROUP, MULTIPLIER, MULTIPLIER_DEFAULT
 from .Cog import Cog
 from .Entity import BattleEntity, Entity
 from .Exceptions import (CogAlreadyTrappedError, CogLuredError, Error,
-                         InvalidCogAttackTarget, NoValidAttacksError,
-                         TooManyCogsError, TooManyToonsError)
+                         InvalidCogAttackTarget, ImpossibleToonAttack,
+                         NoValidAttacksError, TooManyCogsError,
+                         TooManyToonsError)
 from .Gag import Gag, get_gag_track_name
 from .GagGlobals import TRACK
 from .Toon import Toon
@@ -48,9 +50,11 @@ class AttackProcessor:
             potential_attacks = [toon.choose_attack(target=target_cog) for target_cog in self.cogs]
             sorted_attacks = sorted(potential_attacks,
                                     key=lambda attack: attack.reward, reverse=True)
-            self.attacks.append((toon, sorted_attacks[0]))
+            # TODO Return None or create a PASS/SKIP attack object
+            attack = next(iter(sorted_attacks), None)
+            self.attacks.append((toon, attack))
 
-    def group_attacks(attacks: List[Tuple[BattleToon, ToonAttack]]):
+    def group_attacks(self, attacks: List[Tuple[BattleToon, ToonAttack]]):
         """
         Group attacks by Gag Track then by target Cog
         toon_attacks = [(BattleToon1, ToonAttack1),
@@ -68,12 +72,35 @@ class AttackProcessor:
             TRACK.THROW:  {Cog1: [(BattleToon1, ToonAttack1), (BattleToon2, ToonAttack2)],
                            Cog2: [(BattleToon1, ToonAttack1),
                            Cog3: [(BattleToon1, ToonAttack1]
-                            },
+                          },
             TRACK.SQUIRT: {Cog2: [(BattleToon3, ToonAttack3)]}
         }
 
         """
-        pass
+        grouped_attacks = {}
+
+        for btoon, attack in attacks:
+            if attack is None:
+                print(f"Skipping {btoon}'s attack: No possible attacks")
+                continue
+
+            target_cog = attack.target_cog
+            gag_track = attack.gag.track
+            if gag_track not in grouped_attacks:
+                grouped_attacks[gag_track] = {}
+                grouped_attacks[gag_track][target_cog.battle_id] = []
+                # grouped_attacks[gag_track] = {target_cog.battle_id: []}
+
+            is_multi_target = attack.group == GROUP.MULTI
+            if is_multi_target:
+                for target_cog in self.cogs:
+                    if target_cog.battle_id not in grouped_attacks[gag_track]:
+                        grouped_attacks[gag_track][target_cog.battle_id] = []
+                    grouped_attacks[gag_track][target_cog.battle_id].append((btoon, attack))
+            else:
+                grouped_attacks[gag_track][target_cog.battle_id].append((btoon, attack))
+
+        return grouped_attacks
 
     def do_toon_attacks(self) -> None:
         pass
@@ -453,6 +480,20 @@ class BattleToon(BattleEntity):
         ]
         return any(unviable_rules) is False
 
+    def _get_attack(self, gag: Gag, target: BattleCog) -> ToonAttack:
+        """Return a ToonAttack object, given a Gag and BatleCog for input
+
+        Args:
+            gag (Gag): Gag object from the BattleToon.entity.gags
+            target (BattleCog): BattleCog to be attacked
+
+        Returns:
+            ToonAttack: ToonAttack object containing the Gag, target, and reward
+        """
+
+        return ToonAttack(gag=gag, target_cog=target,
+                          reward_multiplier=self._reward_multiplier)
+
     def get_possible_attacks(self, target: BattleCog) -> List[ToonAttack]:
         """Return a list of possible attacks against a BattleCog target, ignore EXP reward
 
@@ -506,10 +547,23 @@ class BattleToon(BattleEntity):
             # return sorted(attacks, key=lambda attack: attack.gag.track)
             return sorted(potential_attacks, key=attrgetter('reward'), reverse=True)
 
+        # Verify there's at least one possible attack
         potential_attacks = get_potential_attacks(target=target)
         if potential_attacks == []:
             raise NoValidAttacksError(battle_toon=self, battle_cog=target)
+
+        # Return the most rewarding attack
+        # TODO update to use a strategy instead of highest rewarding
         return sort_attacks(potential_attacks)[0]
+
+    def choose_manual_attack(self, target: BattleCog, gag: Gag | Enum) -> ToonAttack:
+
+        toons_gag = self.entity.gags.get_gag(track=gag.track, level=gag.level)
+        # Manually select an attack, return attack if it's possible
+        if not self._gag_is_possible(gag=gag, target=target):
+            raise ImpossibleToonAttack(gag=gag, target=target)
+
+        return self._get_attack(gag=toons_gag, target=target)
 
     def update_reward_multiplier(self):
         """Update the BattleToon's reward multiplier when Battle pushes a notification"""

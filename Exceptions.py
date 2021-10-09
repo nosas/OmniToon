@@ -95,6 +95,22 @@ class InvalidToonAttackTarget(InvalidTargetError):
     pass
 
 
+class ImpossibleToonAttack(Error):
+    """ Toon selects an impossible Attack against a BattleCog
+
+        Example: Lure against a Lured BattleCog
+    """
+    def __init__(self, gag, battle_cog, message="Gag is impossible to use"):
+        self.gag = gag
+        self.target_cog = battle_cog
+        self.message = message
+        super().__init__(self.message)
+
+    def __str__(self):
+        return f'{self.gag} against {self.target_cog} -> {self.message}. '\
+                'Maybe the Gag Track is Heal, Cog is Lured/Trapped'
+
+
 class CogLuredError(InvalidToonAttackTarget):
     '''Toon uses a Lure or Trap on a lured Cog'''
     pass
