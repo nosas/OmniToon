@@ -17,7 +17,6 @@ from .Gag import Gag, get_gag_track_name
 from .GagGlobals import TRACK
 from .Toon import Toon
 
-# TODO Create BattleCogBuilding w/ constructor accepting multi-toon&cogs
 # TODO Look into Strategy design patterns for Toon decision making
 # TODO #38 Different strategies: max_reward, fast_win_ignore_reward, survive..
 # Pass: Clicking on PASS lets you skip your turn. Since Cogs will attack the
@@ -193,137 +192,6 @@ class BattleCog(BattleEntity):
         attack_hit = Entity.do_attack(self, target=target, attack=attack)
         return attack_hit
 
-    """
-        # # TODO (??) Create CogStates
-        # _is_lured: bool = field(init=False, default=False)
-        # _is_trapped: bool = field(init=False, default=False)
-        # _trap: Tuple[Entity, Gag] = field(init=False, default=None)
-
-        # def __post_init__(self):
-        #     self.vitals = get_cog_vitals(cog_key=self.key,
-        #                                 relative_level=self.relative_level)
-        #     self.name = self.vitals['name']
-        #     self.hp_max = self.vitals['hp']
-
-        #     super().__init__(name=self.name, hp=self.hp_max)
-        #     self.attacks = self.vitals['attacks']
-        #     self.defense = self.vitals['def']
-        #     self.level = self.vitals['level']
-
-        # @property
-        # def is_lured(self) -> bool:
-        #     return self._is_lured
-
-        # @is_lured.setter
-        # def is_lured(self, new_is_lured: bool) -> None:
-        #     assert type(new_is_lured) == bool
-        #     print(f"                [>] is_lured : {self.is_lured} -> "
-        #         f"{new_is_lured} on {self}")
-        #     if new_is_lured and self.is_lured:
-        #         raise CogLuredError("Can't Lure a Cog that's already Lured")
-        #     self._is_lured = new_is_lured
-
-        # @property
-        # def is_trapped(self) -> bool:
-        #     return self._is_trapped
-
-        # @is_trapped.setter
-        # def is_trapped(self, new_is_trapped: bool) -> None:
-        #     assert type(new_is_trapped) == bool
-        #     print(f"                [>] is_trapped : {self.is_trapped} -> "
-        #         f"{new_is_trapped} on {self}")
-        #     if new_is_trapped:
-        #         # If two or more Trap gags are deployed in front of the same cog,
-        #         # the gags will "cancel" each other out and will render a waste.
-        #         if self.is_trapped:
-        #             raise CogAlreadyTrappedError
-        #         # ! Trap gags cannot be placed if a Cog is already lured
-        #         if self.is_lured:
-        #             raise CogLuredError
-        #         self._is_trapped = True
-        #     else:
-        #         self._is_trapped = False
-        #         print(f"                [>] self.trap : {(self.trap)} -> None on {self}")  # noqa
-        #         self._trap = None
-
-        # @property
-        # # def trap(self) -> tuple[Toon, Gag]:
-        # def trap(self) -> tuple:
-        #     return self._trap
-
-        # @trap.setter
-        # def trap(self, toon_and_gag_trap) -> None:
-        #     assert type(toon_and_gag_trap) == tuple
-        #     assert len(toon_and_gag_trap) == 2
-
-        #     from .Gag import Gag
-        #     from .Toon import Toon
-
-        #     toon = toon_and_gag_trap[0]
-        #     gag_trap = toon_and_gag_trap[1]
-        #     assert type(toon) == Toon
-        #     assert type(gag_trap) == Gag
-        #     print(f"                [>] self.trap : {(self.trap)} -> ({toon}, "
-        #         f"{gag_trap}) on {self}")
-        #     self._trap = (toon, gag_trap)
-
-        # # TODO #40, `choose_target` method to choose a target when vs 2+ toons
-        # # TODO #39, Need to write tests for this method
-        # def choose_attack(self, attack_name: str = '') -> CogAttack:
-        #     \"""Return Attack obj containing Cog attack information from
-        #         self.attacks, a pseudo-random Attack is returned by default
-        #         unless the `attack_name` argument is provided
-
-        #     Args:
-        #         attack_name (str, optional): Attack name as seen in COG_ATTACKS or
-        #             the `get_cog_attacks_all_levels` function
-
-        #         Example of valid input ::
-        #             <'PoundKey'|'Shred'|'ClipOnTie'>  # Returns <0|1|2>
-
-        #     Returns:
-        #         int: Index of the Cog attack
-        #    \"""
-        #     if attack_name == '':
-        #         rand_num = randint(0, 99)
-        #         count = 0
-        #         for attack_dict in self.attacks:
-        #             attack_name = attack_dict['name']
-        #             attack_freq = attack_dict['freq']
-        #             count = count + attack_freq
-        #             if rand_num < count:
-        #                 break
-        #     return self.get_attack(attack_name=attack_name)
-
-        #     # return attack['id']
-
-        # def do_attack(self, target, attack: CogAttack) -> bool:
-        #    \"""Perform an attack on a Toon, given an attack damage
-
-        #     Args:
-        #         target (Toon): Toon object that is going to be attacked
-        #         attack (CogAttack): Attack's damage attack
-
-        #     Returns:
-        #         bool: False if the attack misses, True if it hits
-        #    \"""
-        #     # Have to import Toon here due to circular import issue when importing
-        #     # Toon at the top of the file
-        #     from .Toon import Toon
-
-        #     if type(target) != Toon:
-        #         raise InvalidCogAttackTarget(f"{self}'s attack target ({target}) "
-        #                                     "must be a Toon")
-        #     # #52, skip Cog attack if lured
-        #     if self.is_lured:
-        #         print(f"            [-] Cog `do_attack()` Skip lured {self}")
-        #         return False
-
-        #     # TODO #10, add chance_to_hit
-        #     attack_hit = Entity.do_attack(self, target=target, attack=attack)
-        #     return attack_hit
-    """
-    pass
 
 
 @dataclass
@@ -577,7 +445,7 @@ class RewardCalculator:
         return self.reward_table[attack.gag.level]
 
 
-# TODO class RewardTracker, remove `calculate_rewards` from Battle
+# TODO class RewardTracker (Iterator design pattern? over Battle TimeSteps), remove `calculate_rewards` from Battle
 class Battle:
 
     # Countdown timer for the Toon[s] to select a Gag and Target, or escape
@@ -791,9 +659,6 @@ class WinLoseState(BattleState):
     # TODO #37, #45: Implement methods to add rewards, level up BattleEntity
 
 
-# Do we need a ToonChooseAttack state and ToonDoAttack state? Likely yes, will
-# be easier to debug and tweak decision-making of the AI.
-# Will also make it easier to implement Strategy design pattern
 class ToonAttackState(AttackState):
 
     # ! ToonAtkState : If all Cogs defeated -> WinState else CogAtkState
@@ -862,7 +727,7 @@ class ToonAttackState(AttackState):
                     # Attack doesn't miss and Gag is eligible for reward
                     if attack_hit:
                         # Activate the Trap Gag if the BattleEntity lures a trapped BattleEntity
-                        if cog.is_lured and cog_is_trapped:
+                        if cog.is_lured and cog_is_trapped:  # Potential bug if trap is multi-target
                             self.attacks.append((trap_toon, cog, trap_gag,
                                                  attack_hit))
 
