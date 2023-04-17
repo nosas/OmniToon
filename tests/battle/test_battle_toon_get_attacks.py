@@ -4,14 +4,14 @@ from Battle import Battle, BattleCog, BattleToon, RewardCalculator
 from Cog import Cog
 from core.Factory import BattleCogFactory, CogFactory
 from core.GagGlobals import GAG, TRACK
+from core.ToonGlobals import (ASTRO_EXPECTED_AVAILABLE_GAGS,
+                              ASTRO_EXPECTED_TRACK_LEVELS,
+                              ASTRO_EXPECTED_UNLOCKED_GAGS,
+                              TRAPA_EXPECTED_AVAILABLE_GAGS,
+                              TRAPA_EXPECTED_TRACK_LEVELS,
+                              TRAPA_EXPECTED_UNLOCKED_GAGS)
 from tests.fixtures.battle_fixtures import get_expected_reward
 from Toon import Toon
-from ToonGlobals import (ASTRO_EXPECTED_AVAILABLE_GAGS,
-                         ASTRO_EXPECTED_TRACK_LEVELS,
-                         ASTRO_EXPECTED_UNLOCKED_GAGS,
-                         TRAPA_EXPECTED_AVAILABLE_GAGS,
-                         TRAPA_EXPECTED_TRACK_LEVELS,
-                         TRAPA_EXPECTED_UNLOCKED_GAGS)
 
 BATTLE_ID = 1
 

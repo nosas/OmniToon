@@ -5,8 +5,8 @@ from typing import Optional
 
 from core.Entity import Entity
 from core.GagGlobals import DEFAULT_GAG_LIMIT
+from core.ToonGlobals import DEFAULT_BEAN_COUNT, DEFAULT_BEAN_LIMIT, DEFAULT_HP
 from Gag import Gags
-from ToonGlobals import DEFAULT_BEAN_COUNT, DEFAULT_BEAN_LIMIT, DEFAULT_HP
 
 
 @dataclass
