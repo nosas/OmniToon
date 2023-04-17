@@ -1,7 +1,7 @@
-from ...Battle import BattleCog
-from ...Cog import Cog
-from ...Entity import BattleEntity, Entity
-from ...Factory import BattleCogFactory, BattleEntityFactory, CogFactory
+from Battle import BattleCog
+from Cog import Cog
+from core.Entity import BattleEntity, Entity
+from Factory import BattleCogFactory, BattleEntityFactory, CogFactory
 
 BATTLE_ID = 1
 KEY = 'f'

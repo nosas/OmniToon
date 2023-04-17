@@ -7,7 +7,7 @@ from typing import Optional
 
 from core.CogGlobals import COG_ATTRIBUTES, get_cog_vitals
 
-from .Entity import Entity
+from core.Entity import Entity
 
 
 @dataclass

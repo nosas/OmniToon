@@ -1,7 +1,7 @@
 import pytest
 
-from ...Gag import Gags
-from ...ToonGlobals import (ASTRO_GAG_COUNT, ASTRO_TRACK_EXPS, TRAPA_GAG_COUNT,
+from Gag import Gags
+from ToonGlobals import (ASTRO_GAG_COUNT, ASTRO_TRACK_EXPS, TRAPA_GAG_COUNT,
                             TRAPA_TRACK_EXPS)
 
 

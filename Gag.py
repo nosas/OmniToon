@@ -19,9 +19,9 @@ from typing import List, Optional
 
 from core.AttackGlobals import GROUP
 
-from .Exceptions import (GagCountError, LockedGagError, LockedGagTrackError,
+from Exceptions import (GagCountError, LockedGagError, LockedGagTrackError,
                          NotEnoughGagsError)
-from .GagGlobals import (DEFAULT_GAG_COUNT, DEFAULT_TRACK_EXPS_CURRENT, GAG,
+from GagGlobals import (DEFAULT_GAG_COUNT, DEFAULT_TRACK_EXPS_CURRENT, GAG,
                          GAG_CARRY_LIMITS, GAG_DAMAGE, GAG_LABELS,
                          GAG_TRACK_LABELS, LEVELS, MULTI_TARGET_GAGS, TRACK)
 

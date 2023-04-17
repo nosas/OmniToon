@@ -1,7 +1,7 @@
 import pytest
 
-from ...Toon import Inventory
-from ...ToonGlobals import ASTRO_GAG_LIMIT, TRAPA_GAG_LIMIT
+from Toon import Inventory
+from ToonGlobals import ASTRO_GAG_LIMIT, TRAPA_GAG_LIMIT
 
 
 @pytest.fixture

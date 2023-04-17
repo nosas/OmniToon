@@ -8,15 +8,15 @@ from typing import List, Tuple
 
 from core.AttackGlobals import GROUP, MULTIPLIER, MULTIPLIER_DEFAULT
 
-from .Attack import Attack
-from .Cog import Cog
-from .Entity import BattleEntity, Entity
-from .Exceptions import (CogAlreadyTrappedError, CogLuredError, Error,
+from Attack import Attack
+from Cog import Cog
+from core.Entity import BattleEntity, Entity
+from Exceptions import (CogAlreadyTrappedError, CogLuredError, Error,
                          InvalidCogAttackTarget, TooManyCogsError,
                          TooManyToonsError)
-from .Gag import Gag, get_gag_track_name
-from .GagGlobals import TRACK
-from .Toon import Toon
+from Gag import Gag, get_gag_track_name
+from GagGlobals import TRACK
+from Toon import Toon
 
 # TODO Look into Strategy design patterns for Toon decision making
 # TODO #38 Different strategies: max_reward, fast_win_ignore_reward, survive..
