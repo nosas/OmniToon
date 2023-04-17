@@ -11,7 +11,7 @@ from core.AttackGlobals import GROUP, MULTIPLIER, MULTIPLIER_DEFAULT
 from Attack import Attack
 from Cog import Cog
 from core.Entity import BattleEntity, Entity
-from Exceptions import (CogAlreadyTrappedError, CogLuredError, Error,
+from core.Exceptions import (CogAlreadyTrappedError, CogLuredError, Error,
                          InvalidCogAttackTarget, TooManyCogsError,
                          TooManyToonsError)
 from Gag import Gag, get_gag_track_name

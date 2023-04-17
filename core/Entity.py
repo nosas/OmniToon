@@ -5,7 +5,8 @@ from dataclasses import dataclass, field
 from typing import List, Union
 
 from Attack import Attack
-from Exceptions import InvalidTargetError, TargetDefeatedError
+
+from .Exceptions import InvalidTargetError, TargetDefeatedError
 
 
 @dataclass

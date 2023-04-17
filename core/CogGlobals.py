@@ -7,7 +7,7 @@ from random import randint
 
 from core.AttackGlobals import GROUP
 
-from Exceptions import (InvalidAttackIndex, InvalidAttackName, InvalidCogKey,
+from .Exceptions import (InvalidAttackIndex, InvalidAttackName, InvalidCogKey,
                          InvalidRelativeLevel)
 
 ATK_IDX_NAME, ATK_IDX_TGT, ATK_IDX_DMG, \
