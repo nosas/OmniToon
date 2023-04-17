@@ -1,3 +1,4 @@
 env
 # Ignore any pycache directories
 **/__pycache__
+.vscode/
