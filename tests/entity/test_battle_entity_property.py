@@ -1,7 +1,7 @@
 import pytest
 
 from Attack import Attack
-from Battle import BattleCog
+from battle.Battle import BattleCog
 from Cog import get_random_cog
 from core.AttackGlobals import GROUP
 from core.Entity import BattleEntity, Entity

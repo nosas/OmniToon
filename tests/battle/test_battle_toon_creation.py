@@ -1,5 +1,5 @@
 
-from Battle import BattleToon
+from battle.Battle import BattleToon
 from core.Entity import BattleEntity, Entity
 from core.GagGlobals import GAG
 from core.ToonGlobals import (ASTRO_HP, ASTRO_NAME, DEFAULT_HP, TRAPA_HP,

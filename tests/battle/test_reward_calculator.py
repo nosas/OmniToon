@@ -1,6 +1,6 @@
 import pytest
 
-from Battle import RewardCalculator, ToonAttack
+from battle.Battle import RewardCalculator, ToonAttack
 from core.AttackGlobals import MULTIPLIER, MULTIPLIER_DEFAULT
 from core.Factory import (BattleCogFactory, CogFactory, GagFactory,
                           ToonAttackFactory)

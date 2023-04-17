@@ -1,6 +1,6 @@
 import pytest
 
-from Battle import Battle, BattleCog, BattleToon, RewardCalculator
+from battle.Battle import Battle, BattleCog, BattleToon, RewardCalculator
 from Cog import Cog
 from core.Factory import BattleCogFactory, CogFactory
 from core.GagGlobals import GAG, TRACK
