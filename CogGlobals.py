@@ -5,7 +5,8 @@
 
 from random import randint
 
-from .AttackGlobals import GROUP
+from core.AttackGlobals import GROUP
+
 from .Exceptions import (InvalidAttackIndex, InvalidAttackName, InvalidCogKey,
                          InvalidRelativeLevel)
 

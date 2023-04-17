@@ -1,5 +1,6 @@
 
-from ...AttackGlobals import GROUP
+from core.AttackGlobals import GROUP
+
 from ...Gag import Gag, Gags
 from ...GagGlobals import (DEFAULT_GAG_COUNT, DEFAULT_TRACK_EXPS_CURRENT,
                            DEFAULT_TRACK_LEVELS, GAG, MULTI_TARGET_GAGS, TRACK)

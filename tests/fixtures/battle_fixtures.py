@@ -1,6 +1,7 @@
 import pytest
 
-from ...AttackGlobals import MULTIPLIER
+from core.AttackGlobals import MULTIPLIER
+
 from ...Battle import Battle, BattleToon, RewardCalculator, ToonAttack
 from ...Cog import Cog, get_random_cog
 from ...Factory import BattleCogFactory

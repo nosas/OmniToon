@@ -6,8 +6,9 @@ from random import choice as rand_choice
 from random import randint
 from typing import List, Tuple
 
+from core.AttackGlobals import GROUP, MULTIPLIER, MULTIPLIER_DEFAULT
+
 from .Attack import Attack
-from .AttackGlobals import GROUP, MULTIPLIER, MULTIPLIER_DEFAULT
 from .Cog import Cog
 from .Entity import BattleEntity, Entity
 from .Exceptions import (CogAlreadyTrappedError, CogLuredError, Error,
