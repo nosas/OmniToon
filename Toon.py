@@ -4,8 +4,8 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 from core.Entity import Entity
+from core.GagGlobals import DEFAULT_GAG_LIMIT
 from Gag import Gags
-from GagGlobals import DEFAULT_GAG_LIMIT
 from ToonGlobals import DEFAULT_BEAN_COUNT, DEFAULT_BEAN_LIMIT, DEFAULT_HP
 
 

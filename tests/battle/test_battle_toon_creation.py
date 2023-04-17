@@ -2,7 +2,7 @@
 from Battle import BattleToon
 from core.Entity import BattleEntity, Entity
 from Gag import Gag, get_default_gags
-from GagGlobals import GAG
+from core.GagGlobals import GAG
 from Toon import Inventory, Toon
 from ToonGlobals import (ASTRO_HP, ASTRO_NAME, DEFAULT_HP, TRAPA_HP,
                             TRAPA_NAME)

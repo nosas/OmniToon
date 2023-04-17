@@ -3,7 +3,7 @@ import pytest
 from Battle import Battle, BattleCog, BattleToon, RewardCalculator
 from Cog import Cog
 from core.Factory import BattleCogFactory, CogFactory
-from GagGlobals import GAG, TRACK
+from core.GagGlobals import GAG, TRACK
 from tests.fixtures.battle_fixtures import get_expected_reward
 from Toon import Toon
 from ToonGlobals import (ASTRO_EXPECTED_AVAILABLE_GAGS,

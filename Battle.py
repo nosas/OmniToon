@@ -6,16 +6,15 @@ from random import choice as rand_choice
 from random import randint
 from typing import List, Tuple
 
-from core.AttackGlobals import GROUP, MULTIPLIER, MULTIPLIER_DEFAULT
-
 from Attack import Attack
 from Cog import Cog
+from core.AttackGlobals import GROUP, MULTIPLIER, MULTIPLIER_DEFAULT
 from core.Entity import BattleEntity, Entity
 from core.Exceptions import (CogAlreadyTrappedError, CogLuredError, Error,
-                         InvalidCogAttackTarget, TooManyCogsError,
-                         TooManyToonsError)
+                             InvalidCogAttackTarget, TooManyCogsError,
+                             TooManyToonsError)
+from core.GagGlobals import TRACK
 from Gag import Gag, get_gag_track_name
-from GagGlobals import TRACK
 from Toon import Toon
 
 # TODO Look into Strategy design patterns for Toon decision making
