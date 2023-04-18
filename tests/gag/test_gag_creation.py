@@ -7,7 +7,7 @@ from core.ToonGlobals import (ASTRO_EXPECTED_AVAILABLE_GAGS,
                               ASTRO_EXPECTED_TRACK_LEVELS,
                               ASTRO_EXPECTED_UNLOCKED_GAGS, ASTRO_GAG_COUNT,
                               ASTRO_TRACK_EXPS)
-from Gag import Gag, Gags
+from gags.Gag import Gag, Gags
 
 EXP = 0
 LEVEL = 0

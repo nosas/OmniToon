@@ -14,7 +14,7 @@ from core.Exceptions import (CogAlreadyTrappedError, CogLuredError, Error,
                              InvalidCogAttackTarget, TooManyCogsError,
                              TooManyToonsError)
 from core.GagGlobals import TRACK
-from Gag import Gag, get_gag_track_name
+from gags.Gag import Gag, get_gag_track_name
 from Toon import Toon
 
 # TODO Look into Strategy design patterns for Toon decision making

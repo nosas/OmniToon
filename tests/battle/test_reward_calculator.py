@@ -4,7 +4,7 @@ from battle.Battle import RewardCalculator, ToonAttack
 from core.AttackGlobals import MULTIPLIER, MULTIPLIER_DEFAULT
 from core.Factory import (BattleCogFactory, CogFactory, GagFactory,
                           ToonAttackFactory)
-from Gag import TRACK
+from gags.Gag import TRACK
 from tests.fixtures.battle_fixtures import (get_expected_reward,
                                             get_reward_calculator)
 
