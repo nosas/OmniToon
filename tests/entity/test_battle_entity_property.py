@@ -1,11 +1,11 @@
 import pytest
 
-from src.battle.Attack import Attack
-from src.battle.AttackGlobals import GROUP
-from src.battle.Battle import BattleCog
-from src.core.Cog import get_random_cog
-from src.core.Entity import BattleEntity, Entity
-from src.core.Exceptions import InvalidTargetError, TargetDefeatedError
+from src.battle.attack import Attack
+from src.battle.attack_globals import GROUP
+from src.battle.battle import BattleCog
+from src.core.cog import get_random_cog
+from src.core.entity import BattleEntity, Entity
+from src.core.exceptions import InvalidTargetError, TargetDefeatedError
 
 # Allow pytest to instantiate BattleEntity by "removing" the class's abstract methods
 BattleEntity.__abstractmethods__ = None

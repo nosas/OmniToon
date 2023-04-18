@@ -6,16 +6,16 @@ from random import choice as rand_choice
 from random import randint
 from typing import List, Tuple
 
-from src.battle.Attack import Attack
-from src.battle.AttackGlobals import GROUP, MULTIPLIER, MULTIPLIER_DEFAULT
-from src.core.Cog import Cog
-from src.core.Entity import BattleEntity, Entity
-from src.core.Exceptions import (CogAlreadyTrappedError, CogLuredError, Error,
+from src.battle.attack import Attack
+from src.battle.attack_globals import GROUP, MULTIPLIER, MULTIPLIER_DEFAULT
+from src.core.cog import Cog
+from src.core.entity import BattleEntity, Entity
+from src.core.exceptions import (CogAlreadyTrappedError, CogLuredError, Error,
                                  InvalidCogAttackTarget, TooManyCogsError,
                                  TooManyToonsError)
-from src.core.Toon import Toon
-from src.gags.Gag import Gag, get_gag_track_name
-from src.gags.GagGlobals import TRACK
+from src.core.toon import Toon
+from src.gags.gag import Gag, get_gag_track_name
+from src.gags.gag_globals import TRACK
 
 # TODO Look into Strategy design patterns for Toon decision making
 # TODO #38 Different strategies: max_reward, fast_win_ignore_reward, survive..

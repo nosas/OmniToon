@@ -5,8 +5,8 @@ from random import choice as rand_choice
 from random import randint
 from typing import Optional
 
-from src.core.CogGlobals import COG_ATTRIBUTES, get_cog_vitals
-from src.core.Entity import Entity
+from src.core.cog_globals import COG_ATTRIBUTES, get_cog_vitals
+from src.core.entity import Entity
 
 
 @dataclass

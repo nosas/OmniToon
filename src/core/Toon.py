@@ -3,10 +3,11 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional
 
-from src.core.Entity import Entity
-from src.core.ToonGlobals import DEFAULT_BEAN_COUNT, DEFAULT_BEAN_LIMIT, DEFAULT_HP
-from src.gags.Gag import Gags
-from src.gags.GagGlobals import DEFAULT_GAG_LIMIT
+from src.core.entity import Entity
+from src.core.toon_globals import (DEFAULT_BEAN_COUNT, DEFAULT_BEAN_LIMIT,
+                                   DEFAULT_HP)
+from src.gags.gag import Gags
+from src.gags.gag_globals import DEFAULT_GAG_LIMIT
 
 
 @dataclass

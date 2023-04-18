@@ -1,10 +1,10 @@
 import pytest
 
-from src.battle.AttackGlobals import MULTIPLIER
-from src.battle.Battle import Battle, BattleToon, RewardCalculator, ToonAttack
-from src.core.Cog import Cog, get_random_cog
-from src.core.Factory import BattleCogFactory
-from src.core.Toon import Toon
+from src.battle.attack_globals import MULTIPLIER
+from src.battle.battle import Battle, BattleToon, RewardCalculator, ToonAttack
+from src.core.cog import Cog, get_random_cog
+from src.factories.factory import BattleCogFactory
+from src.core.toon import Toon
 
 
 @pytest.fixture

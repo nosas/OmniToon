@@ -1,7 +1,7 @@
-from src.core.Toon import (DEFAULT_BEAN_COUNT, DEFAULT_BEAN_LIMIT, DEFAULT_HP,
+from src.core.toon import (DEFAULT_BEAN_COUNT, DEFAULT_BEAN_LIMIT, DEFAULT_HP,
                        Inventory, Toon)
-from src.gags.Gag import Gags
-from src.gags.GagGlobals import (DEFAULT_GAG_COUNT, DEFAULT_GAG_LIMIT,
+from src.gags.gag import Gags
+from src.gags.gag_globals import (DEFAULT_GAG_COUNT, DEFAULT_GAG_LIMIT,
                              DEFAULT_TRACK_EXPS_CURRENT, DEFAULT_TRACK_LEVELS)
 
 DEFAULT_NAME = "Mickey"

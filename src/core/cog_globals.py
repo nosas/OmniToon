@@ -5,9 +5,9 @@
 
 from random import randint
 
-from src.battle.AttackGlobals import GROUP
+from src.battle.attack_globals import GROUP
 
-from .Exceptions import (InvalidAttackIndex, InvalidAttackName, InvalidCogKey,
+from .exceptions import (InvalidAttackIndex, InvalidAttackName, InvalidCogKey,
                          InvalidRelativeLevel)
 
 ATK_IDX_NAME, ATK_IDX_TGT, ATK_IDX_DMG, \

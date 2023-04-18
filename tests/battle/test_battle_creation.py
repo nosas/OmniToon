@@ -1,9 +1,9 @@
 import pytest
 
-from src.battle.AttackGlobals import MULTIPLIER, MULTIPLIER_DEFAULT
-from src.battle.Battle import Battle, BattleCog
-from src.core.Cog import Cog, get_random_cog
-from src.core.Toon import Toon
+from src.battle.attack_globals import MULTIPLIER, MULTIPLIER_DEFAULT
+from src.battle.battle import Battle, BattleCog
+from src.core.cog import Cog, get_random_cog
+from src.core.toon import Toon
 
 
 class TestBattleCreation:

@@ -1,11 +1,11 @@
 
-from src.battle.AttackGlobals import GROUP
-from src.core.ToonGlobals import (ASTRO_EXPECTED_AVAILABLE_GAGS,
+from src.battle.attack_globals import GROUP
+from src.core.toon_globals import (ASTRO_EXPECTED_AVAILABLE_GAGS,
                               ASTRO_EXPECTED_TRACK_LEVELS,
                               ASTRO_EXPECTED_UNLOCKED_GAGS, ASTRO_GAG_COUNT,
                               ASTRO_TRACK_EXPS)
-from src.gags.Gag import Gag, Gags
-from src.gags.GagGlobals import (DEFAULT_GAG_COUNT, DEFAULT_TRACK_EXPS_CURRENT,
+from src.gags.gag import Gag, Gags
+from src.gags.gag_globals import (DEFAULT_GAG_COUNT, DEFAULT_TRACK_EXPS_CURRENT,
                              DEFAULT_TRACK_LEVELS, GAG, MULTI_TARGET_GAGS,
                              TRACK)
 

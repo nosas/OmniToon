@@ -1,7 +1,7 @@
-from src.core.Toon import Inventory
-from src.core.ToonGlobals import DEFAULT_BEAN_COUNT, DEFAULT_BEAN_LIMIT
-from src.gags.Gag import DEFAULT_TRACK_EXPS_CURRENT, Gags, get_default_gags
-from src.gags.GagGlobals import DEFAULT_GAG_COUNT, DEFAULT_GAG_LIMIT
+from src.core.toon import Inventory
+from src.core.toon_globals import DEFAULT_BEAN_COUNT, DEFAULT_BEAN_LIMIT
+from src.gags.gag import DEFAULT_TRACK_EXPS_CURRENT, Gags, get_default_gags
+from src.gags.gag_globals import DEFAULT_GAG_COUNT, DEFAULT_GAG_LIMIT
 
 
 class TestInventoryDefaultCreation:

@@ -1,11 +1,11 @@
 
-from src.battle.Battle import BattleToon
-from src.core.Entity import BattleEntity, Entity
-from src.core.Toon import Inventory, Toon
-from src.core.ToonGlobals import (ASTRO_HP, ASTRO_NAME, DEFAULT_HP, TRAPA_HP,
+from src.battle.battle import BattleToon
+from src.core.entity import BattleEntity, Entity
+from src.core.toon import Inventory, Toon
+from src.core.toon_globals import (ASTRO_HP, ASTRO_NAME, DEFAULT_HP, TRAPA_HP,
                               TRAPA_NAME)
-from src.gags.Gag import Gag, get_default_gags
-from src.gags.GagGlobals import GAG
+from src.gags.gag import Gag, get_default_gags
+from src.gags.gag_globals import GAG
 
 BATTLE_ID = 0
 NAME = 'Mickey'
