@@ -1,13 +1,13 @@
 
 from core.AttackGlobals import GROUP
-from core.GagGlobals import (DEFAULT_GAG_COUNT, DEFAULT_TRACK_EXPS_CURRENT,
-                             DEFAULT_TRACK_LEVELS, GAG, MULTI_TARGET_GAGS,
-                             TRACK)
 from core.ToonGlobals import (ASTRO_EXPECTED_AVAILABLE_GAGS,
                               ASTRO_EXPECTED_TRACK_LEVELS,
                               ASTRO_EXPECTED_UNLOCKED_GAGS, ASTRO_GAG_COUNT,
                               ASTRO_TRACK_EXPS)
 from gags.Gag import Gag, Gags
+from gags.GagGlobals import (DEFAULT_GAG_COUNT, DEFAULT_TRACK_EXPS_CURRENT,
+                             DEFAULT_TRACK_LEVELS, GAG, MULTI_TARGET_GAGS,
+                             TRACK)
 
 EXP = 0
 LEVEL = 0

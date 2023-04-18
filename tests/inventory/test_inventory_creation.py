@@ -1,7 +1,7 @@
-from core.GagGlobals import DEFAULT_GAG_COUNT, DEFAULT_GAG_LIMIT
+from core.Toon import Inventory
 from core.ToonGlobals import DEFAULT_BEAN_COUNT, DEFAULT_BEAN_LIMIT
 from gags.Gag import DEFAULT_TRACK_EXPS_CURRENT, Gags, get_default_gags
-from core.Toon import Inventory
+from gags.GagGlobals import DEFAULT_GAG_COUNT, DEFAULT_GAG_LIMIT
 
 
 class TestInventoryDefaultCreation:

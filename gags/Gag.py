@@ -20,7 +20,7 @@ from typing import List, Optional
 from core.AttackGlobals import GROUP
 from core.Exceptions import (GagCountError, LockedGagError,
                              LockedGagTrackError, NotEnoughGagsError)
-from core.GagGlobals import (DEFAULT_GAG_COUNT, DEFAULT_TRACK_EXPS_CURRENT,
+from gags.GagGlobals import (DEFAULT_GAG_COUNT, DEFAULT_TRACK_EXPS_CURRENT,
                              GAG, GAG_CARRY_LIMITS, GAG_DAMAGE, GAG_LABELS,
                              GAG_TRACK_LABELS, LEVELS, MULTI_TARGET_GAGS,
                              TRACK)

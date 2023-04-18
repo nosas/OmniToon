@@ -3,8 +3,7 @@ from core.Cog import Cog
 from core.Entity import BattleEntity, Entity
 from core.Toon import Toon
 from gags.Gag import Gag, get_gag_min_max_exp
-
-from .GagGlobals import TRACK
+from gags.GagGlobals import TRACK
 
 
 class EntityFactory:
