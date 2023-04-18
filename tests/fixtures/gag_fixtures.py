@@ -1,12 +1,12 @@
 import pytest
 
-from core.ToonGlobals import (
+from src.core.ToonGlobals import (
     ASTRO_GAG_COUNT,
     ASTRO_TRACK_EXPS,
     TRAPA_GAG_COUNT,
     TRAPA_TRACK_EXPS,
 )
-from gags.Gag import Gags
+from src.gags.Gag import Gags
 
 
 @pytest.fixture

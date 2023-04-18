@@ -1,6 +1,6 @@
-from core.Cog import Cog
-from core.Entity import Entity
-from core.Factory import CogFactory
+from src.core.Cog import Cog
+from src.core.Entity import Entity
+from src.core.Factory import CogFactory
 
 KEY = 'f'
 NAME = 'Flunky'

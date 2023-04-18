@@ -1,10 +1,10 @@
 import pytest
 
-from battle.AttackGlobals import MULTIPLIER, MULTIPLIER_DEFAULT
-from battle.Battle import RewardCalculator, ToonAttack
-from core.Factory import (BattleCogFactory, CogFactory, GagFactory,
+from src.battle.AttackGlobals import MULTIPLIER, MULTIPLIER_DEFAULT
+from src.battle.Battle import RewardCalculator, ToonAttack
+from src.core.Factory import (BattleCogFactory, CogFactory, GagFactory,
                           ToonAttackFactory)
-from gags.Gag import TRACK
+from src.gags.Gag import TRACK
 from tests.fixtures.battle_fixtures import (get_expected_reward,
                                             get_reward_calculator)
 

@@ -1,7 +1,7 @@
 import pytest
 
-from core.Toon import Toon
-from core.ToonGlobals import ASTRO_HP, ASTRO_NAME, TRAPA_HP, TRAPA_NAME
+from src.core.Toon import Toon
+from src.core.ToonGlobals import ASTRO_HP, ASTRO_NAME, TRAPA_HP, TRAPA_NAME
 
 
 @pytest.fixture

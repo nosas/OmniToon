@@ -1,4 +1,4 @@
-from core.Entity import Entity
+from src.core.Entity import Entity
 
 
 class TestEntityProperty:

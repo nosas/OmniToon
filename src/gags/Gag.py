@@ -17,13 +17,13 @@ from dataclasses import dataclass, field
 from math import floor as math_floor
 from typing import List, Optional
 
-from battle.AttackGlobals import GROUP
-from core.Exceptions import (GagCountError, LockedGagError,
-                             LockedGagTrackError, NotEnoughGagsError)
-from gags.GagGlobals import (DEFAULT_GAG_COUNT, DEFAULT_TRACK_EXPS_CURRENT,
-                             GAG, GAG_CARRY_LIMITS, GAG_DAMAGE, GAG_LABELS,
-                             GAG_TRACK_LABELS, LEVELS, MULTI_TARGET_GAGS,
-                             TRACK)
+from src.battle.AttackGlobals import GROUP
+from src.core.Exceptions import (GagCountError, LockedGagError,
+                                 LockedGagTrackError, NotEnoughGagsError)
+from src.gags.GagGlobals import (DEFAULT_GAG_COUNT, DEFAULT_TRACK_EXPS_CURRENT,
+                                 GAG, GAG_CARRY_LIMITS, GAG_DAMAGE, GAG_LABELS,
+                                 GAG_TRACK_LABELS, LEVELS, MULTI_TARGET_GAGS,
+                                 TRACK)
 
 
 def get_default_gag_count() -> List[List[int]]:
