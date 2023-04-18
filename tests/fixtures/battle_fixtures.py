@@ -4,7 +4,7 @@ from battle.Battle import Battle, BattleToon, RewardCalculator, ToonAttack
 from core.AttackGlobals import MULTIPLIER
 from core.Cog import Cog, get_random_cog
 from core.Factory import BattleCogFactory
-from Toon import Toon
+from core.Toon import Toon
 
 
 @pytest.fixture

@@ -5,7 +5,7 @@ from core.GagGlobals import GAG
 from core.ToonGlobals import (ASTRO_HP, ASTRO_NAME, DEFAULT_HP, TRAPA_HP,
                               TRAPA_NAME)
 from gags.Gag import Gag, get_default_gags
-from Toon import Inventory, Toon
+from core.Toon import Inventory, Toon
 
 BATTLE_ID = 0
 NAME = 'Mickey'

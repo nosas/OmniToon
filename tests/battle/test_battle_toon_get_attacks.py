@@ -11,7 +11,7 @@ from core.ToonGlobals import (ASTRO_EXPECTED_AVAILABLE_GAGS,
                               TRAPA_EXPECTED_TRACK_LEVELS,
                               TRAPA_EXPECTED_UNLOCKED_GAGS)
 from tests.fixtures.battle_fixtures import get_expected_reward
-from Toon import Toon
+from core.Toon import Toon
 
 BATTLE_ID = 1
 

@@ -3,7 +3,7 @@ import pytest
 from battle.Battle import Battle, BattleCog
 from core.AttackGlobals import MULTIPLIER, MULTIPLIER_DEFAULT
 from core.Cog import Cog, get_random_cog
-from Toon import Toon
+from core.Toon import Toon
 
 
 class TestBattleCreation:
