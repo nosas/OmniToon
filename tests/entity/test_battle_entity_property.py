@@ -1,8 +1,8 @@
 import pytest
 
 from battle.Attack import Attack
+from battle.AttackGlobals import GROUP
 from battle.Battle import BattleCog
-from core.AttackGlobals import GROUP
 from core.Cog import get_random_cog
 from core.Entity import BattleEntity, Entity
 from core.Exceptions import InvalidTargetError, TargetDefeatedError

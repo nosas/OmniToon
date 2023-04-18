@@ -17,7 +17,7 @@ from dataclasses import dataclass, field
 from math import floor as math_floor
 from typing import List, Optional
 
-from core.AttackGlobals import GROUP
+from battle.AttackGlobals import GROUP
 from core.Exceptions import (GagCountError, LockedGagError,
                              LockedGagTrackError, NotEnoughGagsError)
 from gags.GagGlobals import (DEFAULT_GAG_COUNT, DEFAULT_TRACK_EXPS_CURRENT,

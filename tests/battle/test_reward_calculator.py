@@ -1,7 +1,7 @@
 import pytest
 
+from battle.AttackGlobals import MULTIPLIER, MULTIPLIER_DEFAULT
 from battle.Battle import RewardCalculator, ToonAttack
-from core.AttackGlobals import MULTIPLIER, MULTIPLIER_DEFAULT
 from core.Factory import (BattleCogFactory, CogFactory, GagFactory,
                           ToonAttackFactory)
 from gags.Gag import TRACK

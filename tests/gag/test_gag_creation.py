@@ -1,5 +1,5 @@
 
-from core.AttackGlobals import GROUP
+from battle.AttackGlobals import GROUP
 from core.ToonGlobals import (ASTRO_EXPECTED_AVAILABLE_GAGS,
                               ASTRO_EXPECTED_TRACK_LEVELS,
                               ASTRO_EXPECTED_UNLOCKED_GAGS, ASTRO_GAG_COUNT,

@@ -1,7 +1,7 @@
 import pytest
 
+from battle.AttackGlobals import MULTIPLIER, MULTIPLIER_DEFAULT
 from battle.Battle import Battle, BattleCog
-from core.AttackGlobals import MULTIPLIER, MULTIPLIER_DEFAULT
 from core.Cog import Cog, get_random_cog
 from core.Toon import Toon
 
