@@ -1,9 +1,9 @@
-from .Battle import BattleCog, ToonAttack
-from .Cog import Cog
-from .Entity import BattleEntity, Entity
-from .Gag import Gag, get_gag_min_max_exp
-from .GagGlobals import TRACK
-from .Toon import Toon
+from src.battle.battle import BattleCog, ToonAttack
+from src.core.cog import Cog
+from src.core.entity import BattleEntity, Entity
+from src.core.toon import Toon
+from src.gags.gag import Gag, get_gag_min_max_exp
+from src.gags.gag_globals import TRACK
 
 
 class EntityFactory:

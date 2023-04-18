@@ -1,17 +1,17 @@
 import pytest
 
-from ...Battle import Battle, BattleCog, BattleToon, RewardCalculator
-from ...Cog import Cog
-from ...Factory import BattleCogFactory, CogFactory
-from ...GagGlobals import GAG, TRACK
-from ...Toon import Toon
-from ...ToonGlobals import (ASTRO_EXPECTED_AVAILABLE_GAGS,
-                            ASTRO_EXPECTED_TRACK_LEVELS,
-                            ASTRO_EXPECTED_UNLOCKED_GAGS,
-                            TRAPA_EXPECTED_AVAILABLE_GAGS,
-                            TRAPA_EXPECTED_TRACK_LEVELS,
-                            TRAPA_EXPECTED_UNLOCKED_GAGS)
-from ..fixtures.battle_fixtures import get_expected_reward
+from src.battle.battle import Battle, BattleCog, BattleToon, RewardCalculator
+from src.core.cog import Cog
+from src.factories.factory import BattleCogFactory, CogFactory
+from src.core.toon import Toon
+from src.core.toon_globals import (ASTRO_EXPECTED_AVAILABLE_GAGS,
+                              ASTRO_EXPECTED_TRACK_LEVELS,
+                              ASTRO_EXPECTED_UNLOCKED_GAGS,
+                              TRAPA_EXPECTED_AVAILABLE_GAGS,
+                              TRAPA_EXPECTED_TRACK_LEVELS,
+                              TRAPA_EXPECTED_UNLOCKED_GAGS)
+from src.gags.gag_globals import GAG, TRACK
+from tests.fixtures.battle_fixtures import get_expected_reward
 
 BATTLE_ID = 1
 

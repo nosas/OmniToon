@@ -1,12 +1,12 @@
 import pytest
 
-from ...AttackGlobals import MULTIPLIER, MULTIPLIER_DEFAULT
-from ...Battle import RewardCalculator, ToonAttack
-from ...Factory import (BattleCogFactory, CogFactory, GagFactory,
-                        ToonAttackFactory)
-from ...Gag import TRACK
-from ..fixtures.battle_fixtures import (get_expected_reward,
-                                        get_reward_calculator)
+from src.battle.attack_globals import MULTIPLIER, MULTIPLIER_DEFAULT
+from src.battle.battle import RewardCalculator, ToonAttack
+from src.factories.factory import (BattleCogFactory, CogFactory, GagFactory,
+                          ToonAttackFactory)
+from src.gags.gag import TRACK
+from tests.fixtures.battle_fixtures import (get_expected_reward,
+                                            get_reward_calculator)
 
 EXPECTED_DEFAULT_FLOOR = MULTIPLIER.FLOOR1
 EXPECTED_DEFAULT_INVASION = MULTIPLIER.NO_INVASION

@@ -4,8 +4,9 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import List, Union
 
-from .Attack import Attack
-from .Exceptions import InvalidTargetError, TargetDefeatedError
+from src.battle.attack import Attack
+
+from .exceptions import InvalidTargetError, TargetDefeatedError
 
 
 @dataclass

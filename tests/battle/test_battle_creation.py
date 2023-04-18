@@ -1,9 +1,9 @@
 import pytest
 
-from ...AttackGlobals import MULTIPLIER, MULTIPLIER_DEFAULT
-from ...Battle import Battle, BattleCog
-from ...Cog import Cog, get_random_cog
-from ...Toon import Toon
+from src.battle.attack_globals import MULTIPLIER, MULTIPLIER_DEFAULT
+from src.battle.battle import Battle, BattleCog
+from src.core.cog import Cog, get_random_cog
+from src.core.toon import Toon
 
 
 class TestBattleCreation:
@@ -42,7 +42,7 @@ class TestBattleCreation:
 
     def test_battle_remove_battle_toon(self, battle: Battle, toon_astro: Toon):
         """
-        Verify a BattleToon can be removed from the Battle.toons list and no longer receives updates
+        Verify a BattleToon can be removed from src.the Battle.toons list and no longer receives updates
         """
         battle.add_toon(new_toon=toon_astro)
         bt_astro = battle.toons[0]

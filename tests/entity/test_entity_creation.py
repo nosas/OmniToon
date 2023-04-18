@@ -1,7 +1,7 @@
 import pytest
 
-from ...Entity import Entity
-from ...Factory import EntityFactory
+from src.core.entity import Entity
+from src.factories.factory import EntityFactory
 
 NAME = "Test"
 HP = 10

@@ -1,12 +1,13 @@
 
-from ...AttackGlobals import GROUP
-from ...Gag import Gag, Gags
-from ...GagGlobals import (DEFAULT_GAG_COUNT, DEFAULT_TRACK_EXPS_CURRENT,
-                           DEFAULT_TRACK_LEVELS, GAG, MULTI_TARGET_GAGS, TRACK)
-from ...ToonGlobals import (ASTRO_EXPECTED_AVAILABLE_GAGS,
-                            ASTRO_EXPECTED_TRACK_LEVELS,
-                            ASTRO_EXPECTED_UNLOCKED_GAGS, ASTRO_GAG_COUNT,
-                            ASTRO_TRACK_EXPS)
+from src.battle.attack_globals import GROUP
+from src.core.toon_globals import (ASTRO_EXPECTED_AVAILABLE_GAGS,
+                              ASTRO_EXPECTED_TRACK_LEVELS,
+                              ASTRO_EXPECTED_UNLOCKED_GAGS, ASTRO_GAG_COUNT,
+                              ASTRO_TRACK_EXPS)
+from src.gags.gag import Gag, Gags
+from src.gags.gag_globals import (DEFAULT_GAG_COUNT, DEFAULT_TRACK_EXPS_CURRENT,
+                             DEFAULT_TRACK_LEVELS, GAG, MULTI_TARGET_GAGS,
+                             TRACK)
 
 EXP = 0
 LEVEL = 0
