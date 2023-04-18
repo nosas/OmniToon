@@ -1,5 +1,5 @@
 from battle.Battle import BattleCog
-from Cog import Cog
+from core.Cog import Cog
 from core.Entity import BattleEntity, Entity
 from core.Factory import BattleCogFactory, BattleEntityFactory, CogFactory
 

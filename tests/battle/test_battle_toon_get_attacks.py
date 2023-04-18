@@ -1,7 +1,7 @@
 import pytest
 
 from battle.Battle import Battle, BattleCog, BattleToon, RewardCalculator
-from Cog import Cog
+from core.Cog import Cog
 from core.Factory import BattleCogFactory, CogFactory
 from core.GagGlobals import GAG, TRACK
 from core.ToonGlobals import (ASTRO_EXPECTED_AVAILABLE_GAGS,

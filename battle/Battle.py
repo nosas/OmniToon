@@ -7,8 +7,8 @@ from random import randint
 from typing import List, Tuple
 
 from battle.Attack import Attack
-from Cog import Cog
 from core.AttackGlobals import GROUP, MULTIPLIER, MULTIPLIER_DEFAULT
+from core.Cog import Cog
 from core.Entity import BattleEntity, Entity
 from core.Exceptions import (CogAlreadyTrappedError, CogLuredError, Error,
                              InvalidCogAttackTarget, TooManyCogsError,

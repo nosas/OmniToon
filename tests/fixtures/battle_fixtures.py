@@ -1,8 +1,8 @@
 import pytest
 
 from battle.Battle import Battle, BattleToon, RewardCalculator, ToonAttack
-from Cog import Cog, get_random_cog
 from core.AttackGlobals import MULTIPLIER
+from core.Cog import Cog, get_random_cog
 from core.Factory import BattleCogFactory
 from Toon import Toon
 

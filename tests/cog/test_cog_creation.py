@@ -1,4 +1,4 @@
-from Cog import Cog
+from core.Cog import Cog
 from core.Entity import Entity
 from core.Factory import CogFactory
 
