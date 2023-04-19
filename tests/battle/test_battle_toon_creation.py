@@ -1,20 +1,18 @@
-
 from src.battle.battle import BattleToon
 from src.core.entity import BattleEntity, Entity
 from src.core.toon import Inventory, Toon
-from src.core.toon_globals import (ASTRO_HP, ASTRO_NAME, DEFAULT_HP, TRAPA_HP,
-                              TRAPA_NAME)
-from src.gags.gag import Gag, get_default_gags
+from src.core.toon_globals import ASTRO_HP, ASTRO_NAME, DEFAULT_HP, TRAPA_HP, TRAPA_NAME
+from src.factories.utils import create_gag
+from src.gags.gag import get_default_gags
 from src.gags.gag_globals import GAG
 
 BATTLE_ID = 0
-NAME = 'Mickey'
+NAME = "Mickey"
 TOON = Toon(name=NAME)
 BT = BattleToon(battle_id=BATTLE_ID, entity=TOON)
 
 
 class TestBattleToonDefaultCreation:
-
     def test_battle_toon_default_name(self):
         assert BT.name == NAME == BT.entity.name
 
@@ -26,12 +24,29 @@ class TestBattleToonDefaultCreation:
         assert BT.entity.inventory.has_gags() is False
 
     def test_battle_toon_default_gags(self):
-        assert BT.entity.inventory.gags.gags == BT.entity.gags.gags == get_default_gags()
-        assert BT.entity.inventory.gags.available_gags == BT.entity.gags.available_gags == []
-        assert len(BT.entity.inventory.gags.unlocked_gags) == len(BT.entity.gags.unlocked_gags) == 2
+        assert (
+            BT.entity.inventory.gags.gags == BT.entity.gags.gags == get_default_gags()
+        )
+        assert (
+            BT.entity.inventory.gags.available_gags
+            == BT.entity.gags.available_gags
+            == []
+        )
+        assert (
+            len(BT.entity.inventory.gags.unlocked_gags)
+            == len(BT.entity.gags.unlocked_gags)
+            == 2
+        )
         default_unlocked_gags = [
-            Gag(exp=0, level=GAG.CUPCAKE.level, track=GAG.CUPCAKE.track, count=0),
-            Gag(exp=0, level=GAG.SQUIRTING_FLOWER.level, track=GAG.SQUIRTING_FLOWER.track, count=0)
+            create_gag(
+                level=GAG.CUPCAKE.level, track=GAG.CUPCAKE.track, exp=0, count=0
+            ),
+            create_gag(
+                level=GAG.SQUIRTING_FLOWER.level,
+                track=GAG.SQUIRTING_FLOWER.track,
+                exp=0,
+                count=0,
+            ),
         ]
         assert BT.entity.inventory.gags.unlocked_gags == default_unlocked_gags
 
@@ -46,7 +61,6 @@ class TestBattleToonDefaultCreation:
 
 
 class TestBattleToonAstroCreation:
-
     def test_battle_toon_name(self, bt_astro: BattleToon, toon_astro: Toon):
         assert bt_astro.name == ASTRO_NAME == toon_astro.name
 
@@ -67,7 +81,6 @@ class TestBattleToonAstroCreation:
 
 
 class TestBattleToonTrapaCreation:
-
     def test_battle_toon_name(self, bt_trapa: BattleToon, toon_trapa: Toon):
         assert bt_trapa.name == TRAPA_NAME == toon_trapa.name
 

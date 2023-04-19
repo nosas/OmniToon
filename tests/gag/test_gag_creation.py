@@ -1,13 +1,21 @@
-
 from src.battle.attack_globals import GROUP
-from src.core.toon_globals import (ASTRO_EXPECTED_AVAILABLE_GAGS,
-                              ASTRO_EXPECTED_TRACK_LEVELS,
-                              ASTRO_EXPECTED_UNLOCKED_GAGS, ASTRO_GAG_COUNT,
-                              ASTRO_TRACK_EXPS)
+from src.core.toon_globals import (
+    ASTRO_EXPECTED_AVAILABLE_GAGS,
+    ASTRO_EXPECTED_TRACK_LEVELS,
+    ASTRO_EXPECTED_UNLOCKED_GAGS,
+    ASTRO_GAG_COUNT,
+    ASTRO_TRACK_EXPS,
+)
+from src.factories.utils import create_gag
 from src.gags.gag import Gag, Gags
-from src.gags.gag_globals import (DEFAULT_GAG_COUNT, DEFAULT_TRACK_EXPS_CURRENT,
-                             DEFAULT_TRACK_LEVELS, GAG, MULTI_TARGET_GAGS,
-                             TRACK)
+from src.gags.gag_globals import (
+    DEFAULT_GAG_COUNT,
+    DEFAULT_TRACK_EXPS_CURRENT,
+    DEFAULT_TRACK_LEVELS,
+    GAG,
+    MULTI_TARGET_GAGS,
+    TRACK,
+)
 
 EXP = 0
 LEVEL = 0
@@ -15,7 +23,7 @@ HEAL_TRACK = TRACK.HEAL  # same as 0
 
 
 class TestGagCreation:
-    gag = Gag(exp=EXP, level=LEVEL, track=HEAL_TRACK)
+    gag = create_gag(exp=EXP, level=LEVEL, track=HEAL_TRACK)
     expected_gag = GAG.from_tuple((gag.track, gag.level))
 
     def test_gag_type(self):
@@ -28,7 +36,7 @@ class TestGagCreation:
         assert self.gag.track == HEAL_TRACK == self.expected_gag.track
 
     def test_gag_level(self):
-        assert self.gag.level == LEVEL == self.expected_gag .level
+        assert self.gag.level == LEVEL == self.expected_gag.level
 
     def test_gag_name(self):
         assert self.gag.name == self.expected_gag.name

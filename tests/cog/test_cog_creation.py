@@ -1,14 +1,13 @@
 from src.core.cog import Cog
 from src.core.entity import Entity
-from src.factories.factory import CogFactory
+from src.factories.utils import create_cog
 
-KEY = 'f'
-NAME = 'Flunky'
+KEY = "f"
+NAME = "Flunky"
 
 
 class TestCogFactoryCreation:
-    factory = CogFactory()
-    cog = factory.get_cog(key=KEY)
+    cog = create_cog(key=KEY)
     expected_hp = 6
     expected_level = 1
     expected_rel_level = 0
