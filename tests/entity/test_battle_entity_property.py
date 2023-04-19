@@ -3,9 +3,9 @@ import pytest
 from src.battle.attack import Attack
 from src.battle.attack_globals import GROUP
 from src.battle.battle import BattleCog
-from src.core.cog import get_random_cog
 from src.core.entity import BattleEntity, Entity
 from src.core.exceptions import InvalidTargetError, TargetDefeatedError
+from src.factories.utils import create_battle_cog, create_random_cog
 
 # Allow pytest to instantiate BattleEntity by "removing" the class's abstract methods
 BattleEntity.__abstractmethods__ = None
@@ -18,7 +18,6 @@ BE = BattleEntity(battle_id=BATTLE_ID, entity=ENTITY)
 
 
 class TestBattleEntityPropertyAttack:
-
     atk_name = "Test Attack"
     dmg = 20
     acc = 100
@@ -52,14 +51,13 @@ class TestBattleEntityPropertyAttack:
 
 
 class TestBattleEntityPropertyTargets:
-
     def test_battle_entity_targets_property_1battlecog_default(self):
         """Verify the default BattleEntity's target is None"""
         assert BE.targets is None
 
     def test_battle_entity_targets_property_1battlecog_set(self):
         """Verify setting a new value to BattleEntity.targets adds the BattleCog to the list"""
-        BE.targets = BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID)
+        BE.targets = create_battle_cog(entity=create_random_cog(), battle_id=BATTLE_ID)
         assert isinstance(BE.targets, list)
         assert len(BE.targets) == 1
         BE._targets = None
@@ -69,14 +67,22 @@ class TestBattleEntityPropertyTargets:
         assert BE.targets is None
 
         battle_cog_list = []
-        battle_cog_list.append(BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID))
-        battle_cog_list.append(BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID + 1))
+        battle_cog_list.append(
+            create_battle_cog(entity=create_random_cog(), battle_id=BATTLE_ID)
+        )
+        battle_cog_list.append(
+            create_battle_cog(entity=create_random_cog(), battle_id=BATTLE_ID + 1)
+        )
 
         BE.targets = battle_cog_list
         assert len(BE.targets) == 2
 
-        battle_cog_list.append(BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID + 2))
-        battle_cog_list.append(BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID + 3))
+        battle_cog_list.append(
+            create_battle_cog(entity=create_random_cog(), battle_id=BATTLE_ID + 2)
+        )
+        battle_cog_list.append(
+            create_battle_cog(entity=create_random_cog(), battle_id=BATTLE_ID + 3)
+        )
 
         BE.targets = battle_cog_list
         assert len(BE.targets) == 4
@@ -87,15 +93,25 @@ class TestBattleEntityPropertyTargets:
         assert BE.targets is None
 
         battle_cog_list = []
-        battle_cog_list.append(BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID))
-        battle_cog_list.append(BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID + 1))
-        battle_cog_list.append(BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID + 2))
-        battle_cog_list.append(BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID + 3))
+        battle_cog_list.append(
+            create_battle_cog(entity=create_random_cog(), battle_id=BATTLE_ID)
+        )
+        battle_cog_list.append(
+            create_battle_cog(entity=create_random_cog(), battle_id=BATTLE_ID + 1)
+        )
+        battle_cog_list.append(
+            create_battle_cog(entity=create_random_cog(), battle_id=BATTLE_ID + 2)
+        )
+        battle_cog_list.append(
+            create_battle_cog(entity=create_random_cog(), battle_id=BATTLE_ID + 3)
+        )
 
         BE.targets = battle_cog_list
         assert len(BE.targets) == 4
 
-        battle_cog_list.append(BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID + 4))
+        battle_cog_list.append(
+            create_battle_cog(entity=create_random_cog(), battle_id=BATTLE_ID + 4)
+        )
         with pytest.raises(Exception):
             BE.targets = battle_cog_list
             assert len(BE.targets) == 4
@@ -106,12 +122,12 @@ class TestBattleEntityPropertyTargets:
         assert BE.targets is None
 
         with pytest.raises(InvalidTargetError):
-            BE.targets = get_random_cog()
+            BE.targets = create_random_cog()
 
         assert BE.targets is None
 
         with pytest.raises(InvalidTargetError):
-            BE.targets = [get_random_cog()]
+            BE.targets = [create_random_cog()]
 
         assert BE.targets is None
 
@@ -127,7 +143,7 @@ class TestBattleEntityPropertyTargets:
 
     def test_battle_entity_targets_property_defeated_fail(self):
         """Verify BattleEntity.target raises TargetDefeatedError when targeting a defeated Entity"""
-        bc = BattleCog(entity=get_random_cog(), battle_id=BATTLE_ID)
+        bc = create_battle_cog(entity=create_random_cog(), battle_id=BATTLE_ID)
         bc._get_attacked(amount=bc.hp)
 
         assert bc.is_defeated

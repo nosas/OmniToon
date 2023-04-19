@@ -2,37 +2,38 @@ import pytest
 
 from src.battle.battle import Battle, BattleCog, BattleToon, RewardCalculator
 from src.core.cog import Cog
-from src.factories.factory import BattleCogFactory, CogFactory
 from src.core.toon import Toon
-from src.core.toon_globals import (ASTRO_EXPECTED_AVAILABLE_GAGS,
-                              ASTRO_EXPECTED_TRACK_LEVELS,
-                              ASTRO_EXPECTED_UNLOCKED_GAGS,
-                              TRAPA_EXPECTED_AVAILABLE_GAGS,
-                              TRAPA_EXPECTED_TRACK_LEVELS,
-                              TRAPA_EXPECTED_UNLOCKED_GAGS)
+from src.core.toon_globals import (
+    ASTRO_EXPECTED_AVAILABLE_GAGS,
+    ASTRO_EXPECTED_TRACK_LEVELS,
+    ASTRO_EXPECTED_UNLOCKED_GAGS,
+    TRAPA_EXPECTED_AVAILABLE_GAGS,
+    TRAPA_EXPECTED_TRACK_LEVELS,
+    TRAPA_EXPECTED_UNLOCKED_GAGS,
+)
+from src.factories.utils import create_battle_cog, create_cog
 from src.gags.gag_globals import GAG, TRACK
-from tests.fixtures.battle_fixtures import get_expected_reward
+from tests.common.utils.utils import get_expected_reward
 
 BATTLE_ID = 1
 
 # Cog-specific global variables
-KEY_FLUNKY = 'f'
-KEY_YESMAN = 'ym'
-KEY_PENCIL = 'p'
-NAME_FLUNKY = 'Flunky'
-COG_LVL1 = CogFactory().get_cog(key=KEY_FLUNKY)
-COG_LVL4 = CogFactory().get_cog(key=KEY_PENCIL, relative_level=2)
-COG_LVL7 = CogFactory().get_cog(key=KEY_YESMAN, relative_level=4)
-BC_LVL1 = BattleCogFactory().get_battle_cog(battle_id=BATTLE_ID, entity=COG_LVL1)
-BC_LVL7 = BattleCogFactory().get_battle_cog(battle_id=BATTLE_ID, entity=COG_LVL7)
+KEY_FLUNKY = "f"
+KEY_YESMAN = "ym"
+KEY_PENCIL = "p"
+NAME_FLUNKY = "Flunky"
+COG_LVL1 = create_cog(key=KEY_FLUNKY)
+COG_LVL4 = create_cog(key=KEY_PENCIL, relative_level=2)
+COG_LVL7 = create_cog(key=KEY_YESMAN, relative_level=4)
+BC_LVL1 = create_battle_cog(battle_id=BATTLE_ID, entity=COG_LVL1)
+BC_LVL7 = create_battle_cog(battle_id=BATTLE_ID, entity=COG_LVL7)
 # Default Toon-specific global variables
-NAME_TOON = 'Mickey'
+NAME_TOON = "Mickey"
 TOON = Toon(name=NAME_TOON)
 BT = BattleToon(battle_id=BATTLE_ID, entity=TOON)
 
 
 class TestBattleToonDefaultGetAttacks:
-
     def test_battle_toon_available_gags(self):
         """Verify the default BattleToon has no available Gags"""
         assert BT.available_gags == TOON.gags.available_gags == []
@@ -63,9 +64,12 @@ class TestBattleToonDefaultGetAttacks:
 
         possible_attacks = BT.get_possible_attacks(target=BC_LVL1)
         assert len(possible_attacks) == 2
-        assert all([
-            atk.reward == RewardCalculator().get_base_reward(atk) for atk in possible_attacks
-        ])
+        assert all(
+            [
+                atk.reward == RewardCalculator().get_base_reward(atk)
+                for atk in possible_attacks
+            ]
+        )
 
         BT.entity.gags.gag_count[TRACK.THROW][GAG.CUPCAKE.level] = 0
         BT.entity.gags.gag_count[TRACK.SQUIRT][GAG.SQUIRTING_FLOWER.level] = 0
@@ -86,7 +90,6 @@ class TestBattleToonDefaultGetAttacks:
 
 
 class TestBattleToonAstroGetAttacks:
-
     def test_battle_toon_available_gags(self, bt_astro: BattleToon):
         assert len(bt_astro.available_gags) == ASTRO_EXPECTED_AVAILABLE_GAGS
 
@@ -258,9 +261,10 @@ class TestBattleToonTrapaGetAttacks:
 
 
 class TestBattleToonAstroGetAttacksLuredBattleCog:
-
-    @pytest.mark.parametrize('bc_lured', [COG_LVL1], indirect=['bc_lured'])
-    def test_battle_toon_gag_is_possible(self, bt_astro: BattleToon, bc_lured: BattleCog):
+    @pytest.mark.parametrize("bc_lured", [COG_LVL1], indirect=["bc_lured"])
+    def test_battle_toon_gag_is_possible(
+        self, bt_astro: BattleToon, bc_lured: BattleCog
+    ):
         """
         Verify Astro has only 21 possible Gags against a lured lvl 1 Flunky.
             NOTE: #28 b/c `bt_astro` has 34 total Gags, but 13 cannot possibly be used against
@@ -290,7 +294,7 @@ class TestBattleToonAstroGetAttacksLuredBattleCog:
                 possible_gags.append(gag)
         assert len(possible_gags) == expected_num_gags
 
-    @pytest.mark.parametrize('bc_lured', [COG_LVL1], indirect=['bc_lured'])
+    @pytest.mark.parametrize("bc_lured", [COG_LVL1], indirect=["bc_lured"])
     def test_battle_toon_gag_is_viable(self, bt_astro: BattleToon, bc_lured: BattleCog):
         """
         Verify Astro has only 4 viable Gags, and none are Heal/Lure/Trap, against a lured Flunky.
@@ -309,8 +313,10 @@ class TestBattleToonAstroGetAttacksLuredBattleCog:
                 viable_gags.append(gag)
         assert len(viable_gags) == 4
 
-    @pytest.mark.parametrize('bc_lured', [COG_LVL1], indirect=['bc_lured'])
-    def test_battle_toon_possible_attacks(self, bt_astro: BattleToon, bc_lured: BattleCog):
+    @pytest.mark.parametrize("bc_lured", [COG_LVL1], indirect=["bc_lured"])
+    def test_battle_toon_possible_attacks(
+        self, bt_astro: BattleToon, bc_lured: BattleCog
+    ):
         """
         Verify Astro has only 12 possible Attacks, and none are Heal/Lure, against a lured Flunky.
 
@@ -326,17 +332,21 @@ class TestBattleToonAstroGetAttacksLuredBattleCog:
         bt_astro.entity.gags.gag_count[TRACK.LURE][GAG.ONE_BILL.level] = 10
 
         possible_attacks = bt_astro.get_possible_attacks(target=bc_lured)
-        assert all([
-            atk.gag.track not in [TRACK.HEAL, TRACK.LURE, TRACK.TRAP]
-            for atk in possible_attacks
-        ])
+        assert all(
+            [
+                atk.gag.track not in [TRACK.HEAL, TRACK.LURE, TRACK.TRAP]
+                for atk in possible_attacks
+            ]
+        )
         assert len(possible_attacks) == 13
 
         bt_astro.entity.gags.gag_count[TRACK.THROW][GAG.CUPCAKE.level] = 0
         bt_astro.entity.gags.gag_count[TRACK.LURE][GAG.ONE_BILL.level] = 0
 
-    @pytest.mark.parametrize('bc_lured', [COG_LVL1], indirect=['bc_lured'])
-    def test_battle_toon_viable_attacks(self, bt_astro: BattleToon, bc_lured: BattleCog):
+    @pytest.mark.parametrize("bc_lured", [COG_LVL1], indirect=["bc_lured"])
+    def test_battle_toon_viable_attacks(
+        self, bt_astro: BattleToon, bc_lured: BattleCog
+    ):
         """
         Verify Astro has no viable Attacks, and none are Heal/Lure, against a lured Flunky.
 
@@ -352,7 +362,9 @@ class TestBattleToonAstroGetAttacksLuredBattleCog:
         viable_attacks = bt_astro.get_viable_attacks(target=bc_lured)
         assert viable_attacks[0].name == GAG.CUPCAKE.name
         assert viable_attacks[0].gag.track == TRACK.THROW
-        assert all([atk.gag.track not in [TRACK.HEAL, TRACK.LURE] for atk in viable_attacks])
+        assert all(
+            [atk.gag.track not in [TRACK.HEAL, TRACK.LURE] for atk in viable_attacks]
+        )
         assert len(viable_attacks) == 1
 
         bt_astro.entity.gags.gag_count[TRACK.THROW][GAG.CUPCAKE.level] = 0
@@ -360,9 +372,10 @@ class TestBattleToonAstroGetAttacksLuredBattleCog:
 
 
 class TestBattleToonTrapaGetAttacksLuredBattleCog:
-
-    @pytest.mark.parametrize('bc_lured', [COG_LVL1], indirect=['bc_lured'])
-    def test_battle_toon_gag_is_possible(self, bt_trapa: BattleToon, bc_lured: BattleCog):
+    @pytest.mark.parametrize("bc_lured", [COG_LVL1], indirect=["bc_lured"])
+    def test_battle_toon_gag_is_possible(
+        self, bt_trapa: BattleToon, bc_lured: BattleCog
+    ):
         """
         Verify Trapa has only 18 possible Gags against a lured lvl 1 Flunky.
             NOTE: #18 b/c `bt_trapa` has 34 total Gags, but 16 cannot possibly be used against
@@ -392,7 +405,7 @@ class TestBattleToonTrapaGetAttacksLuredBattleCog:
                 possible_gags.append(gag)
         assert len(possible_gags) == expected_num_gags
 
-    @pytest.mark.parametrize('bc_lured', [COG_LVL1], indirect=['bc_lured'])
+    @pytest.mark.parametrize("bc_lured", [COG_LVL1], indirect=["bc_lured"])
     def test_battle_toon_gag_is_viable(self, bt_trapa: BattleToon, bc_lured: BattleCog):
         """
         Verify Trapa has only 3 viable Gags, and none are Heal/Lure/Trap, against a lured Flunky.
@@ -416,8 +429,10 @@ class TestBattleToonTrapaGetAttacksLuredBattleCog:
         assert viable_gags[1].name == GAG.CUPCAKE.name
         assert viable_gags[2].name == GAG.SQUIRTING_FLOWER.name
 
-    @pytest.mark.parametrize('bc_lured', [COG_LVL1], indirect=['bc_lured'])
-    def test_battle_toon_possible_attacks(self, bt_trapa: BattleToon, bc_lured: BattleCog):
+    @pytest.mark.parametrize("bc_lured", [COG_LVL1], indirect=["bc_lured"])
+    def test_battle_toon_possible_attacks(
+        self, bt_trapa: BattleToon, bc_lured: BattleCog
+    ):
         """
         Verify Trapa has 11 possible Attacks, and none are Heal/Lure/Trap, against a lured Flunky.
 
@@ -434,18 +449,22 @@ class TestBattleToonTrapaGetAttacksLuredBattleCog:
         bt_trapa.entity.gags.gag_count[TRACK.HEAL][GAG.FEATHER.level] = 10
 
         possible_attacks = bt_trapa.get_possible_attacks(target=bc_lured)
-        assert all([
-            atk.gag.track not in [TRACK.HEAL, TRACK.LURE, TRACK.TRAP]
-            for atk in possible_attacks
-        ])
+        assert all(
+            [
+                atk.gag.track not in [TRACK.HEAL, TRACK.LURE, TRACK.TRAP]
+                for atk in possible_attacks
+            ]
+        )
         assert len(possible_attacks) == 12
 
         bt_trapa.entity.gags.gag_count[TRACK.SQUIRT][GAG.SQUIRTING_FLOWER.level] = 0
         bt_trapa.entity.gags.gag_count[TRACK.LURE][GAG.SMALL_MAGNET.level] = 0
         bt_trapa.entity.gags.gag_count[TRACK.HEAL][GAG.FEATHER.level] = 0
 
-    @pytest.mark.parametrize('bc_lured', [COG_LVL1], indirect=['bc_lured'])
-    def test_battle_toon_viable_attacks(self, bt_trapa: BattleToon, bc_lured: BattleCog):
+    @pytest.mark.parametrize("bc_lured", [COG_LVL1], indirect=["bc_lured"])
+    def test_battle_toon_viable_attacks(
+        self, bt_trapa: BattleToon, bc_lured: BattleCog
+    ):
         """
         Verify Trapa has 1 viable Attacks, and none are Heal/Lure/Trap, against a lured Flunky.
 
@@ -462,8 +481,15 @@ class TestBattleToonTrapaGetAttacksLuredBattleCog:
         bt_trapa.entity.gags.gag_count[TRACK.HEAL][GAG.FEATHER.level] = 10
 
         viable_attacks = bt_trapa.get_viable_attacks(target=bc_lured)
-        assert all([atk.gag.track not in [TRACK.HEAL, TRACK.LURE, TRACK.TRAP] for atk in viable_attacks])  # noqa
-        assert all([atk.gag.track in [TRACK.THROW, TRACK.SQUIRT] for atk in viable_attacks])
+        assert all(
+            [
+                atk.gag.track not in [TRACK.HEAL, TRACK.LURE, TRACK.TRAP]
+                for atk in viable_attacks
+            ]
+        )  # noqa
+        assert all(
+            [atk.gag.track in [TRACK.THROW, TRACK.SQUIRT] for atk in viable_attacks]
+        )
         assert len(viable_attacks) == 2
 
         assert viable_attacks[0].name == GAG.CUPCAKE.name
@@ -475,9 +501,10 @@ class TestBattleToonTrapaGetAttacksLuredBattleCog:
 
 
 class TestBattleToonTrapaGetAttacksTrappedBattleCog:
-
-    @pytest.mark.parametrize('bc_trapped', [COG_LVL1], indirect=['bc_trapped'])
-    def test_battle_toon_gag_is_possible(self, bt_trapa: BattleToon, bc_trapped: BattleCog):
+    @pytest.mark.parametrize("bc_trapped", [COG_LVL1], indirect=["bc_trapped"])
+    def test_battle_toon_gag_is_possible(
+        self, bt_trapa: BattleToon, bc_trapped: BattleCog
+    ):
         """
         Verify Trapa has only 25 possible Gags against a trapped lvl 1 Flunky.
             NOTE: #25 b/c `bt_trapa` has 34 total Gags, but 9 cannot possibly be used against
@@ -504,8 +531,10 @@ class TestBattleToonTrapaGetAttacksTrappedBattleCog:
                 possible_gags.append(gag)
         assert len(possible_gags) == expected_num_gags
 
-    @pytest.mark.parametrize('bc_trapped', [COG_LVL1], indirect=['bc_trapped'])
-    def test_battle_toon_gag_is_viable(self, bt_trapa: BattleToon, bc_trapped: BattleCog):
+    @pytest.mark.parametrize("bc_trapped", [COG_LVL1], indirect=["bc_trapped"])
+    def test_battle_toon_gag_is_viable(
+        self, bt_trapa: BattleToon, bc_trapped: BattleCog
+    ):
         """
         Verify Trapa has only 4 viable Gags, and none are Heal/Trap, against a trapped Flunky.
             NOTE: #4 because `bt_trapa` has 6 unlocked lvl 1 Gags, but 2 cannot possibly be used
@@ -523,8 +552,10 @@ class TestBattleToonTrapaGetAttacksTrappedBattleCog:
                 viable_gags.append(gag)
         assert len(viable_gags) == 4
 
-    @pytest.mark.parametrize('bc_trapped', [COG_LVL1], indirect=['bc_trapped'])
-    def test_battle_toon_possible_attacks(self, bt_trapa: BattleToon, bc_trapped: BattleCog):
+    @pytest.mark.parametrize("bc_trapped", [COG_LVL1], indirect=["bc_trapped"])
+    def test_battle_toon_possible_attacks(
+        self, bt_trapa: BattleToon, bc_trapped: BattleCog
+    ):
         """
         Verify Trapa has 15 possible Attacks, and none are Heal/Trap, against a trapped Flunky.
 
@@ -540,17 +571,18 @@ class TestBattleToonTrapaGetAttacksTrappedBattleCog:
         bt_trapa.entity.gags.gag_count[TRACK.HEAL][GAG.FEATHER.level] = 10
 
         possible_attacks = bt_trapa.get_possible_attacks(target=bc_trapped)
-        assert all([
-            atk.gag.track not in [TRACK.HEAL, TRACK.TRAP]
-            for atk in possible_attacks
-        ])
+        assert all(
+            [atk.gag.track not in [TRACK.HEAL, TRACK.TRAP] for atk in possible_attacks]
+        )
         assert len(possible_attacks) == 16
 
         bt_trapa.entity.gags.gag_count[TRACK.SQUIRT][GAG.SQUIRTING_FLOWER.level] = 0
         bt_trapa.entity.gags.gag_count[TRACK.HEAL][GAG.FEATHER.level] = 0
 
-    @pytest.mark.parametrize('bc_trapped', [COG_LVL1], indirect=['bc_trapped'])
-    def test_battle_toon_viable_attacks(self, bt_trapa: BattleToon, bc_trapped: BattleCog):
+    @pytest.mark.parametrize("bc_trapped", [COG_LVL1], indirect=["bc_trapped"])
+    def test_battle_toon_viable_attacks(
+        self, bt_trapa: BattleToon, bc_trapped: BattleCog
+    ):
         """
         Verify Trapa has 2 viable Attacks, and none are Heal/Trap, against a trapped Flunky.
 
@@ -569,8 +601,15 @@ class TestBattleToonTrapaGetAttacksTrappedBattleCog:
         bt_trapa.entity.gags.gag_count[TRACK.HEAL][GAG.FEATHER.level] = 10
 
         viable_attacks = bt_trapa.get_viable_attacks(target=bc_trapped)
-        assert all([atk.gag.track not in [TRACK.HEAL, TRACK.TRAP] for atk in viable_attacks])
-        assert all([atk.gag.track in [TRACK.LURE, TRACK.THROW, TRACK.SQUIRT] for atk in viable_attacks])  # noqa
+        assert all(
+            [atk.gag.track not in [TRACK.HEAL, TRACK.TRAP] for atk in viable_attacks]
+        )
+        assert all(
+            [
+                atk.gag.track in [TRACK.LURE, TRACK.THROW, TRACK.SQUIRT]
+                for atk in viable_attacks
+            ]
+        )  # noqa
         assert len(viable_attacks) == 3
 
         assert viable_attacks[0].name == GAG.ONE_BILL.name
@@ -582,12 +621,16 @@ class TestBattleToonTrapaGetAttacksTrappedBattleCog:
         bt_trapa.entity.gags.gag_count[TRACK.HEAL][GAG.FEATHER.level] = 0
 
 
-def verify_all_attack_reward_values(rc: RewardCalculator, toon: BattleToon, target: BattleCog):
+def verify_all_attack_reward_values(
+    rc: RewardCalculator, toon: BattleToon, target: BattleCog
+):
     """Verify all attack.reward values are equivalent to the expected attack reward"""
-    assert all([
-        attack.reward == get_expected_reward(toon_attack=attack, rc=rc)
-        for attack in toon.get_possible_attacks(target=target)
-    ])
+    assert all(
+        [
+            attack.reward == get_expected_reward(toon_attack=attack, rc=rc)
+            for attack in toon.get_possible_attacks(target=target)
+        ]
+    )
 
 
 def verify_possible_attack_reward_levels(toon: BattleToon, target: BattleCog):
@@ -601,10 +644,7 @@ def verify_possible_attack_reward_levels(toon: BattleToon, target: BattleCog):
 
 def verify_viable_attack_reward_levels(toon: BattleToon, target: BattleCog):
     """Verify all viable attack.reward greater than 0"""
-    assert all([
-        attack.reward > 0
-        for attack in toon.get_viable_attacks(target=target)
-    ])
+    assert all([attack.reward > 0 for attack in toon.get_viable_attacks(target=target)])
 
 
 class TestBattleToonAstroGetAttacksRewards:
@@ -625,8 +665,9 @@ class TestBattleToonAstroGetAttacksRewards:
 
         for toon in battle.toons:
             for target in battle.cogs:
-                verify_all_attack_reward_values(rc=battle.reward_calculator,
-                                                toon=toon, target=target)
+                verify_all_attack_reward_values(
+                    rc=battle.reward_calculator, toon=toon, target=target
+                )
 
     @staticmethod
     def verify_possible_attack_reward_levels(battle: Battle):
@@ -658,11 +699,15 @@ class TestBattleToonAstroGetAttacksRewards:
         self.verify_viable_attack_reward_levels(battle=battle)
 
 
-class TestBattleToonAstroGetAttacksRewardsBuilding(TestBattleToonAstroGetAttacksRewards):
+class TestBattleToonAstroGetAttacksRewardsBuilding(
+    TestBattleToonAstroGetAttacksRewards
+):
     """Verify attack rewards for Toons in Battle within a building"""
 
     @pytest.fixture(params=[COG_LVL1, COG_LVL4, COG_LVL7])
-    def battle(self, toon_astro: Toon, battle_building: Battle, request: BattleCog) -> Battle:
+    def battle(
+        self, toon_astro: Toon, battle_building: Battle, request: BattleCog
+    ) -> Battle:
         battle_building.add_toon(new_toon=toon_astro)
         battle_building.add_cog(new_cog=request.param)
         return battle_building
@@ -677,12 +722,15 @@ class TestBattleToonAstroGetAttacksRewardsBuilding(TestBattleToonAstroGetAttacks
         self.verify_viable_attack_reward_levels(battle=battle)
 
 
-class TestBattleToonAstroGetAttacksRewardsBuildingInvasion(TestBattleToonAstroGetAttacksRewards):
+class TestBattleToonAstroGetAttacksRewardsBuildingInvasion(
+    TestBattleToonAstroGetAttacksRewards
+):
     """Verify attack rewards for Toons in Battle within a building during an invasion"""
 
     @pytest.fixture(params=[COG_LVL1, COG_LVL4, COG_LVL7])
-    def battle(self, toon_astro: Toon, battle_building_invasion: Battle,
-               request: BattleCog) -> Battle:
+    def battle(
+        self, toon_astro: Toon, battle_building_invasion: Battle, request: BattleCog
+    ) -> Battle:
         battle_building_invasion.add_toon(new_toon=toon_astro)
         battle_building_invasion.add_cog(new_cog=request.param)
         return battle_building_invasion
