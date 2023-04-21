@@ -34,13 +34,14 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v5
         with:
-          token: ${{secrets.GITHUB_TOKEN}}
+          github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const { number: issue_number } = context.payload.pull_request
-            const { data: { check_suite } } = await github.request('GET /repos/{owner}/{repo}/commits/{ref}/check-suites', {
+            const { data: { check_suites } } = await github.request('GET /repos/{owner}/{repo}/commits/{ref}/check-suites', {
               ...context.repo,
               ref: context.sha
             })
+            const check_suite = check_suites.find(suite => suite.app.slug === 'github-actions')
             const testResults = (check_suite.conclusion === 'success') ? 'All tests passed.' : 'Some tests failed.'
             const commentBody = `CI/CD Pipeline: ${testResults}`
             await github.rest.issues.createComment({
@@ -48,6 +49,7 @@ jobs:
               issue_number,
               body: commentBody
             })
+
 
       - name: Send Discord notification on failure
         if: failure()
