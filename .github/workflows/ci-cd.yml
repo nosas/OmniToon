@@ -3,48 +3,84 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - '**'
+      - "**"
   pull_request:
     branches:
-      - '**'
+      - "**"
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.10
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: Run tests
-      id: tests
-      run: pytest
+      - name: Run tests
+        id: tests
+        run: pytest
 
-    - name: Leave PR comment
-      if: github.event_name == 'pull_request'
-      uses: actions/github-script@v5
-      with:
-        github-token: ${{secrets.GITHUB_TOKEN}}
-        script: |
-          const { number: issue_number } = context.payload.pull_request
-          const { data: { check_suite } } = await github.request('GET /repos/{owner}/{repo}/commits/{ref}/check-suites', {
-            ...context.repo,
-            ref: context.sha
-          })
-          const testResults = (check_suite.conclusion === 'success') ? 'All tests passed.' : 'Some tests failed.'
-          const commentBody = `CI/CD Pipeline: ${testResults}`
-          await github.rest.issues.createComment({
-            ...context.repo,
-            issue_number,
-            body: commentBody
-          })
+      - name: Leave PR comment
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v5
+        with:
+          token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const { number: issue_number } = context.payload.pull_request
+            const { data: { check_suite } } = await github.request('GET /repos/{owner}/{repo}/commits/{ref}/check-suites', {
+              ...context.repo,
+              ref: context.sha
+            })
+            const testResults = (check_suite.conclusion === 'success') ? 'All tests passed.' : 'Some tests failed.'
+            const commentBody = `CI/CD Pipeline: ${testResults}`
+            await github.rest.issues.createComment({
+              ...context.repo,
+              issue_number,
+              body: commentBody
+            })
+
+      - name: Send Discord notification on failure
+        if: failure()
+        run: |
+          const https = require('https');
+
+          const webhookURL = process.env.DISCORD_WEBHOOK_URL;
+          const message = `CI/CD Pipeline Failure:
+          Repository: \`${{ github.repository }}\`
+          Branch: \`${{ github.ref }}\`
+          Workflow: \`${{ github.workflow }}\`
+          Run: [${{ github.run_id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+
+          const payload = JSON.stringify({ content: message });
+
+          const options = new URL(webhookURL);
+          options.method = 'POST';
+          options.headers = {
+            'Content-Type': 'application/json',
+            'Content-Length': payload.length,
+          };
+
+          const req = https.request(options, (res) => {
+            if (res.statusCode < 200 || res.statusCode >= 300) {
+              console.error(`Failed to send Discord notification: ${res.statusCode}`);
+            }
+          });
+
+          req.on('error', (error) => {
+            console.error(`Error sending Discord notification: ${error.message}`);
+          });
+
+          req.write(payload);
+          req.end();
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
