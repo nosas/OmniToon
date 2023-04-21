@@ -1,13 +1,16 @@
+from typing import Type
+
 import pytest
 
 from src.battle.attack_globals import MULTIPLIER, MULTIPLIER_DEFAULT
-from src.battle.battle import RewardCalculator, ToonAttack
+from src.battle.reward_calculator import RewardCalculator
+from src.battle.toon_attack import ToonAttack
+from src.factories.attack_factory import create_toon_attack
 from src.factories.utils import (
     create_battle_cog,
     create_cog,
     create_gag,
     create_reward_calculator,
-    create_toon_attack,
 )
 from src.gags.gag import TRACK
 from tests.common.utils.utils import get_expected_reward
@@ -25,16 +28,15 @@ BUILDING_MULTIPLIERS = [
 ]
 
 KEY_FLUNKY = "f"
+TARGET_BATTLE_COG = create_battle_cog(battle_id=0, entity=create_cog(key=KEY_FLUNKY))
 
 
 @pytest.fixture(params=[0, 1, 2, 3, 4, 5, 6], scope="module")
-def toon_attack(request) -> ToonAttack:
+def toon_attack(request: Type[pytest.FixtureRequest]) -> ToonAttack:
     """Given a Gag level, return a ToonAttack with target_cog == lvl 1 Flunky"""
-    target_cog = create_cog(key=KEY_FLUNKY, relative_level=0)
 
     return create_toon_attack(
         gag=create_gag(track=TRACK.THROW, level=request.param),
-        target_cog=create_battle_cog(battle_id=0, entity=target_cog),
     )
 
 
@@ -58,8 +60,13 @@ class TestRewardCalculatorDefault:
 
     def test_calculate_reward(self, toon_attack: ToonAttack):
         """Test that the reward is calculated correctly"""
-        expected_reward = get_expected_reward(toon_attack=toon_attack, rc=self.rc)
-        assert self.rc.calculate_reward(attack=toon_attack) == expected_reward
+        expected_reward = get_expected_reward(
+            toon_attack=toon_attack, target=TARGET_BATTLE_COG, rc=self.rc
+        )
+        assert (
+            self.rc.calculate_reward(attack=toon_attack, target=TARGET_BATTLE_COG)
+            == expected_reward
+        )
 
 
 class TestRewardCalculatorInvasion:
@@ -82,8 +89,13 @@ class TestRewardCalculatorInvasion:
 
     def test_calculate_reward(self, toon_attack: ToonAttack):
         """Test that the reward is calculated correctly"""
-        expected_reward = get_expected_reward(toon_attack=toon_attack, rc=self.rc)
-        assert self.rc.calculate_reward(attack=toon_attack) == expected_reward
+        expected_reward = get_expected_reward(
+            toon_attack=toon_attack, target=TARGET_BATTLE_COG, rc=self.rc
+        )
+        assert (
+            self.rc.calculate_reward(attack=toon_attack, target=TARGET_BATTLE_COG)
+            == expected_reward
+        )
 
 
 class TestRewardCalculatorBuilding:
@@ -111,8 +123,13 @@ class TestRewardCalculatorBuilding:
 
     def test_calculate_reward(self, rc: RewardCalculator, toon_attack: ToonAttack):
         """Test that the reward is calculated correctly"""
-        expected_reward = get_expected_reward(toon_attack=toon_attack, rc=rc)
-        assert rc.calculate_reward(attack=toon_attack) == expected_reward
+        expected_reward = get_expected_reward(
+            toon_attack=toon_attack, target=TARGET_BATTLE_COG, rc=rc
+        )
+        assert (
+            rc.calculate_reward(attack=toon_attack, target=TARGET_BATTLE_COG)
+            == expected_reward
+        )
 
 
 class TestRewardCalculatorBuildingInvasion:
@@ -143,5 +160,10 @@ class TestRewardCalculatorBuildingInvasion:
 
     def test_calculate_reward(self, rc: RewardCalculator, toon_attack: ToonAttack):
         """Test that the reward is calculated correctly"""
-        expected_reward = get_expected_reward(toon_attack=toon_attack, rc=rc)
-        assert rc.calculate_reward(attack=toon_attack) == expected_reward
+        expected_reward = get_expected_reward(
+            toon_attack=toon_attack, target=TARGET_BATTLE_COG, rc=rc
+        )
+        assert (
+            rc.calculate_reward(attack=toon_attack, target=TARGET_BATTLE_COG)
+            == expected_reward
+        )

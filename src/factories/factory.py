@@ -1,10 +1,13 @@
 from random import choice as rand_choice
 from random import randint
 
-from src.battle.battle import BattleCog, ToonAttack
+from src.battle.battle_cog import BattleCog
+from src.battle.battle_entity import BattleEntity
+from src.battle.battle_toon import BattleToon
+from src.battle.reward_calculator import RewardCalculator
 from src.core.cog import Cog
 from src.core.cog_globals import COG_ATTRIBUTES
-from src.core.entity import BattleEntity, Entity
+from src.core.entity import Entity
 from src.core.toon import Toon
 from src.gags.gag import Gag, get_gag_min_max_exp
 from src.gags.gag_globals import TRACK
@@ -13,6 +16,19 @@ from src.gags.gag_globals import TRACK
 class EntityFactory:
     def create_entity(self, name: str, hp: int) -> Entity:
         return Entity(name=name, hp=hp)
+
+
+class ToonFactory(EntityFactory):
+    def create_entity(self, name: str, hp: int) -> Entity:
+        return super().create_entity(name=name, hp=hp)
+
+    def create_toon(self, name: str, hp: int) -> Toon:
+        return Toon(name=name, hp=hp)
+
+
+class BattleToonFactory(ToonFactory):
+    def create_battle_toon(self, battle_id: int, entity: Toon) -> BattleEntity:
+        return BattleToon(battle_id=battle_id, entity=entity)
 
 
 class CogFactory(EntityFactory):
@@ -37,14 +53,15 @@ class RandomCogFactory(CogFactory):
 
 
 class BattleEntityFactory:
-    # TODO : Increment battle_id for each new BattleCog
     def create_battle_entity(self, battle_id: int, entity: Entity) -> BattleEntity:
         if isinstance(entity, Cog):
             return BattleCogFactory.create_battle_cog(
                 battle_id=battle_id, entity=entity
             )
         if isinstance(entity, Toon):
-            raise NotImplementedError
+            return BattleToonFactory().create_battle_toon(
+                battle_id=battle_id, entity=entity
+            )
         elif isinstance(entity, Entity):
             return BattleEntity(battle_id=battle_id, entity=entity)
         else:
@@ -93,7 +110,8 @@ class GagFactory:
         return Gag(track=track, level=level, exp=exp, count=count)
 
 
-class ToonAttackFactory:
+class RewardCalculatorFactory:
     @staticmethod
-    def create_toon_attack(gag: Gag, target_cog: BattleCog):
-        return ToonAttack(gag=gag, target_cog=target_cog)
+    def create_reward_calculator(building_floor: int = 1, is_invasion: bool = False):
+        return RewardCalculator(building_floor=building_floor, is_invasion=is_invasion)
+

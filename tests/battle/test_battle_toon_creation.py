@@ -1,7 +1,9 @@
-from src.battle.battle import BattleToon
-from src.core.entity import BattleEntity, Entity
+from src.battle.battle_entity import BattleEntity
+from src.battle.battle_toon import BattleToon
+from src.core.entity import Entity
 from src.core.toon import Inventory, Toon
-from src.core.toon_globals import ASTRO_HP, ASTRO_NAME, DEFAULT_HP, TRAPA_HP, TRAPA_NAME
+from src.core.toon_globals import (ASTRO_HP, ASTRO_NAME, DEFAULT_HP, TRAPA_HP,
+                                   TRAPA_NAME)
 from src.factories.utils import create_gag
 from src.gags.gag import get_default_gags
 from src.gags.gag_globals import GAG

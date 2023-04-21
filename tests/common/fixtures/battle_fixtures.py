@@ -4,7 +4,8 @@ import pytest
 from pytest import FixtureRequest
 
 from src.battle.attack_globals import MULTIPLIER
-from src.battle.battle import Battle, BattleToon
+from src.battle.battle import Battle
+from src.battle.battle_toon import BattleToon
 from src.core.toon import Toon
 from src.factories.utils import create_battle_cog, create_random_cog
 

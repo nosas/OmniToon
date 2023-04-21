@@ -1,4 +1,6 @@
-from src.battle.battle import RewardCalculator, ToonAttack
+from src.battle.battle_cog import BattleCog
+from src.battle.reward_calculator import RewardCalculator
+from src.battle.toon_attack import ToonAttack
 from src.core.cog import Cog
 
 
@@ -19,9 +21,11 @@ def get_cog_from_request_param(request_param) -> Cog:
         raise TypeError(f"What the heck did you request? {request_param}")
 
 
-def get_expected_reward(toon_attack: ToonAttack, rc: RewardCalculator) -> int:
+def get_expected_reward(
+    toon_attack: ToonAttack, target: BattleCog, rc: RewardCalculator
+) -> int:
     """Given a ToonAttack and RewardCalculator, return the expected reward value"""
-    if toon_attack.gag.level >= toon_attack.target_cog.level:
+    if toon_attack.gag.level >= target.level:
         return -1
     else:
         return round(rc.get_base_reward(attack=toon_attack) * rc.get_multiplier())

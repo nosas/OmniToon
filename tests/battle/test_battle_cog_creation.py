@@ -1,7 +1,9 @@
-from src.battle.battle import BattleCog
+from src.battle.battle_cog import BattleCog
+from src.battle.battle_entity import BattleEntity
 from src.core.cog import Cog
-from src.core.entity import BattleEntity, Entity
-from src.factories.utils import create_battle_cog, create_battle_entity, create_cog
+from src.core.entity import Entity
+from src.factories.utils import (create_battle_cog, create_battle_entity,
+                                 create_cog)
 
 BATTLE_ID = 1
 KEY = "f"

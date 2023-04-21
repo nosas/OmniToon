@@ -1,6 +1,7 @@
 import pytest
 
-from src.core.entity import BattleEntity, Entity
+from src.battle.battle_entity import BattleEntity
+from src.core.entity import Entity
 from src.factories.utils import create_battle_entity, create_entity
 
 # Allow pytest to instantiate BattleEntity by "removing" the class's abstract methods

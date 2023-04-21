@@ -1,6 +1,9 @@
 import pytest
 
-from src.battle.battle import Battle, BattleCog, BattleToon, RewardCalculator
+from src.battle.battle import Battle
+from src.battle.battle_cog import BattleCog
+from src.battle.battle_toon import BattleToon
+from src.battle.reward_calculator import RewardCalculator
 from src.core.cog import Cog
 from src.core.toon import Toon
 from src.core.toon_globals import (
@@ -11,7 +14,7 @@ from src.core.toon_globals import (
     TRAPA_EXPECTED_TRACK_LEVELS,
     TRAPA_EXPECTED_UNLOCKED_GAGS,
 )
-from src.factories.utils import create_battle_cog, create_cog
+from src.factories.utils import create_battle_cog, create_cog, create_reward_calculator
 from src.gags.gag_globals import GAG, TRACK
 from tests.common.utils.utils import get_expected_reward
 
@@ -69,7 +72,7 @@ class TestBattleToonDefaultGetAttacks:
                 atk.reward == RewardCalculator().get_base_reward(atk)
                 for atk in possible_attacks
             ]
-        )
+        ), "Expected all possible attacks to have a reward equal to the base reward"
 
         BT.entity.gags.gag_count[TRACK.THROW][GAG.CUPCAKE.level] = 0
         BT.entity.gags.gag_count[TRACK.SQUIRT][GAG.SQUIRTING_FLOWER.level] = 0
@@ -138,17 +141,26 @@ class TestBattleToonAstroGetAttacks:
             categorizing possible attacks.
         """
         possible_attacks = bt_astro.get_possible_attacks(target=BC_LVL1)
-        assert possible_attacks != []
-        assert len(possible_attacks) == 15
+        assert possible_attacks != [], "Expected possible attacks to be non-empty"
+        assert len(possible_attacks) == 15, "Expected 15 possible attacks"
 
         bt_astro.entity.gags.gag_count[TRACK.THROW][GAG.CUPCAKE.level] = 10
         bt_astro.entity.gags.gag_count[TRACK.SQUIRT][GAG.SQUIRTING_FLOWER.level] = 10
 
         possible_attacks = bt_astro.get_possible_attacks(target=BC_LVL1)
         for attack in possible_attacks:
-            assert attack.gag.track != TRACK.HEAL
-            assert attack.reward == RewardCalculator().calculate_reward(attack=attack)
-        assert len(possible_attacks) == 17
+            assert attack.gag.track != TRACK.HEAL, "Expected no Heal Gags"
+            if attack.gag.level >= BC_LVL1.level:
+                assert (
+                    RewardCalculator().calculate_reward(attack=attack, target=BC_LVL1)
+                    == -1
+                ), "Expected reward to be less than the base reward"
+            else:
+                assert (
+                    RewardCalculator().calculate_reward(attack=attack, target=BC_LVL1)
+                    == attack.reward
+                ), "Expected reward to be equal to the base reward"
+        assert len(possible_attacks) == 17, "Expected 17 possible attacks"
 
         bt_astro.entity.gags.gag_count[TRACK.THROW][GAG.CUPCAKE.level] = 0
         bt_astro.entity.gags.gag_count[TRACK.SQUIRT][GAG.SQUIRTING_FLOWER.level] = 0
@@ -169,7 +181,9 @@ class TestBattleToonAstroGetAttacks:
         viable_attacks = bt_astro.get_viable_attacks(target=BC_LVL1)
         for attack in viable_attacks:
             assert attack.gag.track != TRACK.HEAL
-            assert attack.reward == RewardCalculator().calculate_reward(attack=attack)
+            assert attack.reward == RewardCalculator().calculate_reward(
+                attack=attack, target=BC_LVL1
+            )
             assert attack.reward >= 1
         assert len(viable_attacks) == 2
 
@@ -627,24 +641,39 @@ def verify_all_attack_reward_values(
     """Verify all attack.reward values are equivalent to the expected attack reward"""
     assert all(
         [
-            attack.reward == get_expected_reward(toon_attack=attack, rc=rc)
+            (
+                rc.calculate_reward(attack=attack, target=target)
+                if attack.reward <= target.level
+                else -1
+            )
+            == get_expected_reward(toon_attack=attack, target=target, rc=rc)
             for attack in toon.get_possible_attacks(target=target)
         ]
     )
 
 
-def verify_possible_attack_reward_levels(toon: BattleToon, target: BattleCog):
+def verify_possible_attack_reward_levels(
+    toon: BattleToon, target: BattleCog, rc: RewardCalculator
+):
     """Verify, based on the possible attack's level, if the reward is less/greater than 0"""
     for attack in toon.get_possible_attacks(target=target):
-        if attack.gag.level >= attack.target_cog.level:
-            assert attack.reward < 0
+        reward = rc.calculate_reward(attack=attack, target=target)
+        if attack.gag.level >= target.level:
+            assert reward < 0
         else:
-            assert attack.reward > 0
+            assert reward > 0
 
 
-def verify_viable_attack_reward_levels(toon: BattleToon, target: BattleCog):
+def verify_viable_attack_reward_levels(
+    toon: BattleToon, target: BattleCog, rc: RewardCalculator
+):
     """Verify all viable attack.reward greater than 0"""
-    assert all([attack.reward > 0 for attack in toon.get_viable_attacks(target=target)])
+    assert all(
+        [
+            rc.calculate_reward(attack=attack, target=target) > 0
+            for attack in toon.get_viable_attacks(target=target)
+        ]
+    )
 
 
 class TestBattleToonAstroGetAttacksRewards:
@@ -663,10 +692,13 @@ class TestBattleToonAstroGetAttacksRewards:
         assert battle.cogs != []
         assert battle.toons != []
 
+        reward_calculator = create_reward_calculator(
+            building_floor=battle.building_floor, is_invasion=battle.is_invasion
+        )
         for toon in battle.toons:
             for target in battle.cogs:
                 verify_all_attack_reward_values(
-                    rc=battle.reward_calculator, toon=toon, target=target
+                    rc=reward_calculator, toon=toon, target=target
                 )
 
     @staticmethod
@@ -674,20 +706,29 @@ class TestBattleToonAstroGetAttacksRewards:
         """Verify, based on the possible attack's level, if the reward is less/greater than 0"""
         assert battle.cogs != []
         assert battle.toons != []
-
+        reward_calculator = create_reward_calculator(
+            building_floor=battle.building_floor, is_invasion=battle.is_invasion
+        )
         for toon in battle.toons:
             for target in battle.cogs:
-                verify_possible_attack_reward_levels(toon=toon, target=target)
+                verify_possible_attack_reward_levels(
+                    toon=toon, target=target, rc=reward_calculator
+                )
 
     @staticmethod
     def verify_viable_attack_reward_levels(battle: Battle):
         """Verify all viable attack.reward greater than 0"""
         assert battle.cogs != []
         assert battle.toons != []
+        reward_calculator = create_reward_calculator(
+            building_floor=battle.building_floor, is_invasion=battle.is_invasion
+        )
 
         for toon in battle.toons:
             for target in battle.cogs:
-                verify_viable_attack_reward_levels(toon=toon, target=target)
+                verify_viable_attack_reward_levels(
+                    toon=toon, target=target, rc=reward_calculator
+                )
 
     def test_all_attack_reward_values(self, battle: Battle):
         self.verify_all_attack_reward_values(battle=battle)
