@@ -3,4 +3,7 @@ env
 **/__pycache__
 .vscode/
 
+# Ignore any .DS_Store files
+.DS_Store
+
 scripts/
