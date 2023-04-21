@@ -2,8 +2,8 @@ import pytest
 
 from src.battle.attack import Attack
 from src.battle.attack_globals import GROUP
-from src.battle.battle import BattleCog
 from src.core.entity import BattleEntity, Entity
+from src.battle.battle import BattleCog
 from src.core.exceptions import InvalidTargetError, TargetDefeatedError
 from src.factories.utils import create_battle_cog, create_random_cog
 
@@ -18,7 +18,7 @@ BE = BattleEntity(battle_id=BATTLE_ID, entity=ENTITY)
 
 
 class TestBattleEntityPropertyAttack:
-    atk_name = "Test Attack"
+    atk_name = 'Test Attack'
     dmg = 20
     acc = 100
     group = GROUP.SINGLE
