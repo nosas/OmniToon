@@ -1,10 +1,6 @@
 name: CI/CD Pipeline
 
 on:
-  push:
-    branches:
-      - "**"
-
   pull_request:
     types:
       - opened
@@ -15,7 +11,7 @@ on:
       - "**"
 
 jobs:
-  build-and-test:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -36,94 +32,13 @@ jobs:
         id: tests
         run: pytest
 
-      - name: Leave PR comment
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v5
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const { number: issue_number } = context.payload.pull_request
-            const testResults = steps.tests.outcome === 'success' ? 'All tests passed.' : 'Some tests failed.'
-            const commentBody = `CI/CD Pipeline: ${testResults}`
-            await github.rest.issues.createComment({
-              ...context.repo,
-              issue_number,
-              body: commentBody
-            })
-
-      - name: Send Discord notification on failure
-        if: failure()
-        run: |
-          node -e '
-          const https = require("https");
-
-          const webhookURL = process.env.DISCORD_WEBHOOK_URL;
-          const message = `CI/CD Pipeline Failure:
-          Repository: \`${{ github.repository }}\`
-          Branch: \`${{ github.ref }}\`
-          Workflow: \`${{ github.workflow }}\`
-          Run: [${{ github.run_id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
-
-          const payload = JSON.stringify({ content: message });
-
-          const options = new URL(webhookURL);
-          options.method = "POST";
-          options.headers = {
-            "Content-Type": "application/json",
-            "Content-Length": payload.length,
-          };
-
-          const req = https.request(options, (res) => {
-            if (res.statusCode < 200 || res.statusCode >= 300) {
-              console.error(`Failed to send Discord notification: ${res.statusCode}`);
-            }
-          });
-
-          req.on("error", (error) => {
-            console.error(`Error sending Discord notification: ${error.message}`);
-          });
-
-          req.write(payload);
-          req.end();'
+      - name: Post test results to Discord webbook
         env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-
-  lint:
-    name: Code standards
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
         with:
-          python-version: "3.10"
-
-      # Install dependencies: isort, black, flake8
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install isort black flake8
-
-      # Lint only the code that was changed in the current branch
-      # Ignore flake8's E501 (line too long)
-      - name: Lint code
-        run: |
-          git diff --name-only origin/main | grep .py | xargs isort --check-only --diff
-          git diff --name-only origin/main | grep .py | xargs black --check --diff
-          git diff --name-only origin/main | grep .py | xargs flake8 --ignore=E501
-
-      # Send a Discord notification with the results of the linting
-      - name: Send Discord notification
-        if: always()
-        run: |
-          node -e '
-          const https = require("https");
-
-          const webhookURL = process.env.DISCORD_WEBHOOK_URL;
-          const message = `Code standards: \`${{ job.status }}\`
-          Repository: \`${{ github.repository }}\`
-          Branch: \`${{ github.ref }}\`
-          Workflow: \`${{ github.workflow }}\`
-          Run: [${{ github.run_id }}](
+          args: |
+            --title "Test results"
+            --description "Tests have been run on the following commit: ${{ github.sha }}"
+            --color 0x00ff00
+            --fields "Tests: ${{ steps.tests.outputs.tests }}\nFailures: ${{ steps.tests.outputs.failures }}\nErrors: ${{ steps.tests.outputs.errors }}\nSkipped: ${{ steps.tests.outputs.skipped }}\nDuration: ${{ steps.tests.outputs.duration }}"
