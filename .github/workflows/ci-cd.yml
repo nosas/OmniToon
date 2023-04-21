@@ -37,19 +37,13 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const { number: issue_number } = context.payload.pull_request
-            const { data: { check_suites } } = await github.request('GET /repos/{owner}/{repo}/commits/{ref}/check-suites', {
-              ...context.repo,
-              ref: context.sha
-            })
-            const check_suite = check_suites.find(suite => suite.app.slug === 'github-actions')
-            const testResults = (check_suite.conclusion === 'success') ? 'All tests passed.' : 'Some tests failed.'
+            const testResults = steps.tests.outcome === 'success' ? 'All tests passed.' : 'Some tests failed.'
             const commentBody = `CI/CD Pipeline: ${testResults}`
             await github.rest.issues.createComment({
               ...context.repo,
               issue_number,
               body: commentBody
             })
-
 
       - name: Send Discord notification on failure
         if: failure()
