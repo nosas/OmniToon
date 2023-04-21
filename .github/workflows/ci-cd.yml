@@ -19,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.10'
+          python-version: "3.10"
 
       - name: Install dependencies
         run: |
@@ -52,7 +52,8 @@ jobs:
       - name: Send Discord notification on failure
         if: failure()
         run: |
-          const https = require('https');
+          node -e '
+          const https = require("https");
 
           const webhookURL = process.env.DISCORD_WEBHOOK_URL;
           const message = `CI/CD Pipeline Failure:
@@ -64,10 +65,10 @@ jobs:
           const payload = JSON.stringify({ content: message });
 
           const options = new URL(webhookURL);
-          options.method = 'POST';
+          options.method = "POST";
           options.headers = {
-            'Content-Type': 'application/json',
-            'Content-Length': payload.length,
+            "Content-Type": "application/json",
+            "Content-Length": payload.length,
           };
 
           const req = https.request(options, (res) => {
@@ -76,11 +77,12 @@ jobs:
             }
           });
 
-          req.on('error', (error) => {
+          req.on("error", (error) => {
             console.error(`Error sending Discord notification: ${error.message}`);
           });
 
           req.write(payload);
           req.end();
+          '
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
