@@ -32,13 +32,11 @@ jobs:
         id: tests
         run: pytest
 
-      - name: Post test results to Discord webbook
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        uses: Ilshidur/action-discord@master
+      - name: Send notification to discord
+        uses: appleboy/discord-action@master
         with:
-          args: |
-            --title "Test results"
-            --description "Tests have been run on the following commit: ${{ github.sha }}"
-            --color 0x00ff00
-            --fields "Tests: ${{ steps.tests.outputs.tests }}\nFailures: ${{ steps.tests.outputs.failures }}\nErrors: ${{ steps.tests.outputs.errors }}\nSkipped: ${{ steps.tests.outputs.skipped }}\nDuration: ${{ steps.tests.outputs.duration }}"
+          webhook_id: ${{ secrets.WEBHOOK_ID }}
+          webhook_token: ${{ secrets.WEBHOOK_TOKEN }}
+          color: "#48f442"
+          username: "Lord Puller of Requests"
+          message: "A new commit has been pushed with custom color."
