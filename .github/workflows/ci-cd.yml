@@ -35,8 +35,8 @@ jobs:
       - name: Send notification to discord
         uses: appleboy/discord-action@master
         with:
-          webhook_id: ${{ secrets.WEBHOOK_ID }}
-          webhook_token: ${{ secrets.WEBHOOK_TOKEN }}
+          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+          webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
           color: "#48f442"
           username: "Lord Puller of Requests"
           message: "A new commit has been pushed with custom color."
