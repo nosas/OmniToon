@@ -39,4 +39,4 @@ jobs:
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
           color: "#48f442"
           username: "Lord Puller of Requests"
-          message: "A new commit has been pushed with custom color."
+          message: "Pytest results:\n```\n${{ steps.tests.outputs.stdout }}\n```"
