@@ -33,7 +33,7 @@ jobs:
         run: |
           output=$(pytest 2>&1)
           echo "$output"
-          echo "pytest_output=$output" >> $GITHUB_ENV
+          echo "pytest_output=$(echo "$output" | base64)" >> $GITHUB_ENV
 
       - name: Send notification to discord
         uses: appleboy/discord-action@master
@@ -42,4 +42,4 @@ jobs:
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
           color: "#48f442"
           username: "Lord Puller of Requests"
-          message: "Pytest results:\n```\n${{ env.pytest_output }}\n```"
+          message: "Pytest results:\n```\n$(echo '${{ env.pytest_output }}' | base64 --decode)\n```"
